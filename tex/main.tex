@@ -1,0 +1,68 @@
+% !TeX spellcheck = de_DE
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[german]{babel}
+\usepackage{hyperref}
+\usepackage[nolist]{acronym}
+\usepackage{csquotes}
+\usepackage{setspace}
+\usepackage[
+backend=biber,
+style=apa,
+sorting=nyt,
+]{biblatex}
+
+\addbibresource{references.bib}
+
+\begin{document}
+	
+\begin{titlepage}
+	%\addtolength{\hoffset}{-1cm}
+	\begin{center}
+		\includegraphics[width=0.50\textwidth]{img/hs_logo.png}\par\vspace{0cm}
+		\vspace{1.5cm}
+		{\huge\bfseries Distributed NEAT \par}
+		\vspace{0.5cm}
+		{\LARGE Analyse und Optimierung für ein verteiltes System\par}
+		\vspace{2cm}
+	\end{center}
+
+	\begin{large}
+		\noindent
+		\textbf{Masterthesis}\\
+		zur Erlangung des akademischen Grades\\
+		Master of Science (M.Sc.)\\
+		im Studiengang Angewandte Informatik\\
+		an der Hochschule Flensburg
+		\vspace{1cm}
+	\end{large}
+	
+	\begin{large}
+		\noindent
+		\textbf{Simon Hauck}\\
+		Matrikelnummer: 660158
+	\end{large}
+
+	
+	\vfill
+
+	% Bottom of the page
+	{\large \centering \today\par}
+\end{titlepage}
+
+
+\tableofcontents
+
+
+\printbibliography[
+heading=bibintoc, 
+title={Quellenverzeichnis}
+]
+
+\end{document}
