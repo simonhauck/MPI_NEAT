@@ -1,29 +1,35 @@
 % !TeX spellcheck = de_DE
-\documentclass[12pt,a4paper]{article}
+\documentclass[12pt,a4paper]{report}
 
+%% Language and font encodings
+\usepackage[german]{babel}
 \usepackage[utf8]{inputenc}
+\usepackage{lmodern}
 \usepackage[T1]{fontenc}
+
+%% Header on Pages
+\usepackage{fancyhdr}
+
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{graphicx}
-\usepackage[german]{babel}
 \usepackage{hyperref}
-\usepackage[nolist]{acronym}
+\usepackage[]{acronym}
 \usepackage{csquotes}
 \usepackage{setspace}
-\usepackage[
-backend=biber,
-style=apa,
-sorting=nyt,
-]{biblatex}
 
+%% Biblatex
+\usepackage[
+backend=bibtex,
+style=ACM-Reference-Format,
+sorting=none,
+]{biblatex}
 \addbibresource{references.bib}
 
 \begin{document}
 	
 \begin{titlepage}
-	%\addtolength{\hoffset}{-1cm}
 	\begin{center}
 		\includegraphics[width=0.50\textwidth]{img/hs_logo.png}\par\vspace{0cm}
 		\vspace{1.5cm}
@@ -47,18 +53,37 @@ sorting=nyt,
 		\noindent
 		\textbf{Simon Hauck}\\
 		Matrikelnummer: 660158
+		\vspace{1.0cm}
 	\end{large}
-
 	
-	\vfill
+	\begin{large}
+		\noindent
+		Erstprüfer: \hspace{1.0cm} Prof. Dr. rer. nat. Tim Aschmoneit \\
+		Zweitprüfer: \hspace{0.7cm} Noch unbekannt\\
+	\end{large}
+	\vspace{1.5cm}
 
 	% Bottom of the page
 	{\large \centering \today\par}
 \end{titlepage}
 
-
+\pagenumbering{roman}
 \tableofcontents
+\listoffigures
 
+\chapter*{Akronymverzeichnis}
+\begin{acronym}[SP-ICPMS]
+	\acro{T}{Test}
+	\acro{roAAAA}{Very much A's}
+\end{acronym}
+
+%% Start main parts
+
+\newpage
+\pagenumbering{arabic}
+\pagestyle{fancy}
+
+\input{./parts/grundlagen.tex}
 
 \printbibliography[
 heading=bibintoc, 
