@@ -1,5 +1,8 @@
 % !TeX spellcheck = de_DE
 \begin{abstract}
-	In dieser Arbeit wird die Laufzeit des \ac*{NEAT} Algorithmus analysiert und für ein verteiltes System mit mehreren unabhängigen Recheneinheiten optimiert. \\
-	\acs*{NEAT} gehört zur Gruppe der neuroevolutionären Algorithmen. Diese basieren auf evolutionären Algorithmen und werden zur Optimierung von neuronalen Netzen eingesetzt.  
+	Neuroevolutionäre Algorithmen sind ein mögliches Optimierungsverfahren für neuronale Netze. Abhängig von dem verwendeten Algorithmus können die Gewichte der Verbindungen im Netz und die Struktur entwickelt und optimiert werden.\\
+	Der Optimierungsprozess ist, unabhängig vom Verfahren, sehr aufwändig und dementsprechend zeit- und rechenintensiv. Für eine schnellere Durchführung des Trainingsprozesses bieten sich Algorithmen an, die gut parallelisierbar sind. Die benötigte Ausführungszeit dieser kann durch Hinzufügen weiterer Rechenknoten mit geringem Aufwand maßgeblich reduziert werden.\\
+	Neuroevolutionäre Algorithmen bieten sich aufgrund der Verfahrensweise und der vielen unabhängigen neuronalen Netzen für eine parallele Ausführung an.\\
+	In dieser Arbeit wird, stellvertretend für neuroevolutionäre Algorithmen, der \ac*{NEAT} Algorithmus betrachtet. Dieser wurde im Jahr 2002 veröffentlicht und ist im Vergleich zu den damals bekannten Algorithmen besonders effizient. Zudem dient der Algorithmus als Grundlage für viele Erweiterungen. Die erhaltenen Ergebnisse dieser Arbeit lassen sich somit gut auf ebendiese Erweiterungen übertragen.\\
+	Im ersten Schritt dieser Arbeit wird die Laufzeit des \acs*{NEAT} Algorithmus mit verschiedenen Optimierungsaufgaben analysiert. Mit den erhaltenen Ergebnissen wird eine parallelisierte Implementierung erstellt. Diese führt mit unterschiedlich vielen Rechenknoten dieselben Optimierungsaufgaben durch. Am Ende dieser Arbeit werden die Ergebnisse von beiden Implementierungen verglichen.	
 \end{abstract}
