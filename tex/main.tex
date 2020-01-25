@@ -1,13 +1,13 @@
 % !TeX spellcheck = de_DE
-\documentclass[12pt,a4paper]{report}
+\documentclass[15pt,a4paper]{report}
 
-%% Language and font encodings
+% Language and font encodings
 \usepackage[german]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage[T1]{fontenc}
 
-%% Header on Pages
+% Header on Pages
 \usepackage{fancyhdr}
 
 \usepackage{amsmath}
@@ -19,7 +19,7 @@
 \usepackage{csquotes}
 \usepackage{setspace}
 
-%% Biblatex
+% Biblatex
 \usepackage[
 backend=bibtex,
 style=ACM-Reference-Format,
@@ -28,7 +28,8 @@ sorting=none,
 \addbibresource{references.bib}
 
 \begin{document}
-	
+
+% TitlePage	
 \begin{titlepage}
 	\begin{center}
 		\includegraphics[width=0.50\textwidth]{img/hs_logo.png}\par\vspace{0cm}
@@ -67,6 +68,7 @@ sorting=none,
 	{\large \centering \today\par}
 \end{titlepage}
 
+% Table of Contents...
 \pagenumbering{roman}
 \input{./parts/abstract.tex}
 \tableofcontents
@@ -85,11 +87,20 @@ sorting=none,
 \pagenumbering{arabic}
 \pagestyle{fancy}
 
-\input{./parts/grundlagen.tex}
+\input{./parts/motivation.tex}
+\input{./parts/basics.tex}
+\input{./parts/analysis.tex}
+\input{./parts/software_architecture.tex}
+\input{./parts/evaluation}
+\input{./parts/summary.tex}
 
+% Bibliography
 \printbibliography[
 heading=bibintoc, 
 title={Quellenverzeichnis}
 ]
+
+% statutory declaration
+\input{./parts/statutory_declaration.tex}
 
 \end{document}
