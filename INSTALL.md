@@ -19,5 +19,15 @@ echo xfce4-session >~/.xsession
 /etc/init.d/xrdp restart
 ```
 3. This project was developed under the python version 3.7.5. Other versions were not tested
+```shell script
+# Install python, normally python is already included in Ubuntu 19
+sudo apt-get install python3.7
+# Install pip && Virtual env package
+sudo apt-get install python3-pip
+sudo apt-get install python3-venv
 
+#Create a virutal environment
+python3 -m venv env
+
+```
 
