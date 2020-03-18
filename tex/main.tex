@@ -1,14 +1,14 @@
 % !TeX spellcheck = de_DE
-\documentclass[12pt,a4paper]{report}
+\documentclass[12pt,a4paper]{scrreprt}
 
 % Language and font encodings
-\usepackage[german]{babel}
+\usepackage[ngerman]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage[T1]{fontenc}
 
 % Header on Pages
-\usepackage{fancyhdr}
+%\usepackage{fancyhdr}
 
 \usepackage{amsmath}
 \usepackage{amsfonts}
@@ -18,6 +18,16 @@
 \usepackage[]{acronym}
 \usepackage{csquotes}
 \usepackage{setspace}
+
+%Page style & Header
+\usepackage[headsepline=0.2pt,plainheadsepline]{scrlayer-scrpage}
+\clearpairofpagestyles
+\pagestyle{scrheadings}
+\ihead[\headmark]{\headmark}
+\ohead[\pagemark]{\pagemark}
+%Show page number in footer
+%\cfoot[\pagemark]{\pagemark}
+\automark{chapter}
 
 % Biblatex
 \usepackage[
@@ -34,9 +44,9 @@ sorting=none,
 	\begin{center}
 		\includegraphics[width=0.50\textwidth]{img/hs_logo.png}\par\vspace{0cm}
 		\vspace{1.5cm}
-		{\huge\bfseries Distributed NEAT \par}
+		{\huge\bfseries Neuroevolution mit MPI \par}
 		\vspace{0.5cm}
-		{\LARGE Analyse und Optimierung für ein verteiltes System\par}
+		{\LARGE Analyse und Optimierung von NEAT für ein verteiltes System\par}
 		\vspace{2cm}
 	\end{center}
 
@@ -85,7 +95,6 @@ sorting=none,
 
 \newpage
 \pagenumbering{arabic}
-\pagestyle{fancy}
 
 \input{./parts/motivation.tex}
 \input{./parts/basics.tex}
