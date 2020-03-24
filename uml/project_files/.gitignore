@@ -1,0 +1,8 @@
+#Git ignore for visual paradigm projects
+
+.vpprefdata/
+*.vpp~*
+*.vpp.working
+*.vpp.working-journal
+*.lock
+tmp/*
