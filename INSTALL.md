@@ -14,7 +14,7 @@ sudo apt-get install xubuntu-desktop
 
 # Allow RDP connections
 sudo apt-get install xrdp
-sudo apt-get install  xfce4
+sudo apt-get install xfce4
 echo xfce4-session >~/.xsession
 /etc/init.d/xrdp restart
 ```
