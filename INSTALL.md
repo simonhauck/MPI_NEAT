@@ -26,8 +26,22 @@ sudo apt-get install python3.7
 sudo apt-get install python3-pip
 sudo apt-get install python3-venv
 
-#Create a virutal environment
+# Create a virutal environment
 python3 -m venv env
+# Activate the newly created virutal environment
+source DIR/env/bin/activate
+```
 
+4. Install Pytorch on Raspberry Pi 4. There is no official release for the ARM architecture, so we use a wheel to install it. For further information, see this [Issue](https://github.com/simonhauck/MPI_NEAT/issues/17)
+```shell script
+# Get your specific architecture
+uname -a
+# With the Raspberry Pi 4 this should be something with aarch64. You need the corresponding wheel file. 
+
+# Install some additional dependencies
+sudo apt-get install libopenblas-dev libblas-dev m4 cmake cython python3-dev python3-yaml python3-setuptools
+# Get the .whl file. This repository contains the wheel file for the Raspberry Pi 4, which is originally taken from this [site](https://discuss.pytorch.org/t/pytorch-1-3-wheels-for-raspberry-pi-python-3-7/58580)
+
+# not working currently
 ```
 
