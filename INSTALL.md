@@ -3,7 +3,7 @@ This project and all performance evaluation were done on multiple Raspberry Pi 4
 This guide describes how to set up and run the given program code.
 
 ## Setup Raspberry Pi Image Raspian
-1. For this project the the RaspianBuster Image Version 2020-02-13 was used. Download and install this Image on all Raspberry Pis. Alternatively you can install all of the compnents on one Pi, create an .img from it, which can be flashed to all other devices. It is possible to use other operating systems, but on the raspberry pi it was then not possible to install tensorflow
+1. For this project the the RaspianBuster Image Version 2020-02-13 was used as OS. Download and install this image on all Raspberry Pis. Alternatively you can install all of the compnents on one Pi, create an .img from it, which can be flashed to all other devices. It is possible to use other operating systems, but on the raspberry pi it was then not possible to install tensorflow
 2. Execute the following commands in the shell:
 ```shell script
 # Update the system
