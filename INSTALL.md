@@ -2,7 +2,8 @@
 This project and all performance evaluation were done on multiple Raspberry Pi 4 with 4GB Ram each.
 This guide describes how to set up and run the given program code.
 
-## Setup Raspberry Pi Image Raspian
+## Setup Raspberry Pi
+### General Setup
 1. For this project the the RaspianBuster Image Version 2020-02-13 was used as OS. Download and install this image on all Raspberry Pis. Alternatively you can install all of the compnents on one Pi, create an .img from it, which can be flashed to all other devices. It is possible to use other operating systems, but on the raspberry pi it was then not possible to install tensorflow
 2. Execute the following commands in the shell:
 ```shell script
@@ -13,6 +14,8 @@ sudo apt-get upgrade
 # Allow RDP connections
 sudo apt-get install -y xrdp
 ```
+
+### Create Python Environment
 
 3. This project is developed with the python version 3.7.3, other versions were not tested. Ceate a virtual environment for this project.
 ```shell script
@@ -25,6 +28,8 @@ python3 -m venv neat_mpi_env
 # Activate the newly created virutal environment
 source ./neat_mpi_env/bin/activate
 ```
+
+### Install Tensorflow
 
 4. This project uses Tensorflow, which currently can't be installed with pip on ARM. So a custom .whl file is reqired. The installation for TensorFlow V.2.0.0. is done corresponding to this [guide](https://github.com/PINTO0309/Tensorflow-bin) with the .whl file taken from this [Github Repo](https://github.com/lhelontra/tensorflow-on-arm/releases/tag/v2.0.0)
 ```shell script
@@ -53,8 +58,41 @@ import tensorflow as tf
 tf.__version__
 ```
 
-3. Get the source code on the raspberry pi. TODO
+### Install MPI & MPI4Py
+The installation of MPI was performed mostly with this [Guide](https://www.youtube.com/watch?v=vflPGqcXJkY).
+```shell script
+# Make a new directory for the mpich2 installation and enter it
+mkdir /home/pi/mpich2
+cd /home/pi/mpich2
 
+# Install gfortran
+sudo apt-get install -y gfortran
+
+# Download MPICH and extraxt it
+wget https://www.mpich.org/static/downloads/3.3/mpich-3.3.tar.gz
+tar xfz mpich-3.3.tar.gz
+
+mkdir /home/pi/mpich2/mpi_install
+mkdir /home/pi/mpich2/mpi_build
+cd /home/pi/mpich2/mpi_build
+#Configure MPI
+cd /home/pi/mpich2/mpi_build
+sudo /home/pi/mpich2/mpich-3.3/configure -prefix=/home/pi/mpich2/mpi_install
+sudo make
+sudo make install
+
+# Add MPI to bashrc
+cd
+sudo nano .bashrc
+# Add the following line in the Basrc
+PATH=$PATH:/home/pi/mpich2/mpi_install/bin
+# After that reboot the system
+sudo reboot
+```
+
+### Upload to Code to the Raspberry Pi
+
+3. Get the source code on the raspberry pi. TODO
 4. Install the requirements 
 ```shell script
 # Some preliminaries
