@@ -59,35 +59,19 @@ tf.__version__
 ```
 
 ### Install MPI & MPI4Py
-The installation of MPI was performed mostly with this [Guide](https://www.youtube.com/watch?v=vflPGqcXJkY).
+Steps to intall the mpich, the MPI implementation and mpi4py for python.
 ```shell script
-# Make a new directory for the mpich2 installation and enter it
-mkdir /home/pi/mpich2
-cd /home/pi/mpich2
+sudo apt-get install -y mpich
+# Test if mpich is successfully installed with this command. THis should print the hostname 4 times (default raspberry)
+mpiexec -n 4 hostname
 
-# Install gfortran
-sudo apt-get install -y gfortran
-
-# Download MPICH and extraxt it
-wget https://www.mpich.org/static/downloads/3.3/mpich-3.3.tar.gz
-tar xfz mpich-3.3.tar.gz
-
-mkdir /home/pi/mpich2/mpi_install
-mkdir /home/pi/mpich2/mpi_build
-cd /home/pi/mpich2/mpi_build
-#Configure MPI
-cd /home/pi/mpich2/mpi_build
-sudo /home/pi/mpich2/mpich-3.3/configure -prefix=/home/pi/mpich2/mpi_install
-sudo make
-sudo make install
-
-# Add MPI to bashrc
-cd
-sudo nano .bashrc
-# Add the following line in the Basrc
-PATH=$PATH:/home/pi/mpich2/mpi_install/bin
-# After that reboot the system
-sudo reboot
+# Activate the python environment and install mpi4py
+ source venv/neat_mpi_env/bin/activate
+ pip install mpi4py
+ 
+ #Execute a python script with
+ mpiexec -n numprocs python -m mpi4py scriptname.py
+ 
 ```
 
 ### Upload to Code to the Raspberry Pi
