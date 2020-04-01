@@ -13,7 +13,7 @@ jobs:
       with:
         python-version: 3.7
     - name: Install MPI
-        run: sudo apt-get install -y mpich    
+        run: sudo apt-get install mpich    
     - name: Install MPI
       run: |
         sudo apt-get install mpich
