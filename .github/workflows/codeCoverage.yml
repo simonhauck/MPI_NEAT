@@ -14,7 +14,9 @@ jobs:
         python-version: 3.7
     - name: Install MPI
         run: sudo apt-get install -y mpich    
-    - name: Install dependencies
+    - name: Install MPI
+      run: |
+        sudo apt-get install mpich
       run: |
         python -m pip install --upgrade pip
         pip install -r code/requirements.txt
