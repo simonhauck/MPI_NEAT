@@ -29,9 +29,9 @@ python3 -m venv neat_mpi_env
 source ./neat_mpi_env/bin/activate
 ```
 
-### Install Tensorflow
+### Install TensorFlow
 
-4. This project uses Tensorflow, which currently can't be installed with pip on ARM. So a custom .whl file is reqired. The installation for TensorFlow V.2.0.0. is done corresponding to this [guide](https://github.com/PINTO0309/Tensorflow-bin) with the .whl file taken from this [Github Repo](https://github.com/lhelontra/tensorflow-on-arm/releases/tag/v2.0.0)
+4. This project uses TensorFlow, which currently can't be installed with pip on ARM. So a custom .whl file is reqired. The installation for TensorFlow V.2.0.0. is done corresponding to this [guide](https://github.com/PINTO0309/Tensorflow-bin) with the .whl file taken from this [Github Repo](https://github.com/lhelontra/tensorflow-on-arm/releases/tag/v2.0.0)
 ```shell script
 # Install some prelimanries
 sudo apt-get install -y libhdf5-dev libc-ares-dev libeigen3-dev gcc gfortran python-dev libgfortran5
@@ -58,6 +58,27 @@ import tensorflow as tf
 tf.__version__
 ```
 
+### Generate asymmetric keys for authentication
+The nodes will communicate using ssh. To allow authentication password without a password, an asymmetric key must
+be generated and added to the known hosts.
+```shell script
+#Login into your master node
+
+# Install openssh-server, the device does not contain it already
+sudo apt-get install -y openssh-server
+# Generate an asymetric rsa key, skip the password
+ssh-keygen -t rsa
+
+# Login into your slave-node
+# Make an .ssh directory, it not existing
+mkdir .ssh
+
+# Login into your master node
+
+#T This will copy the public key to the authorized keys
+cat .ssh/id_rsa.pub | ssh pi@ip_adress 'cat >> .ssh/authorized_keys'
+```
+
 ### Install MPI & MPI4Py
 Steps to intall the mpich, the MPI implementation and mpi4py for python.
 ```shell script
@@ -66,12 +87,23 @@ sudo apt-get install -y mpich
 mpiexec -n 4 hostname
 
 # Activate the python environment and install mpi4py
- source venv/neat_mpi_env/bin/activate
- pip install mpi4py
+source venv/neat_mpi_env/bin/activate
+pip install mpi4py
  
- #Execute a python script with
- mpiexec -n numprocs python -m mpi4py scriptname.py
- 
+#Execute a python script with
+mpiexec -n numprocs python -m mpi4py scriptname.py
+ ```
+
+To use multiple machines/nodes, you have to create a machinefile or also called hostfile. This file contains all the ip 
+addresses of the nodes. This repository contains already one, which should be edited accordingly.
+
+After that you can run your mpi code on all machines. 
+One important note: If you use mpi4py in a virtual environment, and start the script with the python command (as written
+above), on the slave-nodes the default python environment will be used. In this case, there are not the dependencies 
+installed. That's why the program must be started with the complete path to the python environment!
+```shell script
+#Execute a python script on multiple machines
+mpiexec --hostfile /home/pi/mpi_neat/machinefile.txt -n 8 /home/pi/venv/mpi_test/bin/python3 -m mpi4py /home/pi/mpi_neat/src/mpi_test.py
 ```
 
 ### Upload to Code to the Raspberry Pi
