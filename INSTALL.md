@@ -60,7 +60,7 @@ tf.__version__
 
 ### Generate asymmetric keys for authentication
 The nodes will communicate using ssh. To allow authentication password without a password, an asymmetric key must
-be generated and added to the known hosts.
+be generated and added to the 'authorized_keys' file.
 ```shell script
 #Login into your master node
 
@@ -68,19 +68,36 @@ be generated and added to the known hosts.
 sudo apt-get install -y openssh-server
 # Generate an asymetric rsa key, skip the password
 ssh-keygen -t rsa
+```
+After generating the key the .ssh directory should contain ab id_rsa and id_rsa.pub file. It is possible to
+add the .pub key to the nodes 'authorized_keys' file. In this setup an different approach is used. The same private
+key is used for every node. This simplifies the setup.
+We add the same key to the 'authorized_keys'. The image will be copied to all nodes. THen every node can login into
+every other.
+```shell script
+# Login into your master-node
+cd .ssh
+# Add public key to authorized_keys
+cat id_rsa.pub | cat >> authorized_keys
+```
+In the last preparation step, the host authentication fingerprint will be disabled for local connections.
+Else you have to connect from every node to every node once to add the device to the 'known_hosts'.
+```shell script
 
-# Login into your slave-node
-# Make an .ssh directory, it not existing
-mkdir .ssh
 
 # Login into your master node
+cd /etc/ssh/
+sudo nano ssh_config
 
-#T This will copy the public key to the authorized keys
-cat .ssh/id_rsa.pub | ssh pi@ip_adress 'cat >> .ssh/authorized_keys'
+# Add the following before Host *
+Host 192.168.0.*
+   StrictHostKeyChecking no
+```
+Now create an image from the raspberry pi and flash in on all other nodes
 ```
 
 ### Install MPI & MPI4Py
-Steps to intall the mpich, the MPI implementation and mpi4py for python.
+Steps to install the mpich, the MPI implementation and mpi4py for python.
 ```shell script
 sudo apt-get install -y mpich
 # Test if mpich is successfully installed with this command. THis should print the hostname 4 times (default raspberry)
