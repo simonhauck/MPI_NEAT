@@ -112,7 +112,7 @@ source venv/neat_mpi_env/bin/activate
 pip install mpi4py==3.0.3
  
 #Execute a python script with
-mpiexec -n numprocs python -m mpi4py scriptname.py
+mpiexec -n NUMBER_OF_CORES python -m mpi4py PATH_TO_SCRIPT/mpi_hello_world.py
  ```
 To use multiple machines/nodes, you have to create a machinefile or also called hostfile. This file contains all the ip 
 addresses of the nodes. This repository contains already one, which should be edited accordingly.
@@ -123,7 +123,7 @@ above), on the slave-nodes the default python environment will be used. In this 
 installed. That's why the program must be started with the complete path to the python environment!
 ```shell script
 #Execute a python script on multiple machines
-mpiexec --hostfile path_to_code/machinefile.txt -n 8 patz_to_venv/bin/python3 -m mpi4py path_to_code/mpi_hello_world.py
+mpiexec --hostfile PATH_TO_MACHINEFILE -n NUMBER_OF_CORES PATH_TO_VENV/mpi_test/bin/python3 -m mpi4py PATH_TO_SCRIPT/mpi_hello_world.py
 ```
 
 ### Upload to Code to the Raspberry Pi and install the remaining dependencies
