@@ -8,11 +8,11 @@
 # On a single machine
 # Activate the environment
 source ./neat_mpi_env/bin/activate
-mpiexec -n 4 python -m mpi4py /home/pi/mpi_neat/src/mpi_test.py
+mpiexec -n 4 python -m mpi4py /home/pi/mpi_neat/src/mpi_tutorial/mpi_hello_world.py
 
 # Run on all cores
 # In this case the environment is directly loaded
-mpiexec --hostfile pathToMachineFile -n numberofCores /home/pi/venv/mpi_test/bin/python3 -m mpi4py /home/pi/mpi_neat/src/mpi_test.py
+mpiexec --hostfile pathToMachineFile -n numberofCores /home/pi/venv/mpi_test/bin/python3 -m mpi4py /home/pi/mpi_neat/src/mpi_tutorial/mpi_hello_world.py
 ```
 
 ## Run UnitTests

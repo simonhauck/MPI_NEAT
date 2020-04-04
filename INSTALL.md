@@ -123,7 +123,7 @@ above), on the slave-nodes the default python environment will be used. In this 
 installed. That's why the program must be started with the complete path to the python environment!
 ```shell script
 #Execute a python script on multiple machines
-mpiexec --hostfile path_to_code/machinefile.txt -n 8 patz_to_venv/bin/python3 -m mpi4py path_to_code/mpi_test.py
+mpiexec --hostfile path_to_code/machinefile.txt -n 8 patz_to_venv/bin/python3 -m mpi4py path_to_code/mpi_hello_world.py
 ```
 
 ### Upload to Code to the Raspberry Pi and install the remaining dependencies
