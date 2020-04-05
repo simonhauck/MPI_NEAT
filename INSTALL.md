@@ -139,6 +139,9 @@ pip install -r requirements.txt
 After this step, create an .img file and flash it to all other nodes. To run the code/tests, follow the instructions
 in the Readme.md file. This image is called later base_image.
 
+IMPORTANT: If you use Pycharm, it can be required to run the tests and the code that you mark the 'src' folder as
+source. To to this, right click on the 'src' folder > Mark deployment as > Sources root
+
 ## File synchronization
 If you want to update the code, you want to install NFS, which allows file synchronization. Use your stored image to 
 create a master- and slave-node image. The setup is corresponding to this 

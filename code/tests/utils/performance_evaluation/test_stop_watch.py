@@ -1,9 +1,9 @@
-import unittest
-from utils.runtime_measurement import StopWatch
+from unittest import TestCase
+from utils.performance_evalation.stop_watch import StopWatch
 import time
 
 
-class StopWatchTest(unittest.TestCase):
+class StopWatchTest(TestCase):
 
     def test_init(self):
         default_watch = StopWatch()
