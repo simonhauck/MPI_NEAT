@@ -1,5 +1,3 @@
-from symbol import del_stmt
-
 from mpi4py import MPI
 from loguru import logger
 
