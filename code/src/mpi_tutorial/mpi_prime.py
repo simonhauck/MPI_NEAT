@@ -19,7 +19,7 @@ name = MPI.Get_processor_name()
 
 PRINT_NUMBERS = False
 START_SEARCH = 1000000
-END_SEARCH = 1011000
+END_SEARCH = 1001000
 
 
 def is_prime(n):
