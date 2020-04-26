@@ -14,13 +14,13 @@ class GenomeTest(TestCase):
         self.assertEqual([], genome_empty.nodes)
 
         node_list = [
-            Node(2, NodeType.INPUT, lambda x: x + 1),
-            Node(3, NodeType.OUTPUT, lambda x: x + 1)
+            Node(2, NodeType.INPUT, lambda x: x + 1, 0),
+            Node("node_number", NodeType.OUTPUT, lambda x: x + 1, 1)
         ]
 
         connection_list = [
-            Connection(1, 2, 3, 0.5, True, 1),
-            Connection(2, 2, 3, 0.7, False, "string_number")
+            Connection(1, 2, 3, 0.5, True),
+            Connection("connection_number", 2, 3, 0.7, False)
         ]
 
         genome = Genome(2, 40, node_list, connection_list)

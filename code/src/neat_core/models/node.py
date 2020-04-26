@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Callable
+from typing import Union
 
 
 class NodeType(Enum):
@@ -10,7 +11,16 @@ class NodeType(Enum):
 
 class Node(object):
 
-    def __init__(self, id_: int, type_: NodeType, activation_function: Callable[[float], float]) -> None:
-        self.id: int = id_
+    def __init__(self, innovation_number: Union[int, str], type_: NodeType,
+                 activation_function: Callable[[float], float],
+                 x_position: float) -> None:
+        """
+        Create a node for a neural network
+        :param innovation_number: the assigned innovation number for this node
+        :param activation_function: the used activation function
+        :param x_position: the x position in the graph
+        """
+        self.innovation_number: Union[int, str] = innovation_number
         self.node_type: NodeType = type_
         self.activation_function: Callable[[float], float] = activation_function
+        self.x_position = x_position

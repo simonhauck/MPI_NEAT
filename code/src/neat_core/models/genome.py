@@ -7,6 +7,13 @@ from .node import Node
 class Genome(object):
 
     def __init__(self, id_: int, seed: int, nodes: List[Node] = [], connections: List[Connection] = []) -> None:
+        """
+        Create a genome, that encodes all information for a neural network
+        :param id_:
+        :param seed:
+        :param nodes:
+        :param connections:
+        """
         self.id = id_
         self.seed: int = seed
         self.nodes: List[Node] = nodes

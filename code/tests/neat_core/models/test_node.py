@@ -7,16 +7,19 @@ from neat_core.models.node import NodeType, Node
 class NodeTest(TestCase):
 
     def test_node(self):
-        input_node = Node(1, NodeType.INPUT, modified_sigmoid)
-        output_node = Node(2, NodeType.OUTPUT, modified_sigmoid)
-        hidden_node = Node(3, NodeType.HIDDEN, modified_sigmoid)
+        input_node = Node(1, NodeType.INPUT, modified_sigmoid, 0)
+        output_node = Node(2, NodeType.OUTPUT, modified_sigmoid, 1)
+        hidden_node = Node("hidden_node", NodeType.HIDDEN, modified_sigmoid, 0.5)
 
-        self.assertEqual(1, input_node.id)
+        self.assertEqual(1, input_node.innovation_number)
         self.assertEqual(NodeType.INPUT, input_node.node_type)
         self.assertEqual(0.5, input_node.activation_function(0))
+        self.assertEqual(0, input_node.x_position)
 
-        self.assertEqual(2, output_node.id)
+        self.assertEqual(2, output_node.innovation_number)
         self.assertEqual(NodeType.OUTPUT, output_node.node_type)
+        self.assertEqual(1, output_node.x_position)
 
-        self.assertEqual(3, hidden_node.id)
+        self.assertEqual("hidden_node", hidden_node.innovation_number)
         self.assertEqual(NodeType.HIDDEN, hidden_node.node_type)
+        self.assertEqual(0.5, hidden_node.x_position)
