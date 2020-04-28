@@ -1,7 +1,7 @@
 import math
 
 
-def modified_sigmoid(x: float) -> float:
+def modified_sigmoid_function(x: float) -> float:
     """
     A modified sigmoid function that is used in the original NEAT paper
     :param x: the input value

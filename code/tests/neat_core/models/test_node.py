@@ -1,15 +1,15 @@
 from unittest import TestCase
 
-from neat_core.activation_function import modified_sigmoid
+from neat_core.activation_function import modified_sigmoid_function
 from neat_core.models.node import NodeType, Node
 
 
 class NodeTest(TestCase):
 
     def test_node(self):
-        input_node = Node(1, NodeType.INPUT, modified_sigmoid, 0)
-        output_node = Node(2, NodeType.OUTPUT, modified_sigmoid, 1)
-        hidden_node = Node("hidden_node", NodeType.HIDDEN, modified_sigmoid, 0.5)
+        input_node = Node(1, NodeType.INPUT, modified_sigmoid_function, 0)
+        output_node = Node(2, NodeType.OUTPUT, modified_sigmoid_function, 1)
+        hidden_node = Node("hidden_node", NodeType.HIDDEN, modified_sigmoid_function, 0.5)
 
         self.assertEqual(1, input_node.innovation_number)
         self.assertEqual(NodeType.INPUT, input_node.node_type)
