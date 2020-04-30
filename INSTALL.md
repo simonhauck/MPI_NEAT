@@ -3,7 +3,6 @@ This project and all performance evaluation were done on multiple Raspberry Pis 
 This guide describes how to set up and run the given program code.
 
 ## Setup Raspberry Pi
-### General Setup
 For this project the the RaspianBuster Image Version 2020-02-13 was used as OS. Download and install this image on one
 Raspberry Pi. When all components are installed, an image will be created witch can be copied to the other devices. 
 With this procedure, it is not required to perform all steps on all devices.
@@ -36,7 +35,41 @@ python3 -m venv neat_mpi_env
 source ./neat_mpi_env/bin/activate
 ```
 
-### Install TensorFlow
+### Generate asymmetric keys for authentication
+The nodes will communicate using mpi, which requires ssh. To allow authentication without a password, an asymmetric key 
+must be generated and added to the 'authorized_keys' file.
+```shell script
+# Install openssh-server, the device does not contain it already
+sudo apt-get install -y openssh-server
+# Generate an asymetric rsa key, skip the password
+ssh-keygen -t rsa
+```
+After generating the key the .ssh directory should contain an 'id_rsa' and 'id_rsa.pub' file. It is possible to
+add the .pub key to the nodes 'authorized_keys' file manually. In this setup an different approach is used. The same 
+private key is used for every node. This simplifies the setup. We add the generated key to the 'authorized_keys'. 
+When the image is later be copied to all nodes, every node can connect every other.
+```shell script
+cd .ssh
+# Add public key to authorized_keys
+cat id_rsa.pub | cat >> authorized_keys
+```
+In the last preparation step, the host authentication fingerprint will be disabled for local connections.
+Else you have to connect from every node to every node once to add the device to the 'known_hosts'.
+```shell script
+# Login into your master node
+cd /etc/ssh/
+sudo nano ssh_config
+
+# Add the following before Host *
+Host 192.168.0.*
+   StrictHostKeyChecking no
+```
+
+## Install required software
+The following section shows which software is required to run this project and how it can be installed on the Raspbberry
+Pi.
+
+### Install TensorFlow - Currently not required
 This project uses TensorFlow, which currently can't be installed with pip on ARM. So a custom .whl file is required. The 
 installation for TensorFlow V.2.0.0. is done corresponding to this [guide](https://github.com/PINTO0309/Tensorflow-bin) 
 with the .whl file taken from this [Github Repo](https://github.com/lhelontra/tensorflow-on-arm/releases/tag/v2.0.0)
@@ -70,36 +103,6 @@ import tensorflow as tf
 tf.__version__
 ```
 
-### Generate asymmetric keys for authentication
-The nodes will communicate using mpi, which requires ssh. To allow authentication without a password, an asymmetric key 
-must be generated and added to the 'authorized_keys' file.
-```shell script
-# Install openssh-server, the device does not contain it already
-sudo apt-get install -y openssh-server
-# Generate an asymetric rsa key, skip the password
-ssh-keygen -t rsa
-```
-After generating the key the .ssh directory should contain an 'id_rsa' and 'id_rsa.pub' file. It is possible to
-add the .pub key to the nodes 'authorized_keys' file manually. In this setup an different approach is used. The same 
-private key is used for every node. This simplifies the setup. We add the generated key to the 'authorized_keys'. 
-When the image is later be copied to all nodes, every node can connect every other.
-```shell script
-cd .ssh
-# Add public key to authorized_keys
-cat id_rsa.pub | cat >> authorized_keys
-```
-In the last preparation step, the host authentication fingerprint will be disabled for local connections.
-Else you have to connect from every node to every node once to add the device to the 'known_hosts'.
-```shell script
-# Login into your master node
-cd /etc/ssh/
-sudo nano ssh_config
-
-# Add the following before Host *
-Host 192.168.0.*
-   StrictHostKeyChecking no
-```
-
 ### Install MPI & MPI4Py
 Steps to install the mpich, the MPI implementation and mpi4py for python.
 ```shell script
@@ -126,9 +129,20 @@ installed. That's why the program must be started with the complete path to the 
 mpiexec --hostfile PATH_TO_MACHINEFILE -n NUMBER_OF_CORES PATH_TO_VENV/mpi_test/bin/python3 -m mpi4py PATH_TO_SCRIPT/mpi_hello_world.py
 ```
 
-### Upload to Code to the Raspberry Pi and install the remaining dependencies
+### Install Graphviz - Currently not required
+Graphviz is a [software](https://www.graphviz.org/) to render graphs. This library is used in this project to show 
+the generated neural networks. To install Graphviz open a terminal and run the following commands. This will install 
+Graphviz and a python [library](https://github.com/pygraphviz/pygraphviz).
+```shell script
+sudo apt-get install -y graphviz pkg-config libgraphviz-dev
+
+# Activate the virutak environment for the pr**oject and install
+pip install pygraphviz
+ ```
+
+## Upload to Code to the Raspberry Pi and install the remaining dependencies
 Last, upload the code to the Raspberry Pi. Activate the created virtual environment and install the remaining 
-dependencies. 
+dependencies.
 ```shell script
 # Activate the virutal environment
 source ./neat_mpi_env/bin/activate
@@ -142,10 +156,14 @@ in the Readme.md file. This image is called later base_image.
 ⚠️ IMPORTANT ⚠️: If you use Pycharm, it can be required to run the tests and the code that you mark the 'src' folder as
 source. To to this, right click on the 'src' folder > Mark deployment as > Sources root
 
+# Development
+For active development and testing, a few additional steps can be helpful. These are introduced in the following 
+sections.
+
 ## File synchronization
 If you want to update the code, you want to install NFS, which allows file synchronization. Use your stored image to 
 create a master- and slave-node image. The setup is corresponding to this 
-[guide](https://mpitutorial.com/tutorials/running-an-mpi-cluster-within-a-lan/)
+[guide](https://mpitutorial.com/tutorials/running-an-mpi-cluster-within-a-lan/).
 
 ### Master node
 Install the NFS-server
