@@ -1,7 +1,6 @@
 from loguru import logger
 
 
-
 class TestClass:
 
     def add_class(self, a, b):

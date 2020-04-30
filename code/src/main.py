@@ -1,15 +1,11 @@
 import sys
 
-from loguru import logger
-
 import helper
-import test_class
+from loguru import logger
 
 logger.remove()
 logger.add(sys.stderr, level=5)
 
-newclass = test_class.TestClass()
-newclass.add_class(5, 6)
 
 logger.trace("Trace")
 logger.debug("Debug")
