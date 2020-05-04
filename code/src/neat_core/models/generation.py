@@ -1,0 +1,2 @@
+class Generation(object):
+    pass
