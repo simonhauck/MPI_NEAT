@@ -10,8 +10,8 @@ from neat_optimizer.neat_optimizer import NeatOptimizer
 
 class InheritedNeatOptimizer(NeatOptimizer):
 
-    def create_initial_generation(self, genome: Genome, config: NeatConfig) -> None:
-        super().create_initial_generation(genome, config)
+    def start_evaluation(self, genome: Genome, config: NeatConfig, seed=None) -> None:
+        super().start_evaluation(genome, config, seed)
 
 
 class TestNeatOptimizer(TestCase):

@@ -4,6 +4,7 @@ import numpy as np
 
 from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
+from neat_optimizer.challenge import Challenge
 from neat_optimizer.neat_config import NeatConfig
 
 
@@ -12,14 +13,23 @@ class NeatOptimizer(ABC):
     def __init__(self):
         self.neat_config: NeatConfig = None
         self.generation: Generation = None
+        self.challenge: Challenge = None
 
-    def create_initial_generation(self, genome: Genome, config: NeatConfig, seed=None) -> None:
+    def start_evaluation(self,
+                         genome: Genome,
+                         challenge: Challenge,
+                         config: NeatConfig,
+                         seed: int = None) -> None:
         self.neat_config = config
+        self.challenge = challenge
 
         random_generator = np.random.RandomState(seed)
 
     def create_next_generation(self) -> Generation:
         pass
 
-    def evaluate_generation(self):
+    def evaluate_generation(self) -> Generation:
+        pass
+
+    def stop_evaluation(self) -> None:
         pass
