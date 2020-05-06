@@ -4,8 +4,8 @@ import numpy as np
 
 from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
-from neat_optimizer.challenge import Challenge
-from neat_optimizer.neat_config import NeatConfig
+from neat_core.optimizer.challenge import Challenge
+from neat_core.optimizer.neat_config import NeatConfig
 
 
 class NeatOptimizer(ABC):

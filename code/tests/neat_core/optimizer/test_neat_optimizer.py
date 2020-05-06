@@ -4,14 +4,12 @@ from neat_core.activation_function import step_function
 from neat_core.models.connection import Connection
 from neat_core.models.genome import Genome
 from neat_core.models.node import Node, NodeType
-from neat_optimizer.neat_config import NeatConfig
-from neat_optimizer.neat_optimizer import NeatOptimizer
 
 
-class InheritedNeatOptimizer(NeatOptimizer):
-
-    def start_evaluation(self, genome: Genome, config: NeatConfig, seed=None) -> None:
-        super().start_evaluation(genome, config, seed)
+# class InheritedNeatOptimizer(NeatOptimizer):
+#
+#     def start_evaluation(self, genome: Genome, config: NeatConfig, seed=None) -> None:
+#         super().start_evaluation(genome, config, seed)
 
 
 class TestNeatOptimizer(TestCase):

@@ -6,11 +6,11 @@ from neat_core.activation_function import modified_sigmoid_function
 from neat_core.models.connection import Connection
 from neat_core.models.genome import Genome
 from neat_core.models.node import Node, NodeType
-from neat_optimizer.challenge import Challenge
-from neat_optimizer.neat_config import NeatConfig
-from neat_optimizer.neat_optimizer import NeatOptimizer
-from neat_optimizer.neat_optimizer_callback import NeatOptimizerCallback
-from neat_optimizer.neat_optimizer_single_core import NeatOptimizerSingleCore
+from neat_core.optimizer.challenge import Challenge
+from neat_core.optimizer.neat_config import NeatConfig
+from neat_core.optimizer.neat_optimizer import NeatOptimizer
+from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
+from neat_single_core.neat_optimizer_single_core import NeatOptimizerSingleCore
 from neural_network.neural_network_interface import NeuralNetworkInterface
 
 

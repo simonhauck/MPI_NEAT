@@ -1,8 +1,8 @@
 from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
-from neat_optimizer.challenge import Challenge
-from neat_optimizer.neat_config import NeatConfig
-from neat_optimizer.neat_optimizer import NeatOptimizer
+from neat_core.optimizer import Challenge
+from neat_core.optimizer import NeatConfig
+from neat_core.optimizer import NeatOptimizer
 
 
 class NeatOptimizerSingleCore(NeatOptimizer):
