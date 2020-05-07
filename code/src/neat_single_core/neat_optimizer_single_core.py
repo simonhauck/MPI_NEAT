@@ -1,20 +1,20 @@
-from neat_core.models.generation import Generation
-from neat_core.models.genome import Genome
-from neat_core.optimizer import Challenge
-from neat_core.optimizer import NeatConfig
-from neat_core.optimizer import NeatOptimizer
+from typing import Callable
+
+from neat_core.optimizer.challenge import Challenge
+from neat_core.optimizer.neat_config import NeatConfig
+from neat_core.optimizer.neat_optimizer import NeatOptimizer
 
 
 class NeatOptimizerSingleCore(NeatOptimizer):
 
-    def start_evaluation(self, genome: Genome, challenge: Challenge, config: NeatConfig, seed: int = None) -> None:
-        super().start_evaluation(genome, challenge, config, seed)
+    def start_evaluation(self, amount_input_nodes: int, amount_output_nodes,
+                         activation_function: Callable[[float], float], challenge: Challenge, config: NeatConfig,
+                         seed: int = None) -> None:
+        super().start_evaluation(amount_input_nodes, amount_output_nodes, activation_function, challenge, config,
+                                 seed)
 
-    def create_next_generation(self) -> Generation:
-        return super().create_next_generation()
+    def evaluate_next_generation(self):
+        super().evaluate_next_generation()
 
-    def evaluate_generation(self) -> Generation:
-        return super().evaluate_generation()
-
-    def stop_evaluation(self) -> None:
-        super().stop_evaluation()
+    def cleanup(self) -> None:
+        super().cleanup()

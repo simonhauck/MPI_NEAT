@@ -1,11 +1,11 @@
-from typing import Dict
+from typing import Dict, List
 
 from loguru import logger
 
 from neat_core.activation_function import modified_sigmoid_function
-from neat_core.models.connection import Connection
-from neat_core.models.genome import Genome
-from neat_core.models.node import Node, NodeType
+from neat_core.models.agent import Agent
+from neat_core.models.generation import Generation
+from neat_core.models.species import Species
 from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer import NeatOptimizer
@@ -46,65 +46,44 @@ class ChallengeXOR(Challenge):
 
 class XOROptimizer(NeatOptimizerCallback):
 
-    def __init__(self, optimizer: NeatOptimizer, seed: int = None) -> None:
-        logger.info("Start running XOR example...")
+    def __init__(self, optimizer: NeatOptimizer) -> None:
         self.optimizer = optimizer
+        self.optimizer.register_callback(self)
 
-        logger.debug("Creating start genome...")
-        start_genome = Genome(id_=0, seed=0,
-                              nodes=[
-                                  Node(innovation_number=1,
-                                       type_=NodeType.INPUT,
-                                       activation_function=modified_sigmoid_function,
-                                       x_position=0),
-                                  Node(innovation_number=2,
-                                       type_=NodeType.INPUT,
-                                       activation_function=modified_sigmoid_function,
-                                       x_position=0),
-                                  Node(innovation_number=3,
-                                       type_=NodeType.OUTPUT,
-                                       activation_function=modified_sigmoid_function,
-                                       x_position=1)
-                              ],
-                              connections=[
-                                  Connection(innovation_number=4,
-                                             input_node=1,
-                                             output_node=3,
-                                             weight=0,
-                                             enabled=True),
-                                  Connection(innovation_number=5,
-                                             input_node=2,
-                                             output_node=3,
-                                             weight=0,
-                                             enabled=True)
-                              ]
-                              )
+        self.agent_solved = None
 
-        logger.debug("Starting evaluation...")
-        self.optimizer.start_evaluation(start_genome, ChallengeXOR(), NeatConfig(), seed)
+        self.optimizer.start_evaluation(amount_input_nodes=3,
+                                        amount_output_nodes=1,
+                                        activation_function=modified_sigmoid_function,
+                                        challenge=ChallengeXOR(),
+                                        config=NeatConfig())
 
-    def on_initialization(self):
-        logger.info("Called on_initialization for the XOR challenge...")
+    def on_initialization(self) -> None:
+        logger.info("On initialization called...")
 
-    def on_generation_evaluation_start(self):
-        logger.info("Called on_generation_evaluation_start for the XOR challenge...")
+    def on_generation_evaluation_start(self, generation: Generation, species_list: List[Species]) -> None:
+        logger.info(
+            "Starting evaluation of generation {} with {} agents".format(generation.number, len(generation.agents)))
 
-    def on_agent_evaluation_start(self):
-        logger.trace("Called on_agent_evaluation_start for the XOR challenge...")
+    def on_agent_evaluation_start(self, agent: Agent) -> None:
+        logger.info("Starting evaluation of agent...")
 
-    def on_agent_evaluation_end(self):
-        logger.trace("Called on_agent_evaluation_end for the XOR challenge...")
+    def on_agent_evaluation_end(self, agent: Agent) -> None:
+        logger.info("Finished evaluation of agent with fitness {}".format(agent.fitness))
 
-    def on_generation_evaluation_end(self):
-        logger.info("Called on_generation_evaluation_start for the XOR challenge...")
+        if "solved" in agent.additional_info and agent.additional_info["solved"]:
+            self.agent_solved = agent
 
-        challenge_solved = True
-        if challenge_solved:
-            self.optimizer.stop_evaluation()
+    def on_generation_evaluation_end(self, generation: Generation, species_list: List[Species]) -> None:
+        logger.info("Finished evaluation of generation {}".format(generation.number))
 
-    def on_evaluation_stopped(self) -> None:
-        logger.info("Called on_evaluation_stopped for XOR challenge...")
+        if self.agent_solved is not None:
+            self.optimizer.cleanup()
+            logger.info("--------- Solution found ------------------")
+
+    def on_cleanup(self) -> None:
+        logger.info("Cleanup called...")
 
 
 if __name__ == '__main__':
-    xor_optimizer = XOROptimizer(NeatOptimizerSingleCore(), 1)
+    xor_optimizer = XOROptimizer(NeatOptimizerSingleCore())

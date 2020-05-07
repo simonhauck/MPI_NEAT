@@ -1,22 +1,43 @@
-from typing import List, Callable
+from typing import Callable
 
 import numpy as np
 
+from neat_core.models.agent import Agent
 from neat_core.models.connection import Connection
+from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
 from neat_core.models.inno_num_generator_interface import InnovationNumberGeneratorInterface
 from neat_core.models.node import Node, NodeType
+from neat_core.models.species import Species
 from neat_core.optimizer.neat_config import NeatConfig
 
 
-def create_initial_genomes(input_nodes: int, output_nodes: int,
-                           activation_function: Callable[[float], float],
-                           generator: InnovationNumberGeneratorInterface,
-                           config: NeatConfig, seed: int = None) -> List[Genome]:
-    genome_list = []
-    rnd = np.random.RandomState()
-    rnd.seed(seed)
-    return []
+def create_initial_generation(amount_input_nodes: int, amount_output_nodes: int,
+                              activation_function: Callable[[float], float],
+                              generator: InnovationNumberGeneratorInterface,
+                              config: NeatConfig, seed: int = None) -> Generation:
+    """
+    Create an initial generation, with the specified genome information. The network will be fully connected.
+    :param amount_input_nodes: the amount if input nodes in the neural network
+    :param amount_output_nodes: the amount of output nodes in the neural network
+    :param activation_function: the used activation function for the nodes
+    :param generator: implementation to generate innovation numbers
+    :param config: a NeatConfig to set weights and population size
+    :param seed: fo generate deterministic random values
+    :return: the generated generation
+    """
+    rnd = np.random.RandomState(seed)
+
+    # Create all genomes
+    genomes = [
+        create_initial_genome(amount_input_nodes, amount_output_nodes, activation_function, rnd, config, generator) for
+        genome
+        in range(config.population_size)]
+
+    agents = [Agent(genome) for genome in genomes]
+    species = Species(representative=genomes[0], members=agents)
+
+    return Generation(0, agents, species)
 
 
 def create_initial_genome(amount_input_nodes: int, amount_output_nodes: int, activation_function,

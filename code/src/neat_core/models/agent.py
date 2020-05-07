@@ -1,3 +1,5 @@
+from typing import Dict
+
 from neat_core.models.genome import Genome
 from neural_network.neural_network_interface import NeuralNetworkInterface
 
@@ -11,3 +13,6 @@ class Agent(object):
         # Fitness value
         self.fitness: float = 0.0
         self.adjusted_fitness: float = 0.0
+
+        # Challenge info
+        self.additional_info: Dict[str, object] = {}
