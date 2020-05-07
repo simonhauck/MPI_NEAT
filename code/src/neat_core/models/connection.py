@@ -3,9 +3,8 @@ from typing import Union
 
 class Connection(object):
 
-    def __init__(self, innovation_number: Union[int, str], input_node: int, output_node: int, weight: float,
-                 enabled: bool,
-                 ) -> None:
+    def __init__(self, innovation_number: Union[int, str], input_node: Union[int, str], output_node: Union[int, str],
+                 weight: float, enabled: bool) -> None:
         """
         :param innovation_number: the assigned innovation number for this connection.
         :param input_node: the innovation number of the input node for this connection
@@ -14,7 +13,7 @@ class Connection(object):
         :param enabled: true, if the connection is active and should be used in the neural network
         """
         self.innovation_number: Union[int, str] = innovation_number
-        self.input_node: int = input_node
-        self.output_node: int = output_node
+        self.input_node: Union[int, str] = input_node
+        self.output_node: Union[int, str] = output_node
         self.weight: float = weight
         self.enabled: bool = enabled

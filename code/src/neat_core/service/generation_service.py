@@ -32,6 +32,45 @@ def create_initial_generation(amount_input_nodes: int, amount_output_nodes: int,
     # Create all genomes
     initial_genome = create_initial_genome(amount_input_nodes, amount_output_nodes, activation_function, rnd, config,
                                            generator)
+
+    return _build_generation_from_genome(initial_genome, rnd, config)
+
+
+def create_initial_generation_genome(genome: Genome, generator: InnovationNumberGeneratorInterface, config: NeatConfig,
+                                     seed=None) -> Generation:
+    rnd = np.random.RandomState(seed)
+
+    # The naming of the stored genome, doest not necessary be conform with the innovationNumberGenerator.
+    # So create new genome with the same connection structure but with generated innovation numbers
+    tmp_node_key = {}
+    new_nodes = []
+    for node in genome.nodes:
+        new_node = rp.deep_copy_node(node)
+        new_node.innovation_number = generator.get_node_innovation_number()
+
+        # Store node
+        new_nodes.append(new_node)
+        tmp_node_key[node.innovation_number] = new_node.innovation_number
+
+    new_connections = []
+    for connection in genome.connections:
+        new_connection = rp.deep_copy_connection(connection)
+        new_connection.innovation_number = generator.get_connection_innovation_number()
+        # Match old numbers to newly generated innovation numbers
+        new_connection.input_node = tmp_node_key[connection.input_node]
+        new_connection.output_node = tmp_node_key[connection.output_node]
+
+        # Store connection
+        new_connections.append(new_connection)
+
+    initial_genome = rp.deep_copy_genome(genome)
+    initial_genome.connections = new_connections
+    initial_genome.nodes = new_nodes
+
+    return _build_generation_from_genome(initial_genome, rnd, config)
+
+
+def _build_generation_from_genome(initial_genome: Genome, rnd: np.random.RandomState, config: NeatConfig) -> Generation:
     # Deep copy genome and set new weights
     genomes = [rp.set_new_genome_weights(rp.deep_copy_genome(initial_genome), seed=rnd.randint(2 ** 24), config=config)
                for _ in range(config.population_size)]
@@ -40,19 +79,6 @@ def create_initial_generation(amount_input_nodes: int, amount_output_nodes: int,
     species = Species(representative=genomes[0], members=agents)
 
     return Generation(0, agents, [species])
-
-
-def create_initial_generation_genome(genome: Genome, generator: InnovationNumberGeneratorInterface, config: NeatConfig,
-                                     seed=None) -> Generation:
-    rnd = np.random.RandomState(seed)
-
-    # The naming of the stored genome, doest not necessary be conform with the innovationNumberGenerator. So create
-    # a new genome with the same connection structure
-    tmp_node_dict = {}
-    # for node in genome.nodes:
-    #
-    # for _ in range(config.population_size):
-    # TODO later
 
 
 def create_initial_genome(amount_input_nodes: int, amount_output_nodes: int, activation_function,
