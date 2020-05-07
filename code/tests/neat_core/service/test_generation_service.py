@@ -23,10 +23,16 @@ class GenerationServiceTest(TestCase):
         for agent1, agent2 in zip(generation1.agents, generation2.agents):
             self.assertEqual(agent1.genome.seed, agent2.genome.seed)
 
+            for node1, node2, i in zip(agent1.genome.nodes, agent2.genome.nodes, range(len(agent1.genome.nodes))):
+                self.assertEqual(node1.innovation_number, node2.innovation_number)
+                self.assertEqual(i, node1.innovation_number)
+
             # Check connection weights
-            for connection1, connection2 in zip(agent1.genome.connections, agent2.genome.connections):
+            for connection1, connection2, i in zip(agent1.genome.connections, agent2.genome.connections,
+                                                   range(len(agent1.genome.connections))):
                 self.assertEqual(connection1.weight, connection2.weight)
                 self.assertEqual(connection1.innovation_number, connection2.innovation_number)
+                self.assertEqual(i, connection1.innovation_number)
 
     def test_create_initial_genome(self):
         rnd = np.random.RandomState(1)

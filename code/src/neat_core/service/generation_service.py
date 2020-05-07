@@ -2,6 +2,7 @@ from typing import Callable
 
 import numpy as np
 
+import neat_core.service.reproduction_service as rp
 from neat_core.models.agent import Agent
 from neat_core.models.connection import Connection
 from neat_core.models.generation import Generation
@@ -29,15 +30,29 @@ def create_initial_generation(amount_input_nodes: int, amount_output_nodes: int,
     rnd = np.random.RandomState(seed)
 
     # Create all genomes
-    genomes = [
-        create_initial_genome(amount_input_nodes, amount_output_nodes, activation_function, rnd, config, generator) for
-        genome
-        in range(config.population_size)]
+    initial_genome = create_initial_genome(amount_input_nodes, amount_output_nodes, activation_function, rnd, config,
+                                           generator)
+    # Deep copy genome and set new weights
+    genomes = [rp.set_new_genome_weights(rp.deep_copy_genome(initial_genome), seed=rnd.randint(2 ** 24), config=config)
+               for _ in range(config.population_size)]
 
     agents = [Agent(genome) for genome in genomes]
     species = Species(representative=genomes[0], members=agents)
 
-    return Generation(0, agents, species)
+    return Generation(0, agents, [species])
+
+
+def create_initial_generation_genome(genome: Genome, generator: InnovationNumberGeneratorInterface, config: NeatConfig,
+                                     seed=None) -> Generation:
+    rnd = np.random.RandomState(seed)
+
+    # The naming of the stored genome, doest not necessary be conform with the innovationNumberGenerator. So create
+    # a new genome with the same connection structure
+    tmp_node_dict = {}
+    # for node in genome.nodes:
+    #
+    # for _ in range(config.population_size):
+    # TODO later
 
 
 def create_initial_genome(amount_input_nodes: int, amount_output_nodes: int, activation_function,
