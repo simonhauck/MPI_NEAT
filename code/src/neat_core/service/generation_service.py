@@ -38,6 +38,15 @@ def create_initial_generation(amount_input_nodes: int, amount_output_nodes: int,
 
 def create_initial_generation_genome(genome: Genome, generator: InnovationNumberGeneratorInterface, config: NeatConfig,
                                      seed=None) -> Generation:
+    """
+    Create an initial generation, with the given genome. This function only uses the structure of the genome. The nodes
+    and connections will receive new innovation numbers according to the given InnovationNumberGeneratorInterface.
+    :param genome: the initial genome, that will be copied
+    :param generator: to get the innovation numbers
+    :param config: that contains min, max weight and population size
+    :param seed: for deterministic weights
+    :return: a new initialized generation, with number 0, the corresponding agents and one species
+    """
     rnd = np.random.RandomState(seed)
 
     # The naming of the stored genome, doest not necessary be conform with the innovationNumberGenerator.
@@ -71,6 +80,13 @@ def create_initial_generation_genome(genome: Genome, generator: InnovationNumber
 
 
 def _build_generation_from_genome(initial_genome: Genome, rnd: np.random.RandomState, config: NeatConfig) -> Generation:
+    """
+    Build a generation from the given genome. The genome will be copied and the weight and biases will be randomized
+    :param initial_genome: the genome as initial structure
+    :param rnd: a random generator to generate the seeds
+    :param config: the neat config to specify the weights bounds
+    :return: a new initialized generation with number 0, the created agents, and one species
+    """
     # Deep copy genome and set new weights
     genomes = [rp.set_new_genome_weights(rp.deep_copy_genome(initial_genome), seed=rnd.randint(2 ** 24), config=config)
                for _ in range(config.population_size)]
