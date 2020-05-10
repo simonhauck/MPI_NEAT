@@ -1,12 +1,15 @@
 from unittest import TestCase
 
+import numpy as np
+
 from neat_core.activation_function import step_function
 from neat_core.models.connection import Connection
 from neat_core.models.genome import Genome
 from neat_core.models.node import NodeType, Node
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.service.reproduction_service import deep_copy_node, deep_copy_connection, deep_copy_genome, \
-    set_new_genome_weights
+    set_new_genome_weights, mutate_weights, mutate_add_connection
+from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
 
 
 class ReproductionServiceTest(TestCase):
@@ -95,3 +98,107 @@ class ReproductionServiceTest(TestCase):
 
         self.assertAlmostEqual(-1.2801019571599248, new_genome.connections[0].weight, delta=0.00000001)
         self.assertAlmostEqual(-9.481475363442174, new_genome.connections[1].weight, delta=0.00000001)
+
+    def test_mutate_weights(self):
+        connection1 = Connection(1, 2, 3, weight=-2.1, enabled=True)
+        connection2 = Connection(2, 3, 4, weight=-1.2, enabled=True)
+        connection3 = Connection(3, 4, 5, weight=0.6, enabled=True)
+        connection4 = Connection(4, 5, 6, weight=0, enabled=False)
+
+        config = NeatConfig(probability_weight_mutation=0.6,
+                            probability_random_weight_mutation=0.5,
+                            connection_min_weight=-3,
+                            connection_max_weight=3,
+                            weight_mutation_max_change=1)
+
+        rnd = np.random.RandomState(1)
+        # Random values for with seed 1
+        # First connection
+        # rnd.uniform(0, 1) = 0.417022004702574 -> Mutate yes
+        # rnd.uniform(0, 1) = 0.7203244934421581 -> Perturb weight
+        # rnd.uniform(-1, 1) = -0.9997712503653102 -> Value to be subtracted (and clamped)
+        # Second connection
+        # rnd.uniform(0, 1) = 0.30233257263183977 -> Mutate yes
+        # rnd.uniform(0, 1) = 0.14675589081711304 -> Random weight
+        # rnd.uniform(-3, 3) = -2.445968431387213 -> new random weight
+        # Third connection
+        # rnd.uniform(0, 1) = 0.1862602113776709 -> Mutate yes
+        # rnd.uniform(0, 1) = 0.34556072704304774 -> Random weight
+        # rnd.uniform(-3, 3) = -0.6193951546159804 -> new random weight
+        # Fourth connection
+        # rnd.uniform(0, 1) = 0.538816734003357 -> Mutate yes
+        # rnd.uniform(0, 1) = 0.4191945144032948 -> Random weight
+        # rnd.uniform(-3, 3) = 1.1113170023805568 -> new random weight
+
+        genome = Genome(1, 1, nodes=[], connections=[connection1, connection2, connection3, connection4])
+        new_genome = mutate_weights(genome, rnd, config)
+
+        # Same object
+        self.assertEqual(genome, new_genome)
+        self.assertEqual(config.connection_min_weight, connection1.weight)
+        self.assertAlmostEqual(-2.445968431387213, connection2.weight, delta=0.000000000001)
+        self.assertAlmostEqual(-0.6193951546159804, connection3.weight, delta=0.000000000001)
+        self.assertAlmostEqual(1.1113170023805568, connection4.weight, delta=0.000000000001)
+
+    def test_mutate_add_connection(self):
+        rnd = np.random.RandomState(1)
+        config = NeatConfig(connection_min_weight=-3,
+                            connection_max_weight=3,
+                            allow_recurrent_connections=True,
+                            probability_mutate_add_connection=0.4,
+                            mutate_connection_tries=2)
+
+        inn_generator = InnovationNumberGeneratorSingleCore()
+        node1 = Node(inn_generator.get_node_innovation_number(), NodeType.INPUT, step_function, 0)
+        node2 = Node(inn_generator.get_node_innovation_number(), NodeType.INPUT, step_function, 0)
+        node3 = Node(inn_generator.get_node_innovation_number(), NodeType.OUTPUT, step_function, 1)
+        node4 = Node(inn_generator.get_node_innovation_number(), NodeType.HIDDEN, step_function, 0.5)
+        nodes = [node1, node2, node3, node4]
+
+        genome = Genome(1, 1, nodes, connections=[])
+
+        # Random values for with seed 1
+        # rnd.uniform(0, 1) = 0.417022004702574 -> No mutation
+        genome, conn = mutate_add_connection(genome, rnd, inn_generator, config)
+        self.assertEqual(0, len(genome.connections))
+        self.assertIsNone(conn)
+
+        # Set higher config value, reset random
+        config.probability_mutate_add_connection = 1
+        rnd = np.random.RandomState(1)
+        # Random values for with seed 1
+        # rnd.uniform(0, 1) = 0.417022004702574 -> Mutate
+        # rnd.randint(low=0,high=4) = 0
+        # rnd.randint(low=0,high=2) = 0
+        # rnd.uniform(low=-3, high=3) = -2.9993137510959307
+        genome, new_con1 = mutate_add_connection(genome, rnd, inn_generator, config)
+        self.assertEqual(1, len(genome.connections))
+        self.assertEqual(node1.innovation_number, new_con1.input_node)
+        self.assertEqual(node4.innovation_number, new_con1.output_node)
+        self.assertAlmostEqual(-2.9993137510959307, new_con1.weight, delta=0.0000000001)
+
+        # Random values
+        # rnd.uniform(0, 1) = 0.00011437481734488664 -> Mutate
+        # rnd.randint(low=0,high=4) = 3
+        # rnd.randint(low=0,high=2) = 0
+        # rnd.uniform(low=-3, high=3) = -2.445968431387213
+        genome, new_con2 = mutate_add_connection(genome, rnd, inn_generator, config)
+        self.assertEqual(2, len(genome.connections))
+        self.assertEqual(node3.innovation_number, new_con2.input_node)
+        self.assertEqual(node4.innovation_number, new_con2.output_node)
+        self.assertAlmostEqual(-2.445968431387213, new_con2.weight, delta=0.0000000001)
+
+        # Brute force - check if all nodes are connected after 1000 tries
+        for _ in range(1000):
+            genome, _ = mutate_add_connection(genome, rnd, inn_generator, config)
+
+        # Maximum connections with recurrent
+        self.assertEqual(8, len(genome.connections))
+
+        # Set recurrent to false
+        config.allow_recurrent = False
+        genome_feed_forward = Genome(1, 1, nodes, connections=[])
+        for _ in range(1000):
+            genome_feed_forward, _ = mutate_add_connection(genome_feed_forward, rnd, inn_generator, config)
+        # Maximum connections with recurrent=false
+        self.assertEqual(5, len(genome_feed_forward.connections))
