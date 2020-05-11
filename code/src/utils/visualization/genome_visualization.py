@@ -8,11 +8,12 @@ from neat_core.models.node import NodeType, Node
 
 class NetworkXGenomeGraph(object):
 
-    def draw_genome_graph(self, genome: Genome) -> None:
+    def draw_genome_graph(self, genome: Genome, draw_labels=True) -> None:
         """
         Parse the genome into a networkx graph, which can be plotted with matplotlib, if the command plt.show()
         is invoked after this method
         :param genome: the genome that should be displayed
+        :param draw_labels: True if the labels of the connections should be printed
         :return: None
         """
         graph = nx.DiGraph()
@@ -52,12 +53,13 @@ class NetworkXGenomeGraph(object):
                                             connectionstyle='arc3, rad=0.1')
         # Bug in the library, can't set the line style.:
         # https://stackoverflow.com/questions/51138059/no-dotted-line-with-networkx-drawn-on-basemap/51148746#51148746?s=e8a8f3c423e84da9aa77b1259b3ad829
-        if collection is not None:
-            for patch in collection:
-                patch.set_linestyle('dashed')
+        for patch in collection:
+            patch.set_linestyle('dashed')
 
         # Draw graph edges labels
-        nx.draw_networkx_edge_labels(graph, node_positions, edge_labels=connection_labels, label_pos=0.7, rotate=False)
+        if draw_labels:
+            nx.draw_networkx_edge_labels(graph, node_positions, edge_labels=connection_labels, label_pos=0.7,
+                                         rotate=False)
 
         # Draw graph node labels
         nx.draw_networkx_labels(graph, node_positions)

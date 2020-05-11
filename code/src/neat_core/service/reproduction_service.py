@@ -89,7 +89,7 @@ def mutate_add_connection(genome: Genome, rnd: np.random.RandomState, generator:
     :param config: the config that specifies, where and how the connection is created
     :return: the modified genome and the newly created connection. If adding a connection failed, it will be None
     """
-    # Check if node should be mutated at all
+    # Check if connection should be mutated at all
     if rnd.uniform(0, 1) > config.probability_mutate_add_connection:
         return genome, None
 
@@ -136,3 +136,38 @@ def mutate_add_connection(genome: Genome, rnd: np.random.RandomState, generator:
         return genome, new_connection
 
     return genome, None
+
+
+def mutate_add_node(genome: Genome, rnd: np.random.RandomState, generator: InnovationNumberGeneratorInterface,
+                    config: NeatConfig) -> (Genome, Node, Connection, Connection):
+    # Check if node should mutate
+    if rnd.uniform(0, 1) > config.probability_mutate_add_node:
+        return genome, None, None, None
+
+    selected_connection = genome.connections[rnd.randint(0, len(genome.connections))]
+    selected_connection.enabled = False
+
+    in_node = next(x for x in genome.nodes if x.innovation_number == selected_connection.input_node)
+    out_node = next(x for x in genome.nodes if x.innovation_number == selected_connection.output_node)
+
+    # Select activation function either from one of the nodes
+    new_node_activation = in_node.activation_function if rnd.uniform(0, 1) <= 0.5 else out_node.activation_function
+    new_node_x_position = (in_node.x_position + out_node.x_position) / 2
+    new_node = Node(
+        generator.get_node_innovation_number(in_node, out_node),
+        NodeType.HIDDEN,
+        new_node_activation,
+        new_node_x_position
+    )
+
+    new_connection_in = Connection(generator.get_connection_innovation_number(in_node, new_node),
+                                   in_node.innovation_number, new_node.innovation_number, weight=1, enabled=True)
+    new_connection_out = Connection(generator.get_connection_innovation_number(new_node, out_node),
+                                    new_node.innovation_number, out_node.innovation_number,
+                                    weight=selected_connection.weight, enabled=True)
+
+    genome.nodes.append(new_node)
+    genome.connections.append(new_connection_in)
+    genome.connections.append(new_connection_out)
+
+    return genome, new_node, new_connection_in, new_connection_out
