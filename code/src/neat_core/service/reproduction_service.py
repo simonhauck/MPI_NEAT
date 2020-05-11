@@ -140,6 +140,17 @@ def mutate_add_connection(genome: Genome, rnd: np.random.RandomState, generator:
 
 def mutate_add_node(genome: Genome, rnd: np.random.RandomState, generator: InnovationNumberGeneratorInterface,
                     config: NeatConfig) -> (Genome, Node, Connection, Connection):
+    """
+    Add with a given probability from the config a new node to the genome.
+    A random connections is selected, which will be disabled. A new node will be placed between the in and out node of
+    the connection. Then two new connections will be created, one which leads into the new node (weight=1) and one out
+    (weight = weight of the disabled connection).
+    :param genome: the genome that should be modified
+    :param rnd: a random generator to determine if, the genome is mutated, and how
+    :param generator: a generator for innovation number for nodes and connections
+    :param config: a config that specifies the mutation params
+    :return: the modified genome, as well as the generated node and the two connections (if they were mutated)
+    """
     # Check if node should mutate
     if rnd.uniform(0, 1) > config.probability_mutate_add_node:
         return genome, None, None, None
@@ -171,3 +182,7 @@ def mutate_add_node(genome: Genome, rnd: np.random.RandomState, generator: Innov
     genome.connections.append(new_connection_out)
 
     return genome, new_node, new_connection_in, new_connection_out
+
+
+def cross_over(genome1: Genome, genome2: Genome, config: NeatConfig):
+    return
