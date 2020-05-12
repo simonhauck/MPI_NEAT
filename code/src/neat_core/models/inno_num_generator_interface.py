@@ -5,6 +5,14 @@ from neat_core.models.node import Node
 
 class InnovationNumberGeneratorInterface(object):
 
+    def next_generation(self, generation: int) -> None:
+        """
+        Called to indicate a new generations. This can impact the generated numbers
+        :param generation: the number of the new generation
+        :return: None
+        """
+        pass
+
     def get_node_innovation_number(self, node1: Node = None, node2: Node = None) -> Union[int, str]:
         """
         Get a new innovation number for a node.

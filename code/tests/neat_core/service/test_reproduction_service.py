@@ -185,6 +185,7 @@ class ReproductionServiceTest(TestCase):
         # rnd.uniform(low=-3, high=3) = -2.9993137510959307
         _, new_con1 = mutate_add_connection(self.genome, self.rnd, self.inn_generator, config)
         self.assertEqual(1, len(self.genome.connections))
+        self.assertEqual(4, new_con1.innovation_number)
         self.assertEqual(self.node_input1.innovation_number, new_con1.input_node)
         self.assertEqual(self.node_hidden1.innovation_number, new_con1.output_node)
         self.assertAlmostEqual(-2.9993137510959307, new_con1.weight, delta=0.0000000001)
@@ -196,6 +197,7 @@ class ReproductionServiceTest(TestCase):
         # rnd.uniform(low=-3, high=3) = -2.445968431387213
         _, new_con2 = mutate_add_connection(self.genome, self.rnd, self.inn_generator, config)
         self.assertEqual(2, len(self.genome.connections))
+        self.assertEqual(5, new_con2.innovation_number)
         self.assertEqual(self.node_output1.innovation_number, new_con2.input_node)
         self.assertEqual(self.node_hidden1.innovation_number, new_con2.output_node)
         self.assertAlmostEqual(-2.445968431387213, new_con2.weight, delta=0.0000000001)
