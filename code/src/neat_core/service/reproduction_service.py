@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 
 from neat_core.models.connection import Connection
@@ -184,5 +186,58 @@ def mutate_add_node(genome: Genome, rnd: np.random.RandomState, generator: Innov
     return genome, new_node, new_connection_in, new_connection_out
 
 
-def cross_over(genome1: Genome, genome2: Genome, config: NeatConfig):
-    return
+def cross_over(more_fit_genome: Genome, less_fit_genome: Genome, rnd: np.random.RandomState, config: NeatConfig) \
+        -> (List[Node], List[Connection]):
+    """
+    Perform the cross over between two parents. Matching genes (that are in both genomes) will be chosen randomly with
+    the given rnd generator. Disjoint and access genes will be inherited from the more fit parent
+    :param more_fit_genome: the genome with the higher fitness value
+    :param less_fit_genome: the genome with the lower fitness value
+    :param rnd: a random generator to determine which genes should be selected
+    :param config: the config that specifies the reproduction behavior
+    :return: a list with selected nodes and a list with selected connections
+    """
+    #  Create dictionary for nodes and connections of less fit genome
+    less_fit_genome_nodes_dict = {node.innovation_number: node for node in less_fit_genome.nodes}
+    less_fit_genome_connections_dict = {conn.innovation_number: conn for conn in less_fit_genome.connections}
+
+    nodes_child = []
+    # Iterate over nodes in more fit parent
+    for more_fit_genome_node in more_fit_genome.nodes:
+        # Check if node is a matching gene
+        if more_fit_genome_node.innovation_number in less_fit_genome_nodes_dict:
+            # Matching gene
+            selected_node = more_fit_genome_node if rnd.uniform(0, 1) <= 0.5 else less_fit_genome_nodes_dict[
+                more_fit_genome_node.innovation_number]
+        else:
+            # Disjoint or excess gene
+            selected_node = more_fit_genome_node
+
+        # Copy and add it to child
+        copied_node = deep_copy_node(selected_node)
+        nodes_child.append(copied_node)
+
+    connections_child = []
+    for more_fit_genome_connection in more_fit_genome.connections:
+
+        # Check if node is a matching gene
+        if more_fit_genome_connection.innovation_number in less_fit_genome_connections_dict:
+            less_fit_genome_connection = less_fit_genome_connections_dict[more_fit_genome_connection.innovation_number]
+            # Matching gene
+            selected_connection = more_fit_genome_connection if rnd.uniform(0, 1) <= 0.5 else less_fit_genome_connection
+            enable_connection = selected_connection.enabled
+
+            # Check if gene should be re-enabled
+            if not more_fit_genome_connection.enabled and not less_fit_genome_connection.enabled:
+                enable_connection = rnd.uniform(0, 1) <= config.probability_enable_gene
+
+        else:
+            selected_connection = more_fit_genome_connection
+            enable_connection = selected_connection.enabled
+
+        copied_connection = deep_copy_connection(selected_connection)
+        copied_connection.enabled = enable_connection
+
+        connections_child.append(copied_connection)
+
+    return nodes_child, connections_child

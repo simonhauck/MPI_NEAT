@@ -10,7 +10,8 @@ class NeatConfig(object):
                  weight_mutation_max_change: float = 1,
                  probability_mutate_add_connection: float = 0.05,
                  mutate_connection_tries=5,
-                 probability_mutate_add_node: float = 0.03
+                 probability_mutate_add_node: float = 0.03,
+                 probability_enable_gene: float = 0.25
                  ) -> None:
         # General params
         self.population_size: int = population_size
@@ -31,3 +32,7 @@ class NeatConfig(object):
 
         # Mutate node
         self.probability_mutate_add_node: float = probability_mutate_add_node
+
+        # Crossover
+        # If a connection is disabled in either parent, there is 75% chance that it is disabled, so 25% enabling chance
+        self.probability_enable_gene: float = probability_enable_gene

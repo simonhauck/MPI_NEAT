@@ -8,7 +8,7 @@ from neat_core.models.genome import Genome
 from neat_core.models.node import NodeType, Node
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.service.reproduction_service import deep_copy_node, deep_copy_connection, deep_copy_genome, \
-    set_new_genome_weights, mutate_weights, mutate_add_connection, mutate_add_node
+    set_new_genome_weights, mutate_weights, mutate_add_connection, mutate_add_node, cross_over
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
 
 
@@ -265,3 +265,61 @@ class ReproductionServiceTest(TestCase):
         self.assertEqual(self.connection1.output_node, con2.output_node)
         self.assertEqual(self.connection1.weight, con2.weight)
         self.assertTrue(con2.enabled)
+
+    def test_cross_over(self):
+        node1_1 = Node(1, NodeType.INPUT, step_function, 0)
+        node1_2 = Node(2, NodeType.INPUT, step_function, 0)
+        node1_5 = Node(5, NodeType.OUTPUT, step_function, 1)
+        node1_7 = Node(7, NodeType.HIDDEN, step_function, 0.5)
+        nodes1 = [node1_1, node1_2, node1_5, node1_7]
+
+        node2_1 = Node(1, NodeType.INPUT, modified_sigmoid_function, 0)
+        node2_2 = Node(2, NodeType.INPUT, modified_sigmoid_function, 0)
+        node2_4 = Node(4, NodeType.OUTPUT, modified_sigmoid_function, 1)
+        node2_7 = Node(7, NodeType.HIDDEN, modified_sigmoid_function, 0.5)
+        node2_8 = Node(8, NodeType.HIDDEN, modified_sigmoid_function, 0.5)
+        nodes2 = [node2_1, node2_2, node2_4, node2_7, node2_8]
+
+        connection1_1 = Connection(innovation_number=1, input_node=1, output_node=2, weight=1.2, enabled=False)
+        connection1_2 = Connection(innovation_number=2, input_node=1, output_node=2, weight=1.2, enabled=True)
+        connection1_4 = Connection(innovation_number=4, input_node=1, output_node=2, weight=1.2, enabled=True)
+        connection1_7 = Connection(innovation_number=7, input_node=1, output_node=2, weight=1.2, enabled=False)
+        connections1 = [connection1_1, connection1_2, connection1_4, connection1_7]
+
+        connection2_1 = Connection(innovation_number=1, input_node=1, output_node=2, weight=1.2, enabled=False)
+        connection2_2 = Connection(innovation_number=2, input_node=1, output_node=2, weight=1.2, enabled=True)
+        connection2_3 = Connection(innovation_number=3, input_node=1, output_node=2, weight=1.2, enabled=True)
+        connection2_5 = Connection(innovation_number=5, input_node=1, output_node=2, weight=1.2, enabled=True)
+        connection2_7 = Connection(innovation_number=7, input_node=1, output_node=2, weight=1.2, enabled=False)
+        connections2 = [connection2_1, connection2_2, connection2_3, connection2_5, connection2_7]
+
+        more_fit_parent = Genome(1, 1, nodes1, connections1)
+        less_fit_parent = Genome(2, 2, nodes2, connections2)
+
+        config = NeatConfig(probability_enable_gene=0.31)
+        # Random values:
+        # 1 rnd.uniform(0, 1) = 0.417022004702574 -> First node (node1_1)
+        # 1 rnd.uniform(0, 1) = 0.7203244934421581 -> Second node(node2_2)
+        # 1 rnd.uniform(0, 1) = 0.00011437481734488664 -> First node (node7_1)
+
+        # 1 rnd.uniform(0, 1) = 0.30233257263183977 -> Select first connection (connection1_1)
+        # 1 rnd.uniform(0, 1) = 0.14675589081711304 -> Re-enable connection (connection1_1)
+        # 1 rnd.uniform(0, 1) = 0.0923385947687978 -> Select first connection (connection1_2)
+        # 1 rnd.uniform(0, 1) = 0.1862602113776709 -> Select first connection (connection1_7)
+        # 1 rnd.uniform(0, 1) = 0.34556072704304774 -> Re-enable connection False (connection1_7)
+
+        child_nodes, child_connections = cross_over(more_fit_parent, less_fit_parent, self.rnd, config)
+        # Check nodes
+        self.assertEqual(4, len(child_nodes))
+        self.compare_nodes(node1_1, child_nodes[0])
+        self.compare_nodes(node2_2, child_nodes[1])
+        self.compare_nodes(node1_5, child_nodes[2])
+        self.compare_nodes(node1_7, child_nodes[3])
+
+        # Check connections
+        self.assertEqual(4, len(child_connections))
+        connection1_1.enabled = True
+        self.compare_connections(connection1_1, child_connections[0])
+        self.compare_connections(connection1_2, child_connections[1])
+        self.compare_connections(connection1_4, child_connections[2])
+        self.compare_connections(connection1_7, child_connections[3])
