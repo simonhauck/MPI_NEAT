@@ -14,8 +14,8 @@ class GenomeTest(TestCase):
         self.assertEqual([], genome_empty.nodes)
 
         node_list = [
-            Node(2, NodeType.INPUT, lambda x: x + 1, 0),
-            Node("node_number", NodeType.OUTPUT, lambda x: x + 1, 1)
+            Node(2, NodeType.INPUT, bias=0.5, activation_function=lambda x: x + 1, x_position=0),
+            Node("node_number", NodeType.OUTPUT, bias=0.4, activation_function=lambda x: x + 1, x_position=1)
         ]
 
         connection_list = [

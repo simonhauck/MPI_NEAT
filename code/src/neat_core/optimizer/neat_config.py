@@ -5,9 +5,14 @@ class NeatConfig(object):
                  allow_recurrent_connections: bool = True,
                  connection_min_weight: float = -5.0,
                  connection_max_weight: float = 5.0,
+                 bias_min: float = -3,
+                 bias_max: float = 3,
                  probability_weight_mutation: float = 0.8,
                  probability_random_weight_mutation: float = 0.1,
                  weight_mutation_max_change: float = 1,
+                 probability_bias_mutation: float = 0.8,
+                 probability_random_bias_mutation: float = 0.1,
+                 bias_mutation_max_change: float = 1,
                  probability_mutate_add_connection: float = 0.05,
                  mutate_connection_tries=5,
                  probability_mutate_add_node: float = 0.03,
@@ -21,10 +26,19 @@ class NeatConfig(object):
         self.connection_min_weight: float = connection_min_weight
         self.connection_max_weight: float = connection_max_weight
 
+        # Bias params
+        self.bias_min: float = bias_min
+        self.bias_max: float = bias_max
+
         # Mutate weights param
         self.probability_weight_mutation: float = probability_weight_mutation
         self.probability_random_weight_mutation: float = probability_random_weight_mutation
         self.weight_mutation_max_change: float = weight_mutation_max_change
+
+        # Mutate bias param
+        self.probability_bias_mutation = probability_bias_mutation
+        self.probability_random_bias_mutation = probability_random_bias_mutation
+        self.bias_mutation_max_change = bias_mutation_max_change
 
         # Mutate connection
         self.probability_mutate_add_connection: float = probability_mutate_add_connection

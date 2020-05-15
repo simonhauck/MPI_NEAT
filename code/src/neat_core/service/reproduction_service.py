@@ -27,7 +27,7 @@ def deep_copy_node(node: Node) -> Node:
     :param node: the node to be copied
     :return: the newly created node
     """
-    return Node(node.innovation_number, node.node_type, node.activation_function, node.x_position)
+    return Node(node.innovation_number, node.node_type, node.bias, node.activation_function, node.x_position)
 
 
 def deep_copy_connection(connection: Connection) -> Connection:
@@ -40,20 +40,55 @@ def deep_copy_connection(connection: Connection) -> Connection:
                       connection.enabled)
 
 
-def set_new_genome_weights(genome: Genome, seed: int, config: NeatConfig) -> Genome:
+def set_new_genome_weights(genome: Genome, rnd: np.random.RandomState, config: NeatConfig) -> Genome:
     """
-    Set new weights for the connections and bias in the genome. The given seed will be set as seed for the genome.
+    Set new weights for the connections and the genome with the given random generator.
     :param genome: the genome, which weights should be randomized
-    :param seed: the seed that should be used
+    :param rnd: random generator to receive the new weights
     :param config: the neat config that specifies max and min weight
     :return: the modified genome
     """
-    rnd = np.random.RandomState(seed)
-    genome.seed = seed
-
     for connection in genome.connections:
         connection.weight = rnd.uniform(low=config.connection_min_weight, high=config.connection_max_weight)
 
+    return genome
+
+
+def set_new_genome_bias(genome: Genome, rnd: np.random.RandomState, config: NeatConfig) -> Genome:
+    """
+    Set a new bias values in all nodes (except Input nodes) with the given random generator
+    :param genome: the genome, where the bias value should be modified
+    :param rnd: the random generator
+    :param config: a neat config that specifies min and max values
+    :return: the modified genome
+    """
+    for node in genome.nodes:
+        if node.node_type == NodeType.INPUT:
+            continue
+        node.bias = rnd.uniform(low=config.bias_min, high=config.bias_max)
+    return genome
+
+
+def mutate_bias(genome: Genome, rnd: np.random.RandomState, config: NeatConfig) -> Genome:
+    """
+    Mutate the bias of the nodes
+    :param genome: the genome, with nodes
+    :param rnd: a random generator to determine, which nodes should be mutated and how
+    :param config: neat config that specifies the probabilities
+    :return: the modified genome
+    """
+    for node in genome.nodes:
+        # Input nodes do not have a bias
+        if node.node_type == NodeType.INPUT:
+            continue
+
+        if rnd.uniform(0, 1) <= config.probability_bias_mutation:
+            # Assign random bias or perturb value
+            if rnd.uniform(0, 1) <= config.probability_random_bias_mutation:
+                node.bias = rnd.uniform(low=config.bias_min, high=config.bias_max)
+            else:
+                node.bias += rnd.uniform(low=-config.bias_mutation_max_change, high=config.bias_mutation_max_change)
+                node.bias = np.clip(node.bias, a_min=config.bias_min, a_max=config.bias_max)
     return genome
 
 
@@ -169,6 +204,7 @@ def mutate_add_node(genome: Genome, rnd: np.random.RandomState, generator: Innov
     new_node = Node(
         generator.get_node_innovation_number(in_node, out_node),
         NodeType.HIDDEN,
+        rnd.uniform(low=config.bias_min, high=config.bias_max),
         new_node_activation,
         new_node_x_position
     )

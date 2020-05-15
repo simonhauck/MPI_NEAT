@@ -8,7 +8,8 @@ from neat_core.models.genome import Genome
 from neat_core.models.node import NodeType, Node
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.service.reproduction_service import deep_copy_node, deep_copy_connection, deep_copy_genome, \
-    set_new_genome_weights, mutate_weights, mutate_add_connection, mutate_add_node, cross_over
+    set_new_genome_weights, mutate_weights, mutate_add_connection, mutate_add_node, cross_over, mutate_bias, \
+    set_new_genome_bias
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
 
 
@@ -18,10 +19,12 @@ class ReproductionServiceTest(TestCase):
         self.inn_generator = InnovationNumberGeneratorSingleCore()
         self.rnd = np.random.RandomState(1)
 
-        self.node_input1 = Node(self.inn_generator.get_node_innovation_number(), NodeType.INPUT, step_function, 0)
-        self.node_input2 = Node(self.inn_generator.get_node_innovation_number(), NodeType.INPUT, step_function, 0)
-        self.node_output1 = Node(self.inn_generator.get_node_innovation_number(), NodeType.OUTPUT, step_function, 1)
-        self.node_hidden1 = Node(self.inn_generator.get_node_innovation_number(), NodeType.HIDDEN, step_function, 0.5)
+        self.node_input1 = Node(self.inn_generator.get_node_innovation_number(), NodeType.INPUT, 0, step_function, 0)
+        self.node_input2 = Node(self.inn_generator.get_node_innovation_number(), NodeType.INPUT, 0, step_function, 0)
+        self.node_output1 = Node(self.inn_generator.get_node_innovation_number(), NodeType.OUTPUT, 1.2, step_function,
+                                 1)
+        self.node_hidden1 = Node(self.inn_generator.get_node_innovation_number(), NodeType.HIDDEN, 1.3, step_function,
+                                 0.5)
         self.nodes = [self.node_input1, self.node_input2, self.node_output1, self.node_hidden1]
 
         self.connection1 = Connection(self.inn_generator.get_connection_innovation_number(),
@@ -42,8 +45,8 @@ class ReproductionServiceTest(TestCase):
 
     def test_deep_copy_genome(self):
         original_genome = Genome(10, 123,
-                                 [Node(1, NodeType.INPUT, step_function, 0),
-                                  Node("asfaf", NodeType.OUTPUT, step_function, 1)],
+                                 [Node(1, NodeType.INPUT, 1.1, step_function, 0),
+                                  Node("asfaf", NodeType.OUTPUT, 1.2, step_function, 1)],
                                  [Connection(124, 10, 20, 1.2, True),
                                   Connection("124124", 12, 22, 0.8, False)])
 
@@ -65,8 +68,8 @@ class ReproductionServiceTest(TestCase):
             self.compare_connections(original_connection, copied_connection)
 
     def test_deep_copy_node(self):
-        original_node = Node(1, NodeType.INPUT, step_function, 0)
-        original_node_str = Node("asfaf", NodeType.OUTPUT, step_function, 1)
+        original_node = Node(1, NodeType.INPUT, 1.1, step_function, 0)
+        original_node_str = Node("asfaf", NodeType.OUTPUT, 1.2, step_function, 1)
 
         copied_node = deep_copy_node(original_node)
         copied_node_str = deep_copy_node(original_node_str)
@@ -92,7 +95,8 @@ class ReproductionServiceTest(TestCase):
 
         # Check content
         self.assertEqual(original_node.innovation_number, copied_node.innovation_number)
-        self.assertEqual(original_node.node_type, copied_node.node_type, )
+        self.assertEqual(original_node.node_type, copied_node.node_type)
+        self.assertEqual(original_node.bias, copied_node.bias)
         self.assertEqual(original_node.activation_function, copied_node.activation_function)
         self.assertEqual(original_node.x_position, copied_node.x_position)
 
@@ -111,12 +115,12 @@ class ReproductionServiceTest(TestCase):
 
     def test_set_new_genome_weights(self):
         original_genome = Genome(10, 123,
-                                 [Node(1, NodeType.INPUT, step_function, 0)],
+                                 [Node(1, NodeType.INPUT, 1.1, step_function, 0)],
                                  [Connection(124, 10, 20, 1.2, True),
                                   Connection("124124", 12, 22, 0.8, False)])
 
         config = NeatConfig(connection_min_weight=-10, connection_max_weight=10)
-        new_genome = set_new_genome_weights(original_genome, seed=2, config=config)
+        new_genome = set_new_genome_weights(original_genome, np.random.RandomState(2), config=config)
         # First 3 random values
         # 1. -1.2801019571599248
         # 2. -9.481475363442174
@@ -124,6 +128,16 @@ class ReproductionServiceTest(TestCase):
 
         self.assertAlmostEqual(-1.2801019571599248, new_genome.connections[0].weight, delta=0.00000001)
         self.assertAlmostEqual(-9.481475363442174, new_genome.connections[1].weight, delta=0.00000001)
+
+    def test_set_new_genome_bias(self):
+        config = NeatConfig(bias_min=-3, bias_max=3)
+        modified_genome = set_new_genome_bias(self.genome, self.rnd, config)
+
+        # Input nodes should be skipped
+        self.assertEqual(0, modified_genome.nodes[0].bias)
+        self.assertEqual(0, modified_genome.nodes[1].bias)
+        self.assertAlmostEqual(-0.4978679717845562, modified_genome.nodes[2].bias, delta=0.0000001)
+        self.assertAlmostEqual(1.3219469606529488, modified_genome.nodes[3].bias, delta=0.0000001)
 
     def test_mutate_weights(self):
 
@@ -159,6 +173,26 @@ class ReproductionServiceTest(TestCase):
         self.assertAlmostEqual(-2.445968431387213, self.connection2.weight, delta=0.000000000001)
         self.assertAlmostEqual(-0.6193951546159804, self.connection3.weight, delta=0.000000000001)
         self.assertAlmostEqual(1.1113170023805568, self.connection4.weight, delta=0.000000000001)
+
+    def test_mutate_bias(self):
+        config = NeatConfig(probability_bias_mutation=0.6,
+                            bias_max=3,
+                            bias_min=-3,
+                            probability_random_bias_mutation=0.5,
+                            bias_mutation_max_change=1)
+
+        # rnd.uniform(0, 1) = 0.417022004702574 -> Mutate
+        # rnd.uniform(0, 1) = 0.7203244934421581 -> Perturb
+        # rnd.uniform(-1, 1) = -0.9997712503653102 -> Substract form bias
+        # rnd.uniform(0, 1) = 0.30233257263183977 -> Mutate
+        # rnd.uniform(0, 1) = 0.14675589081711304 -> Random weight
+        # rnd.uniform(-1, 1) = -2.445968431387213 -> new random weight
+
+        old_output_bias = self.node_output1.bias
+
+        new_genome = mutate_bias(self.genome, self.rnd, config)
+        self.assertAlmostEqual(old_output_bias - 0.9997712503653102, new_genome.nodes[2].bias, delta=0.000000001)
+        self.assertAlmostEqual(-2.445968431387213, new_genome.nodes[3].bias, delta=0.0000000001)
 
     def test_mutate_add_connection(self):
         config = NeatConfig(connection_min_weight=-3,
@@ -235,6 +269,7 @@ class ReproductionServiceTest(TestCase):
         # rnd.uniform(0, 1) = 0.417022004702574 -> Mutate
         # rnd.randint(low=0,high=4) = 0 -> connection1
         # rnd.uniform(0, 1) = -0.9325573593386588 -> Take activation function of out node
+        # rnd.uniform(-3, 3) = -2.23125331242386 -> Bias for new node
 
         node_size_before = len(self.genome.nodes)
         connections_size_before = len(self.connections)
@@ -252,6 +287,7 @@ class ReproductionServiceTest(TestCase):
         self.assertEqual(NodeType.HIDDEN, node.node_type)
         self.assertEqual(modified_sigmoid_function, node.activation_function)
         self.assertEqual(4, node.innovation_number)
+        self.assertAlmostEqual(-2.23125331242386, node.bias, delta=0.0000000001)
         self.assertEqual(0.5, node.x_position)
 
         # Check 1 connection
@@ -269,17 +305,17 @@ class ReproductionServiceTest(TestCase):
         self.assertTrue(con2.enabled)
 
     def test_cross_over(self):
-        node1_1 = Node(1, NodeType.INPUT, step_function, 0)
-        node1_2 = Node(2, NodeType.INPUT, step_function, 0)
-        node1_5 = Node(5, NodeType.OUTPUT, step_function, 1)
-        node1_7 = Node(7, NodeType.HIDDEN, step_function, 0.5)
+        node1_1 = Node(1, NodeType.INPUT, 1.1, step_function, 0)
+        node1_2 = Node(2, NodeType.INPUT, 1.2, step_function, 0)
+        node1_5 = Node(5, NodeType.OUTPUT, 1.5, step_function, 1)
+        node1_7 = Node(7, NodeType.HIDDEN, 1.7, step_function, 0.5)
         nodes1 = [node1_1, node1_2, node1_5, node1_7]
 
-        node2_1 = Node(1, NodeType.INPUT, modified_sigmoid_function, 0)
-        node2_2 = Node(2, NodeType.INPUT, modified_sigmoid_function, 0)
-        node2_4 = Node(4, NodeType.OUTPUT, modified_sigmoid_function, 1)
-        node2_7 = Node(7, NodeType.HIDDEN, modified_sigmoid_function, 0.5)
-        node2_8 = Node(8, NodeType.HIDDEN, modified_sigmoid_function, 0.5)
+        node2_1 = Node(1, NodeType.INPUT, 2.1, modified_sigmoid_function, 0)
+        node2_2 = Node(2, NodeType.INPUT, 2.2, modified_sigmoid_function, 0)
+        node2_4 = Node(4, NodeType.OUTPUT, 2.4, modified_sigmoid_function, 1)
+        node2_7 = Node(7, NodeType.HIDDEN, 2.7, modified_sigmoid_function, 0.5)
+        node2_8 = Node(8, NodeType.HIDDEN, 2.8, modified_sigmoid_function, 0.5)
         nodes2 = [node2_1, node2_2, node2_4, node2_7, node2_8]
 
         connection1_1 = Connection(innovation_number=1, input_node=1, output_node=2, weight=1.2, enabled=False)

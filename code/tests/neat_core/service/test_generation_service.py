@@ -33,6 +33,10 @@ class GenerationServiceTest(TestCase):
             for node1, node2, i in zip(agent1.genome.nodes, agent2.genome.nodes, range(len(agent1.genome.nodes))):
                 self.assertEqual(node1.innovation_number, node2.innovation_number)
                 self.assertEqual(i, node1.innovation_number)
+                self.assertEqual(node1.bias, node2.bias)
+
+                if node1.node_type != NodeType.INPUT:
+                    self.assertNotAlmostEqual(0, node1.bias, delta=0.000000000001)
 
             # Check connection weights
             for connection1, connection2, i in zip(agent1.genome.connections, agent2.genome.connections,
@@ -40,11 +44,12 @@ class GenerationServiceTest(TestCase):
                 self.assertEqual(connection1.weight, connection2.weight)
                 self.assertEqual(connection1.innovation_number, connection2.innovation_number)
                 self.assertEqual(i, connection1.innovation_number)
+                self.assertNotAlmostEqual(0, connection1.weight, delta=0.000000000001)
 
     def test_create_initial_generation_genome(self):
         genome = Genome(1, 20,
-                        [Node("abc", NodeType.INPUT, step_function, 0),
-                         Node("def", NodeType.OUTPUT, step_function, 1)],
+                        [Node("abc", NodeType.INPUT, 0.3, step_function, 0),
+                         Node("def", NodeType.OUTPUT, 0.4, step_function, 1)],
                         [Connection("x", "abc", "def", 1.0, True),
                          Connection("y", "def", "abc", -5, True)])
 
@@ -80,15 +85,34 @@ class GenerationServiceTest(TestCase):
             self.assertEqual(connection2.innovation_number, connection3.innovation_number)
             self.assertEqual(connection3.innovation_number, i)
 
-    def test_build_generation_from_genome(self):
+    def test_randomize_weight_bias(self):
         genome = Genome(1, 20,
-                        [Node(1, NodeType.INPUT, step_function, 0),
-                         Node(2, NodeType.OUTPUT, step_function, 1)],
-                        [Connection(1, 1, 2, 1.0, True),
-                         Connection(2, 1, 2, -5, True)])
+                        [Node(1, NodeType.INPUT, 0.0, step_function, 0),
+                         Node(2, NodeType.OUTPUT, 0.0, step_function, 1)],
+                        [Connection(3, 1, 2, 0, True),
+                         Connection(4, 2, 1, 0, True)])
+
+        config = NeatConfig(bias_min=1, bias_max=2, connection_min_weight=3, connection_max_weight=4)
+        randomized_genome = gs._randomize_weight_bias(genome, np.random.RandomState(1), config)
+
+        for node in randomized_genome.nodes:
+            if node.node_type == NodeType.INPUT:
+                self.assertEqual(0, node.bias)
+            else:
+                self.assertTrue(1 <= node.bias <= 2)
+
+        for conn in randomized_genome.connections:
+            self.assertTrue(3 <= conn.weight <= 4)
+
+    def test_build_generation_from_genome(self):
+        initial_genome = Genome(1, 20,
+                                [Node(1, NodeType.INPUT, 0, step_function, 0),
+                                 Node(2, NodeType.OUTPUT, 0.4, step_function, 1)],
+                                [Connection(1, 1, 2, 1.0, True),
+                                 Connection(2, 1, 2, -5, True)])
 
         rnd = np.random.RandomState(1)
-        generation = gs._build_generation_from_genome(genome, rnd, NeatConfig(population_size=3))
+        generation = gs._build_generation_from_genome(initial_genome, rnd, NeatConfig(population_size=3))
 
         self.assertEqual(3, len(generation.agents))
         self.assertEqual(0, generation.number)
@@ -103,41 +127,36 @@ class GenerationServiceTest(TestCase):
         self.assertEqual(4686059, generation.agents[1].genome.seed)
         self.assertEqual(6762380, generation.agents[2].genome.seed)
 
-    def test_create_initial_genome(self):
-        rnd = np.random.RandomState(1)
-        # First value 12710949
-        # Second value 4686059
+        # Check if every weight and bias is not equal to 0
+        for agent in generation.agents:
+            genome = agent.genome
+            for node in genome.nodes:
+                # Input nodes can have bias 0
+                if node.node_type == NodeType.INPUT:
+                    continue
+                self.assertNotAlmostEqual(0, node.bias, delta=0.00000000001)
+
+            for conn in genome.connections:
+                self.assertNotAlmostEqual(0, conn.weight, delta=0.00000000001)
+
+    def test_create_genome_structure(self):
+
         config = NeatConfig()
-        config.connection_min_weight = -10
-        config.connection_max_weight = 10
         input_nodes = 100
         output_nodes = 50
 
-        generated_genome1 = gs.create_initial_genome(amount_input_nodes=input_nodes, amount_output_nodes=output_nodes,
-                                                     activation_function=step_function, rnd=rnd, config=config,
-                                                     generator=InnovationNumberGeneratorSingleCore())
+        generated_structure = gs.create_genome_structure(amount_input_nodes=input_nodes,
+                                                         amount_output_nodes=output_nodes,
+                                                         activation_function=step_function, config=config,
+                                                         generator=InnovationNumberGeneratorSingleCore())
 
-        generated_genome2 = gs.create_initial_genome(amount_input_nodes=input_nodes, amount_output_nodes=output_nodes,
-                                                     activation_function=step_function, rnd=rnd, config=config,
-                                                     generator=InnovationNumberGeneratorSingleCore())
+        self.assertEqual(input_nodes + output_nodes, len(generated_structure.nodes))
+        self.assertEqual(input_nodes * output_nodes, len(generated_structure.connections))
 
-        rnd = np.random.RandomState(1)
-
-        generated_genome1_1 = gs.create_initial_genome(amount_input_nodes=input_nodes,
-                                                       amount_output_nodes=output_nodes,
-                                                       activation_function=step_function, rnd=rnd, config=config,
-                                                       generator=InnovationNumberGeneratorSingleCore())
-
-        self.assertEqual(12710949, generated_genome1.seed)
-        self.assertEqual(4686059, generated_genome2.seed)
-        self.assertEqual(12710949, generated_genome1_1.seed)
-
-        self.assertEqual(150, len(generated_genome1.nodes))
-        self.assertEqual(5000, len(generated_genome1.connections))
-
-        for node, i in zip(generated_genome1.nodes, range(input_nodes + output_nodes)):
+        for node, i in zip(generated_structure.nodes, range(input_nodes + output_nodes)):
             self.assertEqual(i, node.innovation_number)
             self.assertEqual(step_function, node.activation_function)
+            self.assertEqual(0, node.bias)
 
             if i < input_nodes:
                 self.assertEqual(NodeType.INPUT, node.node_type, msg="Value i={}".format(i))
@@ -146,9 +165,6 @@ class GenerationServiceTest(TestCase):
                 self.assertEqual(NodeType.OUTPUT, node.node_type, msg="Value i={}".format(i))
                 self.assertEqual(1, node.x_position)
 
-        last_weight = 0
-        for connection, i in zip(generated_genome1.connections, range(input_nodes * output_nodes)):
+        for connection, i in zip(generated_structure.connections, range(input_nodes * output_nodes)):
             self.assertEqual(i, connection.innovation_number)
-            self.assertTrue(-10 <= connection.weight <= 10)
-            self.assertNotEqual(last_weight, connection.weight)
-            last_weight = connection.weight
+            self.assertEqual(0, connection.weight)

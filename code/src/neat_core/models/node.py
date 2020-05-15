@@ -11,7 +11,7 @@ class NodeType(Enum):
 
 class Node(object):
 
-    def __init__(self, innovation_number: Union[int, str], type_: NodeType,
+    def __init__(self, innovation_number: Union[int, str], type_: NodeType, bias: float,
                  activation_function: Callable[[float], float],
                  x_position: float) -> None:
         """
@@ -22,5 +22,6 @@ class Node(object):
         """
         self.innovation_number: Union[int, str] = innovation_number
         self.node_type: NodeType = type_
+        self.bias: float = bias
         self.activation_function: Callable[[float], float] = activation_function
-        self.x_position = x_position
+        self.x_position: float = x_position

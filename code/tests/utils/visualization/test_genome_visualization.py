@@ -12,12 +12,12 @@ class TestGenomeGraph(TestCase):
         self.genome_graph = NetworkXGenomeGraph()
 
         self.nodes_recurrent = [
-            Node(1, NodeType.INPUT, lambda x: x, x_position=0),
-            Node(2, NodeType.INPUT, lambda x: x, x_position=0),
-            Node(3, NodeType.INPUT, lambda x: x, x_position=0),
-            Node(4, NodeType.OUTPUT, lambda x: x, x_position=1),
-            Node(10, NodeType.HIDDEN, lambda x: x, x_position=0.5),
-            Node(15, NodeType.HIDDEN, lambda x: x, x_position=0.5),
+            Node(1, NodeType.INPUT, 1.0, lambda x: x, x_position=0),
+            Node(2, NodeType.INPUT, 1.2, lambda x: x, x_position=0),
+            Node(3, NodeType.INPUT, 1.3, lambda x: x, x_position=0),
+            Node(4, NodeType.OUTPUT, 1.4, lambda x: x, x_position=1),
+            Node(10, NodeType.HIDDEN, 1.5, lambda x: x, x_position=0.5),
+            Node(15, NodeType.HIDDEN, 1.6, lambda x: x, x_position=0.5),
         ]
 
         self.connections_recurrent = [

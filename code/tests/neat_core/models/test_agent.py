@@ -1,19 +1,17 @@
 from unittest import TestCase
 
-import numpy as np
-
 from neat_core.activation_function import modified_sigmoid_function
 from neat_core.models.agent import Agent
 from neat_core.optimizer.neat_config import NeatConfig
-from neat_core.service.generation_service import create_initial_genome
+from neat_core.service.generation_service import create_genome_structure
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
 
 
 class AgentTest(TestCase):
 
     def test_agent(self):
-        genome = create_initial_genome(5, 2, modified_sigmoid_function, np.random.RandomState(), NeatConfig(),
-                                       InnovationNumberGeneratorSingleCore())
+        genome = create_genome_structure(5, 2, modified_sigmoid_function, NeatConfig(),
+                                         InnovationNumberGeneratorSingleCore())
         agent = Agent(genome)
 
         self.assertEqual(genome, agent.genome)

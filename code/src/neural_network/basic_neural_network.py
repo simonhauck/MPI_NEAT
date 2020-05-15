@@ -12,6 +12,7 @@ from neural_network.neural_network_interface import NeuralNetworkInterface
 class BasicNeuron(object):
 
     def __init__(self, innovation_number: Union[int, str],
+                 bias: float,
                  weights: np.ndarray,
                  input_keys: np.ndarray,
                  activation_function: Callable[[float], float],
@@ -23,6 +24,7 @@ class BasicNeuron(object):
         self.innovation_number: Union[int, str] = innovation_number
         self.x_position: float = x_position
 
+        self.bias: float = bias
         self.weights = np.ndarray = weights
         self.input_keys = np.ndarray = input_keys
         self.activation_function: Callable[[float], float] = activation_function
@@ -56,7 +58,7 @@ class BasicNeuralNetwork(NeuralNetworkInterface):
             input_keys = np.array([connection.input_node for connection in connections_for_node])
             weights = np.array([connection.weight for connection in connections_for_node])
 
-            basic_neuron = BasicNeuron(node.innovation_number, weights, input_keys, node.activation_function,
+            basic_neuron = BasicNeuron(node.innovation_number, node.bias, weights, input_keys, node.activation_function,
                                        node.x_position)
 
             # Add neuron to the dictionary for the calculations
@@ -107,6 +109,9 @@ class BasicNeuralNetwork(NeuralNetworkInterface):
             # Sum the weighted input values
             for i, input_key in zip(range(len(neuron.input_keys)), neuron.input_keys):
                 calculated_val += neuron.weights[i] * self._get_input_value_from_neuron(input_key, neuron.x_position)
+
+            # Add bias
+            calculated_val += neuron.bias
 
             calculated_val = neuron.activation_function(calculated_val)
             logger.trace("Neuron Value - Key: {} -> Val: {}".format(neuron.innovation_number, calculated_val))

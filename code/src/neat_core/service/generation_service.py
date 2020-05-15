@@ -30,10 +30,10 @@ def create_initial_generation(amount_input_nodes: int, amount_output_nodes: int,
     rnd = np.random.RandomState(seed)
 
     # Create all genomes
-    initial_genome = create_initial_genome(amount_input_nodes, amount_output_nodes, activation_function, rnd, config,
-                                           generator)
+    genome_structure = create_genome_structure(amount_input_nodes, amount_output_nodes, activation_function, config,
+                                               generator)
 
-    return _build_generation_from_genome(initial_genome, rnd, config)
+    return _build_generation_from_genome(genome_structure, rnd, config)
 
 
 def create_initial_generation_genome(genome: Genome, generator: InnovationNumberGeneratorInterface, config: NeatConfig,
@@ -47,7 +47,6 @@ def create_initial_generation_genome(genome: Genome, generator: InnovationNumber
     :param seed: for deterministic weights
     :return: a new initialized generation, with number 0, the corresponding agents and one species
     """
-    rnd = np.random.RandomState(seed)
 
     # The naming of the stored genome, doest not necessary be conform with the innovationNumberGenerator.
     # So create new genome with the same connection structure but with generated innovation numbers
@@ -76,7 +75,15 @@ def create_initial_generation_genome(genome: Genome, generator: InnovationNumber
     initial_genome.connections = new_connections
     initial_genome.nodes = new_nodes
 
+    rnd = np.random.RandomState(seed)
+
     return _build_generation_from_genome(initial_genome, rnd, config)
+
+
+def _randomize_weight_bias(genome: Genome, rnd: np.random.RandomState(), config: NeatConfig) -> Genome:
+    genome = rp.set_new_genome_bias(genome, rnd, config)
+    genome = rp.set_new_genome_weights(genome, rnd, config)
+    return genome
 
 
 def _build_generation_from_genome(initial_genome: Genome, rnd: np.random.RandomState, config: NeatConfig) -> Generation:
@@ -88,8 +95,16 @@ def _build_generation_from_genome(initial_genome: Genome, rnd: np.random.RandomS
     :return: a new initialized generation with number 0, the created agents, and one species
     """
     # Deep copy genome and set new weights
-    genomes = [rp.set_new_genome_weights(rp.deep_copy_genome(initial_genome), seed=rnd.randint(2 ** 24), config=config)
-               for _ in range(config.population_size)]
+    genomes = []
+    for _ in range(config.population_size):
+        seed = rnd.randint(2 ** 24)
+        rnd_generator_genome = np.random.RandomState(seed)
+
+        # Copy genome, set new values and save seed
+        copied_genome = rp.deep_copy_genome(initial_genome)
+        copied_genome = _randomize_weight_bias(copied_genome, rnd_generator_genome, config)
+        copied_genome.seed = seed
+        genomes.append(copied_genome)
 
     agents = [Agent(genome) for genome in genomes]
     species = Species(representative=genomes[0], members=agents)
@@ -97,38 +112,36 @@ def _build_generation_from_genome(initial_genome: Genome, rnd: np.random.RandomS
     return Generation(0, agents, [species])
 
 
-def create_initial_genome(amount_input_nodes: int, amount_output_nodes: int, activation_function,
-                          rnd: np.random.RandomState, config: NeatConfig,
-                          generator: InnovationNumberGeneratorInterface) -> Genome:
+def create_genome_structure(amount_input_nodes: int, amount_output_nodes: int, activation_function,
+                            config: NeatConfig, generator: InnovationNumberGeneratorInterface) -> Genome:
     """
-    Create an initial genome with the given amount of input and output nodes. The nodes will be fully connected,
-    that means, that every input node will be connected to every output node.
+    Create an initial genome struture with the given amount of input and output nodes. The nodes will be fully
+    connected,     that means, that every input node will be connected to every output node. The bias of the nodes, as
+    well as the connections will have the value 0! They must be set before usage
     :param amount_input_nodes: the amount of input nodes, that will be placed in the genome
     :param amount_output_nodes: the amount of output nodes, that will be placed in the genome
     :param activation_function: the activation function for the nodes
-    :param rnd: a random generator, to generate a seed for the genome
-    :param config: the config which specifies the min and max weight
+    :param config: the config
     :param generator: for the innovation numbers for nodes and connections
     :return: the generated genome
     """
-    input_nodes = [Node(generator.get_node_innovation_number(), NodeType.INPUT, activation_function, 0.0)
-                   for _ in range(amount_input_nodes)]
+    input_nodes = [
+        Node(generator.get_node_innovation_number(), NodeType.INPUT, bias=0,
+             activation_function=activation_function, x_position=0.0)
+        for _ in range(amount_input_nodes)]
 
-    output_nodes = [Node(generator.get_node_innovation_number(), NodeType.OUTPUT, activation_function, 1.0)
+    output_nodes = [Node(generator.get_node_innovation_number(), NodeType.OUTPUT, bias=0,
+                         activation_function=activation_function, x_position=1.0)
                     for _ in range(amount_output_nodes)]
 
-    seed_genome = rnd.randint(2 ** 24)
-    genome_rnd = np.random.RandomState(seed=seed_genome)
     connections = []
-
     for input_node in input_nodes:
         for output_node in output_nodes:
-            weight = genome_rnd.uniform(low=config.connection_min_weight, high=config.connection_max_weight)
             connections.append(Connection(
                 innovation_number=generator.get_connection_innovation_number(),
                 input_node=input_node.innovation_number,
                 output_node=output_node.innovation_number,
-                weight=weight,
+                weight=0,
                 enabled=True))
 
-    return Genome(id_=0, seed=seed_genome, nodes=input_nodes + output_nodes, connections=connections)
+    return Genome(id_=0, seed=None, nodes=input_nodes + output_nodes, connections=connections)

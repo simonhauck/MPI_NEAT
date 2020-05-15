@@ -15,28 +15,32 @@ class TestBasicNeuron(TestCase):
         weights = np.array([1.0, 2.0, 3.0])
         input_keys = np.array([10, 11, 12])
 
-        neuron_valid = BasicNeuron(1, weights, input_keys, step_function, 1.0)
+        neuron_valid = BasicNeuron(1, 1.5, weights, input_keys, step_function, 1.0)
         self.assertEqual(1, neuron_valid.innovation_number)
         self.assertEqual(0, neuron_valid.val)
         self.assertEqual(0, neuron_valid.last_val)
         self.assertEqual(1, neuron_valid.x_position)
+        self.assertEqual(1.5, neuron_valid.bias)
         self.assertFalse(neuron_valid.flag_calculated)
         self.assertTrue((weights == neuron_valid.weights).all())
         self.assertTrue((input_keys == neuron_valid.input_keys).all())
 
         with self.assertRaises(AssertionError):
-            BasicNeuron(1, weights, np.zeros([1]), step_function, 1.0)
+            BasicNeuron(1, 1.1, weights, np.zeros([1]), step_function, 1.0)
 
 
 class TestBasicNeuralNetwork(TestCase):
 
     def setUp(self) -> None:
+        self.feed_forward_hidden_bias = -0.5
+        self.feed_forward_output_bias = -0.6
+
         self.nodes_feed_forward = [
-            Node(1, NodeType.INPUT, step_function, x_position=0),
-            Node(2, NodeType.INPUT, step_function, x_position=0),
-            Node(3, NodeType.INPUT, step_function, x_position=0),
-            Node(4, NodeType.OUTPUT, step_function, x_position=1),
-            Node(15, NodeType.HIDDEN, step_function, x_position=0.5),
+            Node(1, NodeType.INPUT, 0, step_function, x_position=0),
+            Node(2, NodeType.INPUT, 0, step_function, x_position=0),
+            Node(3, NodeType.INPUT, 0, step_function, x_position=0),
+            Node(4, NodeType.OUTPUT, self.feed_forward_output_bias, step_function, x_position=1),
+            Node(15, NodeType.HIDDEN, self.feed_forward_hidden_bias, step_function, x_position=0.5),
         ]
 
         self.connections_feed_forward = [
@@ -52,23 +56,24 @@ class TestBasicNeuralNetwork(TestCase):
         self.genome_feed_forward = Genome(1, 10, self.nodes_feed_forward, self.connections_feed_forward)
         # Truth table for the neural network above
         # X Y Z
-        # 0 0 0 -> 0
-        # 0 0 1 -> 1
-        # 0 1 0 -> 0
-        # 0 1 1 -> 1
-        # 1 0 0 -> 1
-        # 1 1 0 -> 1
-        # 1 1 1 -> 1
+        # Input 0 0 0: Result: 0.0
+        # Input 0 0 1: Result: 1.0
+        # Input 0 1 0: Result: 0.0
+        # Input 0 1 1: Result: 1.0
+        # Input 1 0 0: Result: 0.0
+        # Input 1 0 1: Result: 1.0
+        # Input 1 1 0: Result: 0.0
+        # Input 1 1 1: Result: 1.0
 
         self.net_feed_forward = BasicNeuralNetwork()
 
         self.nodes_recurrent = [
-            Node(1, NodeType.INPUT, modified_sigmoid_function, x_position=0),
-            Node(2, NodeType.INPUT, modified_sigmoid_function, x_position=0),
-            Node(3, NodeType.INPUT, modified_sigmoid_function, x_position=0),
-            Node(4, NodeType.OUTPUT, modified_sigmoid_function, x_position=1),
-            Node(10, NodeType.HIDDEN, modified_sigmoid_function, x_position=0.5),
-            Node(15, NodeType.HIDDEN, modified_sigmoid_function, x_position=0.5),
+            Node(1, NodeType.INPUT, 0, modified_sigmoid_function, x_position=0),
+            Node(2, NodeType.INPUT, 0, modified_sigmoid_function, x_position=0),
+            Node(3, NodeType.INPUT, 0, modified_sigmoid_function, x_position=0),
+            Node(4, NodeType.OUTPUT, -1.0, modified_sigmoid_function, x_position=1),
+            Node(10, NodeType.HIDDEN, -0.6, modified_sigmoid_function, x_position=0.5),
+            Node(15, NodeType.HIDDEN, -1.2, modified_sigmoid_function, x_position=0.5),
         ]
 
         self.connections_recurrent = [
@@ -109,6 +114,7 @@ class TestBasicNeuralNetwork(TestCase):
             self.assertEqual(input_node, neural_network.all_neurons[input_node.innovation_number])
             self.assertEqual(0, len(input_node.weights))
             self.assertEqual(0, len(input_node.input_keys))
+            self.assertEqual(0, input_node.bias)
 
         # Check output neuron
         self.assertEqual(1, len(neural_network.output_neurons))
@@ -120,6 +126,7 @@ class TestBasicNeuralNetwork(TestCase):
         self.assertEqual(2, len(neural_network.output_neurons[0].input_keys))
         self.assertTrue((np.array([0.5, 2.0]) == neural_network.output_neurons[0].weights).all())
         self.assertTrue((np.array([1, 15]) == neural_network.output_neurons[0].input_keys).all())
+        self.assertEqual(self.feed_forward_output_bias, neural_network.output_neurons[0].bias)
 
         # Check hidden neuron
         self.assertEqual(5, len(neural_network.all_neurons))
@@ -128,6 +135,7 @@ class TestBasicNeuralNetwork(TestCase):
         self.assertEqual(3, len(neural_network.all_neurons[15].input_keys))
         self.assertTrue((np.array([-0.4, -1.0, 2.0]) == neural_network.all_neurons[15].weights).all())
         self.assertTrue((np.array([1, 2, 3]) == neural_network.all_neurons[15].input_keys).all())
+        self.assertEqual(self.feed_forward_hidden_bias, neural_network.all_neurons[15].bias)
 
         # Check calculation order
         self.assertEqual([15, 4], neural_network.order)
@@ -135,21 +143,21 @@ class TestBasicNeuralNetwork(TestCase):
     def test_reset(self):
         self.net_recurrent.build(self.genome_recurrent)
 
-        input = [0.5, 0.1, 0.8]
-        result_initially_expected = 0.9906113892
-        result_second_expected = 0.9985927852
+        input_val = [0.5, -2, 3]
+        result_initially_expected = 0.03732211974054669
+        result_second_expected = 0.1857531506810662
 
         # First activate
-        result_first = self.net_recurrent.activate(input)
+        result_first = self.net_recurrent.activate(input_val)
         self.assertAlmostEqual(result_initially_expected, result_first[0], delta=0.00000001)
 
         # Reset and test if calculation is the same
         self.net_recurrent.reset()
-        result_first_reset = self.net_recurrent.activate(input)
+        result_first_reset = self.net_recurrent.activate(input_val)
         self.assertAlmostEqual(result_initially_expected, result_first_reset[0], delta=0.00000001)
 
         # Second calculation should now be different
-        result_second = self.net_recurrent.activate(input)
+        result_second = self.net_recurrent.activate(input_val)
         self.assertAlmostEqual(result_second_expected, result_second[0], delta=0.00000001)
 
     def test_activate(self):
@@ -170,6 +178,7 @@ class TestBasicNeuralNetwork(TestCase):
         result_list_0_1_0 = self.net_feed_forward.activate([0, 1, 0])
         result_list_0_1_1 = self.net_feed_forward.activate([0, 1, 1])
         result_list_1_0_0 = self.net_feed_forward.activate([1, 0, 0])
+        result_list_1_0_1 = self.net_feed_forward.activate([1, 0, 1])
         result_list_1_1_0 = self.net_feed_forward.activate([1, 1, 0])
         result_list_1_1_1 = self.net_feed_forward.activate([1, 1, 1])
 
@@ -178,25 +187,26 @@ class TestBasicNeuralNetwork(TestCase):
         self.assertEqual([1], result_list_0_0_1)
         self.assertEqual([0], result_list_0_1_0)
         self.assertEqual([1], result_list_0_1_1)
-        self.assertEqual([1], result_list_1_0_0)
-        self.assertEqual([1], result_list_1_1_0)
+        self.assertEqual([0], result_list_1_0_0)
+        self.assertEqual([1], result_list_1_0_1)
+        self.assertEqual([0], result_list_1_1_0)
         self.assertEqual([1], result_list_1_1_1)
 
     def test_activate_recurrent(self):
         self.net_recurrent.build(self.genome_recurrent)
 
-        # First run Result with Input: 0.5, 0.1, 0.8 -> 0.9906113892
-        # Second run Result with Input: 0.5, 0.1, 0.8 -> 0.9985927852
+        # First run Result with Input: 0.5, -2, 3 -> 0.03732211974054669
+        # Second run Result with Input: 0.5, -2, 3 -> 0.1857531506810662
 
         # First activate
-        result_first = self.net_recurrent.activate([0.5, 0.1, 0.8])
+        result_first = self.net_recurrent.activate([0.5, -2, 3])
         self.assertEqual(1, len(result_first))
-        self.assertAlmostEqual(0.9906113892, result_first[0], delta=0.00000001)
+        self.assertAlmostEqual(0.03732211974054669, result_first[0], delta=0.00000001)
 
         # second activate
-        second_results = self.net_recurrent.activate([0.5, 0.1, 0.8])
+        second_results = self.net_recurrent.activate([0.5, -2, 3])
         self.assertEqual(1, len(second_results))
-        self.assertAlmostEqual(0.9985927852, second_results[0], delta=0.00000001)
+        self.assertAlmostEqual(0.1857531506810662, second_results[0], delta=0.00000001)
 
     def test_get_input_value_from_neuron(self):
         self.net_feed_forward.build(self.genome_feed_forward)
