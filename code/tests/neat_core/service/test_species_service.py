@@ -50,6 +50,20 @@ class SpeciesServiceTest(TestCase):
 
         self.config = NeatConfig(compatibility_factor_matching_genes=1, compatibility_factor_disjoint_genes=2)
 
+    def test_calculate_genetic_distance(self):
+        genetic_distance = ss.calculate_genetic_distance(self.g1, self.g2, self.config)
+        genetic_distance2 = ss.calculate_genetic_distance(self.g2, self.g1, self.config)
+
+        disjoint_gene_value_node = (3 / 6) * self.config.compatibility_factor_disjoint_genes
+        matching_genes_value_node = 0.325 * self.config.compatibility_factor_matching_genes
+        disjoint_gene_value_connection = (3 / 7) * self.config.compatibility_factor_disjoint_genes
+        matching_genes_value_connection = 1.36 * self.config.compatibility_factor_matching_genes
+
+        self.assertEqual(genetic_distance, genetic_distance2)
+        self.assertEqual(
+            disjoint_gene_value_connection + matching_genes_value_connection + disjoint_gene_value_node +
+            matching_genes_value_node, genetic_distance)
+
     def test_calculate_genetic_distance_nodes(self):
         disjoint_gene_value = (3 / 6) * self.config.compatibility_factor_disjoint_genes
         matching_genes_value = 0.325 * self.config.compatibility_factor_matching_genes

@@ -2,13 +2,26 @@ from neat_core.models.genome import Genome
 from neat_core.optimizer.neat_config import NeatConfig
 
 
-# TODO Test
 def calculate_genetic_distance(genome1: Genome, genome2: Genome, config: NeatConfig) -> float:
+    """
+    Calculate the compatibility between the two given genomes. This includes the nodes and connections
+    :param genome1: the first genome
+    :param genome2: the second genome
+    :param config: the config that specifies the compatibility functions
+    :return: the compatibility value between the two nodes
+    """
     return _calculate_genetic_distance_nodes(genome1, genome2, config) + _calculate_genetic_distance_connections(
         genome1, genome2, config)
 
 
 def _calculate_genetic_distance_nodes(genome1: Genome, genome2: Genome, config: NeatConfig) -> float:
+    """
+    Calculate the genetic distance between the nodes of the given genomes
+    :param genome1: the first genome
+    :param genome2: the second genome
+    :param config: that specifies the compatibility factors
+    :return: the compatibility factor between the nodes
+    """
     g1_nodes_innovation_numbers = set(node.innovation_number for node in genome1.nodes)
     g2_nodes_innovation_numbers = set(node.innovation_number for node in genome2.nodes)
 
@@ -39,6 +52,13 @@ def _calculate_genetic_distance_nodes(genome1: Genome, genome2: Genome, config: 
 
 
 def _calculate_genetic_distance_connections(genome1: Genome, genome2: Genome, config: NeatConfig) -> float:
+    """
+    Calculate the genetic distance with the connections of the given genomes.
+    :param genome1: the first genome
+    :param genome2: the second genome
+    :param config: that specifies the compatibility factors
+    :return: the genetic distance for the connections
+    """
     g1_connection_innovation_numbers = set(con.innovation_number for con in genome1.connections)
     g2_connection_innovation_numbers = set(con.innovation_number for con in genome2.connections)
 
