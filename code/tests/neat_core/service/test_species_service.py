@@ -1,11 +1,14 @@
 from unittest import TestCase
 
+import neat_core.service.reproduction_service as rs
 import neat_core.service.species_service as ss
 from neat_core.activation_function import step_function
+from neat_core.models.agent import Agent
 from neat_core.models.connection import Connection
 from neat_core.models.genome import Genome
 from neat_core.models.node import Node, NodeType
 from neat_core.optimizer.neat_config import NeatConfig
+from neat_single_core.species_id_generator_single_core import SpeciesIDGeneratorSingleCore
 
 
 class SpeciesServiceTest(TestCase):
@@ -48,7 +51,11 @@ class SpeciesServiceTest(TestCase):
         ]
         self.g2 = Genome(2, 2, self.g2_nodes, self.g2_connections)
 
-        self.config = NeatConfig(compatibility_factor_matching_genes=1, compatibility_factor_disjoint_genes=2)
+        self.agent1 = Agent(self.g1)
+        self.agent2 = Agent(self.g2)
+
+        self.config = NeatConfig(compatibility_factor_matching_genes=1, compatibility_factor_disjoint_genes=2,
+                                 compatibility_threshold=2.5)
 
     def test_calculate_genetic_distance(self):
         genetic_distance = ss.calculate_genetic_distance(self.g1, self.g2, self.config)
@@ -75,3 +82,40 @@ class SpeciesServiceTest(TestCase):
         matching_genes_value = 1.36 * self.config.compatibility_factor_matching_genes
         self.assertEqual(disjoint_gene_value + matching_genes_value,
                          ss._calculate_genetic_distance_connections(self.g1, self.g2, self.config))
+
+    def test_sort_agents_into_species(self):
+        species_id_generator = SpeciesIDGeneratorSingleCore()
+        species_list_new = ss.sort_agents_into_species([], [self.agent1, self.agent2], species_id_generator,
+                                                       self.config)
+        self.assertEqual(2, len(species_list_new))
+
+        # Test first species
+        self.assertEqual(self.g1, species_list_new[0].representative)
+        self.assertEqual(1, len(species_list_new[0].members))
+        self.assertEqual(self.agent1, species_list_new[0].members[0])
+        self.assertEqual(0, species_list_new[0].id_)
+
+        # Test second species
+        self.assertEqual(self.g2, species_list_new[1].representative)
+        self.assertEqual(1, len(species_list_new[1].members))
+        self.assertEqual(self.agent2, species_list_new[1].members[0])
+        self.assertEqual(1, species_list_new[1].id_)
+
+        # Insert one more matching genome
+        genome_new = rs.deep_copy_genome(self.g1)
+        agent_new = Agent(genome_new)
+
+        species_list_new = ss.sort_agents_into_species(species_list_new, [agent_new], species_id_generator, self.config)
+        self.assertEqual(2, len(species_list_new))
+        # Test first species
+        self.assertEqual(self.g1, species_list_new[0].representative)
+        self.assertEqual(2, len(species_list_new[0].members))
+        self.assertEqual(self.agent1, species_list_new[0].members[0])
+        self.assertEqual(agent_new, species_list_new[0].members[1])
+        self.assertEqual(0, species_list_new[0].id_)
+
+        # Test second species
+        self.assertEqual(self.g2, species_list_new[1].representative)
+        self.assertEqual(1, len(species_list_new[1].members))
+        self.assertEqual(self.agent2, species_list_new[1].members[0])
+        self.assertEqual(1, species_list_new[1].id_)

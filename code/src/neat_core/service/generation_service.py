@@ -107,7 +107,7 @@ def _build_generation_from_genome(initial_genome: Genome, rnd: np.random.RandomS
         genomes.append(copied_genome)
 
     agents = [Agent(genome) for genome in genomes]
-    species = Species(representative=genomes[0], members=agents)
+    species = Species(id_=1, representative=genomes[0], members=agents)
 
     return Generation(0, agents, [species])
 

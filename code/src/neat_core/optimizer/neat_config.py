@@ -18,7 +18,8 @@ class NeatConfig(object):
                  probability_mutate_add_node: float = 0.03,
                  probability_enable_gene: float = 0.25,
                  compatibility_factor_disjoint_genes: float = 1.0,
-                 compatibility_factor_matching_genes: float = 0.4
+                 compatibility_factor_matching_genes: float = 0.4,
+                 compatibility_threshold: float = 3.0
                  ) -> None:
         # General params
         self.population_size: int = population_size
@@ -56,3 +57,4 @@ class NeatConfig(object):
         # Compatibility factors
         self.compatibility_factor_disjoint_genes: float = compatibility_factor_disjoint_genes
         self.compatibility_factor_matching_genes: float = compatibility_factor_matching_genes
+        self.compatibility_threshold: float = compatibility_threshold

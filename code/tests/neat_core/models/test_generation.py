@@ -22,7 +22,7 @@ class GenerationTest(TestCase):
         agent2 = Agent(genome2)
         members = [agent1, agent2]
 
-        species = [Species(genome2, [agent1, agent2], max_species_fitness=10, generation_max_species_fitness=3,
+        species = [Species(1, genome2, [agent1, agent2], max_species_fitness=10, generation_max_species_fitness=3,
                            sum_fitness=12, sum_adjusted_fitness=8)]
 
         generation = Generation(2, members, species)

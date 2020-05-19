@@ -6,9 +6,10 @@ from neat_core.models.genome import Genome
 
 class Species(object):
 
-    def __init__(self, representative: Genome, members: List[Agent], max_species_fitness: float = None,
+    def __init__(self, id_: int, representative: Genome, members: List[Agent], max_species_fitness: float = None,
                  generation_max_species_fitness: float = None, sum_fitness: float = None,
                  sum_adjusted_fitness: float = None) -> None:
+        self.id_ = id_
         self.representative: Genome = representative
         self.sum_fitness: float = sum_fitness
         self.sum_adjusted_fitness: float = sum_adjusted_fitness

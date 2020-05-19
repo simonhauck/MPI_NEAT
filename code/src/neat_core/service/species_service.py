@@ -1,4 +1,9 @@
+from typing import List
+
+from neat_core.models.agent import Agent
 from neat_core.models.genome import Genome
+from neat_core.models.species import Species
+from neat_core.models.species_id_generator import SpeciesIDGeneratorInterface
 from neat_core.optimizer.neat_config import NeatConfig
 
 
@@ -86,3 +91,30 @@ def _calculate_genetic_distance_connections(genome1: Genome, genome2: Genome, co
         matching_genes) * config.compatibility_factor_matching_genes
 
     return disjoint_genes_result + matching_genes_result
+
+
+def sort_agents_into_species(existing_species: List[Species], agents: List[Agent],
+                             species_id_generator: SpeciesIDGeneratorInterface, config: NeatConfig) -> List[Species]:
+    """
+    Sort the given agents into the given list of species, according to the compatibility. If no matching species is
+    found for an agent, a new species is created and the agent is placed inside it.
+    Note: The existing members of a species are not deleted!
+    :param existing_species: a list of existing species.
+    :param agents: a list of agents that should be placed into species
+    :param species_id_generator to generate new ids for species
+    :param config: a neat config with the required compatibility parameters
+    :return: the list of species with the sorted agents
+    """
+    for agent in agents:
+        for species in existing_species:
+            compatibility = calculate_genetic_distance(agent.genome, species.representative, config)
+            if compatibility <= config.compatibility_threshold:
+                species.members.append(agent)
+                break
+        else:
+            # Not found a matching element,
+            new_species_id = species_id_generator.get_species_id()
+            new_species = Species(new_species_id, agent.genome, [agent])
+            existing_species.append(new_species)
+
+    return existing_species

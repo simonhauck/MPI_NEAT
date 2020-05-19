@@ -18,7 +18,7 @@ class SpeciesTest(TestCase):
                                           InnovationNumberGeneratorSingleCore())
         members = [Agent(genome1)]
 
-        species = Species(genome2, members, max_species_fitness=10, generation_max_species_fitness=3, sum_fitness=12,
+        species = Species(1, genome2, members, max_species_fitness=10, generation_max_species_fitness=3, sum_fitness=12,
                           sum_adjusted_fitness=8)
 
         self.assertEqual(genome2, species.representative)
@@ -27,3 +27,4 @@ class SpeciesTest(TestCase):
         self.assertEqual(10, species.max_species_fitness)
         self.assertEqual(3, species.generation_max_species_fitness)
         self.assertEqual(members, species.members)
+        self.assertEqual(1, species.id_)
