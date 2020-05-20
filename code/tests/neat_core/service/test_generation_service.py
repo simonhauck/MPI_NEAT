@@ -60,6 +60,7 @@ class GenerationServiceTest(TestCase):
         self.assertEqual(0, generation.number)
         self.assertEqual(1, len(generation.species_list))
         self.assertEqual(3, len(generation.species_list[0].members))
+        self.assertEqual(1, generation.seed)
 
         # First three random numbers
         # 1 - 12710949
@@ -112,12 +113,13 @@ class GenerationServiceTest(TestCase):
                                  Connection(2, 1, 2, -5, True)])
 
         rnd = np.random.RandomState(1)
-        generation = gs._build_generation_from_genome(initial_genome, rnd, NeatConfig(population_size=3))
+        generation = gs._build_generation_from_genome(initial_genome, 19, rnd, NeatConfig(population_size=3))
 
         self.assertEqual(3, len(generation.agents))
         self.assertEqual(0, generation.number)
         self.assertEqual(1, len(generation.species_list))
         self.assertEqual(3, len(generation.species_list[0].members))
+        self.assertEqual(19, generation.seed)
 
         # First three random numbers
         # 1 - 12710949

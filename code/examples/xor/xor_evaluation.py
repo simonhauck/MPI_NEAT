@@ -1,17 +1,18 @@
-from typing import Dict, List
+from typing import Dict
 
+import matplotlib.pyplot as plt
 from loguru import logger
 
 from neat_core.activation_function import modified_sigmoid_function
 from neat_core.models.agent import Agent
 from neat_core.models.generation import Generation
-from neat_core.models.species import Species
 from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer import NeatOptimizer
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
 from neat_single_core.neat_optimizer_single_core import NeatOptimizerSingleCore
 from neural_network.neural_network_interface import NeuralNetworkInterface
+from utils.visualization.genome_visualization import NetworkXGenomeGraph
 
 
 class ChallengeXOR(Challenge):
@@ -51,8 +52,9 @@ class XOROptimizer(NeatOptimizerCallback):
         self.optimizer.register_callback(self)
 
         self.agent_solved = None
+        self.counter = 0
 
-        self.optimizer.start_evaluation(amount_input_nodes=3,
+        self.optimizer.start_evaluation(amount_input_nodes=2,
                                         amount_output_nodes=1,
                                         activation_function=modified_sigmoid_function,
                                         challenge=ChallengeXOR(),
@@ -61,25 +63,28 @@ class XOROptimizer(NeatOptimizerCallback):
     def on_initialization(self) -> None:
         logger.info("On initialization called...")
 
-    def on_generation_evaluation_start(self, generation: Generation, species_list: List[Species]) -> None:
+    def on_generation_evaluation_start(self, generation: Generation) -> None:
         logger.info(
             "Starting evaluation of generation {} with {} agents".format(generation.number, len(generation.agents)))
 
     def on_agent_evaluation_start(self, agent: Agent) -> None:
-        logger.info("Starting evaluation of agent...")
+        logger.debug("Starting evaluation of agent {}...".format(self.counter))
 
     def on_agent_evaluation_end(self, agent: Agent) -> None:
-        logger.info("Finished evaluation of agent with fitness {}".format(agent.fitness))
+        logger.debug("Finished evaluation of agent {} with fitness {}".format(self.counter, agent.fitness))
+        self.counter += 1
 
-        if "solved" in agent.additional_info and agent.additional_info["solved"]:
+        if "solved" in agent.additional_info and agent.additional_info["solved"] or True:
             self.agent_solved = agent
 
-    def on_generation_evaluation_end(self, generation: Generation, species_list: List[Species]) -> None:
+    def on_generation_evaluation_end(self, generation: Generation) -> None:
         logger.info("Finished evaluation of generation {}".format(generation.number))
 
         if self.agent_solved is not None:
             self.optimizer.cleanup()
             logger.info("--------- Solution found ------------------")
+        else:
+            self.optimizer.evaluate_next_generation()
 
     def on_cleanup(self) -> None:
         logger.info("Cleanup called...")
@@ -87,3 +92,6 @@ class XOROptimizer(NeatOptimizerCallback):
 
 if __name__ == '__main__':
     xor_optimizer = XOROptimizer(NeatOptimizerSingleCore())
+    graph = NetworkXGenomeGraph()
+    graph.draw_genome_graph(xor_optimizer.agent_solved.genome, draw_labels=False)
+    plt.show()

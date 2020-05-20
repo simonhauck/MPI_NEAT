@@ -1,5 +1,4 @@
 from abc import ABC
-from collections import Callable
 
 from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
@@ -29,7 +28,7 @@ class NeatOptimizer(ABC):
     def start_evaluation(self,
                          amount_input_nodes: int,
                          amount_output_nodes: int,
-                         activation_function: Callable[[float], float],
+                         activation_function,
                          challenge: Challenge,
                          config: NeatConfig,
                          seed: int = None) -> None:

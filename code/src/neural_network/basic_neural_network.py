@@ -123,7 +123,7 @@ class BasicNeuralNetwork(NeuralNetworkInterface):
 
         # Get output neurons
         result = [output_neuron.val for output_neuron in self.output_neurons]
-        logger.debug("Net activated: Output: {} | Input: {}".format(result, inputs))
+        logger.trace("Net activated: Output: {} | Input: {}".format(result, inputs))
         return result
 
     def _get_input_value_from_neuron(self, target_innovation_number: Union[int, str], x_position: float) -> float:

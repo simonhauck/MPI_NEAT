@@ -53,8 +53,9 @@ class NetworkXGenomeGraph(object):
                                             connectionstyle='arc3, rad=0.1')
         # Bug in the library, can't set the line style.:
         # https://stackoverflow.com/questions/51138059/no-dotted-line-with-networkx-drawn-on-basemap/51148746#51148746?s=e8a8f3c423e84da9aa77b1259b3ad829
-        for patch in collection:
-            patch.set_linestyle('dashed')
+        if collection is not None:
+            for patch in collection:
+                patch.set_linestyle('dashed')
 
         # Draw graph edges labels
         if draw_labels:

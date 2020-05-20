@@ -16,7 +16,7 @@ from neat_core.optimizer.neat_config import NeatConfig
 def create_initial_generation(amount_input_nodes: int, amount_output_nodes: int,
                               activation_function: Callable[[float], float],
                               generator: InnovationNumberGeneratorInterface,
-                              config: NeatConfig, seed: int = None) -> Generation:
+                              config: NeatConfig, seed: int) -> Generation:
     """
     Create an initial generation, with the specified genome information. The network will be fully connected.
     :param amount_input_nodes: the amount if input nodes in the neural network
@@ -24,20 +24,20 @@ def create_initial_generation(amount_input_nodes: int, amount_output_nodes: int,
     :param activation_function: the used activation function for the nodes
     :param generator: implementation to generate innovation numbers
     :param config: a NeatConfig to set weights and population size
-    :param seed: fo generate deterministic random values
+    :param seed: to generate deterministic random values
     :return: the generated generation
     """
     rnd = np.random.RandomState(seed)
 
-    # Create all genomes
+    # Create genome structure
     genome_structure = create_genome_structure(amount_input_nodes, amount_output_nodes, activation_function, config,
                                                generator)
 
-    return _build_generation_from_genome(genome_structure, rnd, config)
+    return _build_generation_from_genome(genome_structure, seed, rnd, config)
 
 
 def create_initial_generation_genome(genome: Genome, generator: InnovationNumberGeneratorInterface, config: NeatConfig,
-                                     seed=None) -> Generation:
+                                     seed: int) -> Generation:
     """
     Create an initial generation, with the given genome. This function only uses the structure of the genome. The nodes
     and connections will receive new innovation numbers according to the given InnovationNumberGeneratorInterface.
@@ -77,7 +77,7 @@ def create_initial_generation_genome(genome: Genome, generator: InnovationNumber
 
     rnd = np.random.RandomState(seed)
 
-    return _build_generation_from_genome(initial_genome, rnd, config)
+    return _build_generation_from_genome(initial_genome, seed, rnd, config)
 
 
 def _randomize_weight_bias(genome: Genome, rnd: np.random.RandomState(), config: NeatConfig) -> Genome:
@@ -86,10 +86,12 @@ def _randomize_weight_bias(genome: Genome, rnd: np.random.RandomState(), config:
     return genome
 
 
-def _build_generation_from_genome(initial_genome: Genome, rnd: np.random.RandomState, config: NeatConfig) -> Generation:
+def _build_generation_from_genome(initial_genome: Genome, generation_seed: int, rnd: np.random.RandomState,
+                                  config: NeatConfig) -> Generation:
     """
     Build a generation from the given genome. The genome will be copied and the weight and biases will be randomized
     :param initial_genome: the genome as initial structure
+    :param generation_seed the seed for the generation
     :param rnd: a random generator to generate the seeds
     :param config: the neat config to specify the weights bounds
     :return: a new initialized generation with number 0, the created agents, and one species
@@ -109,7 +111,7 @@ def _build_generation_from_genome(initial_genome: Genome, rnd: np.random.RandomS
     agents = [Agent(genome) for genome in genomes]
     species = Species(id_=1, representative=genomes[0], members=agents)
 
-    return Generation(0, agents, [species])
+    return Generation(0, generation_seed, agents, [species])
 
 
 def create_genome_structure(amount_input_nodes: int, amount_output_nodes: int, activation_function,

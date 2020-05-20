@@ -1,8 +1,5 @@
-from typing import List
-
 from neat_core.models.agent import Agent
 from neat_core.models.generation import Generation
-from neat_core.models.species import Species
 
 
 class NeatOptimizerCallback(object):
@@ -15,7 +12,7 @@ class NeatOptimizerCallback(object):
         """
         pass
 
-    def on_generation_evaluation_start(self, generation: Generation, species_list: List[Species]) -> None:
+    def on_generation_evaluation_start(self, generation: Generation) -> None:
         """
         Called with the start of the evaluation of each generation.
         :return: None
@@ -36,7 +33,7 @@ class NeatOptimizerCallback(object):
         """
         pass
 
-    def on_generation_evaluation_end(self, generation: Generation, species_list: List[Species]) -> None:
+    def on_generation_evaluation_end(self, generation: Generation) -> None:
         """
         Called with the end of the evaluation of each generation
         :return: None

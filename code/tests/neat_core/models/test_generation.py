@@ -25,8 +25,10 @@ class GenerationTest(TestCase):
         species = [Species(1, genome2, [agent1, agent2], max_species_fitness=10, generation_max_species_fitness=3,
                            sum_fitness=12, sum_adjusted_fitness=8)]
 
-        generation = Generation(2, members, species)
+        seed = 10
+        generation = Generation(2, seed, members, species)
 
         self.assertEqual(2, generation.number)
         self.assertEqual(species, generation.species_list)
         self.assertEqual(members, generation.agents)
+        self.assertEqual(seed, generation.seed)
