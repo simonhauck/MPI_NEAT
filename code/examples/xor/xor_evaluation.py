@@ -18,6 +18,10 @@ from neural_network.basic_neural_network import BasicNeuralNetwork
 from neural_network.neural_network_interface import NeuralNetworkInterface
 from utils.visualization import text_representation
 
+logger.remove()
+# logger.add(sys.stderr, level="DEBUG")
+logger.add(sys.stdout, colorize=True, format="<green>{time}</green> | {level}   | <level>{message}</level>")
+
 
 class ChallengeXOR(Challenge):
     xor_tuples = [
@@ -63,8 +67,6 @@ class XOROptimizer(NeatOptimizerCallback):
                            seed=1)
 
     def evaluate_fix_structure(self, optimizer: NeatOptimizer):
-        logger.remove()
-        logger.add(sys.stderr, level="DEBUG")
 
         optimizer.register_callback(self)
         config = NeatConfig()
@@ -76,12 +78,12 @@ class XOROptimizer(NeatOptimizerCallback):
              Node(2, NodeType.OUTPUT, 0, modified_sigmoid_function, 1),
              Node(3, NodeType.HIDDEN, 0, modified_sigmoid_function, 0.5),
              Node(4, NodeType.HIDDEN, 0, modified_sigmoid_function, 0.5)],
-            [Connection(1, 0, 3, 0, True),
-             Connection(2, 1, 3, 0, True),
-             Connection(3, 0, 4, 0, True),
-             Connection(4, 1, 4, 0, True),
-             Connection(5, 3, 2, 0, True),
-             Connection(6, 4, 2, 0, True)]
+            [Connection(1, 0, 3, 0.1, True),
+             Connection(2, 1, 3, 0.1, True),
+             Connection(3, 0, 4, 0.1, True),
+             Connection(4, 1, 4, 0.1, True),
+             Connection(5, 3, 2, 0.1, True),
+             Connection(6, 4, 2, 0.1, True)]
         )
 
         optimizer.evaluate_genome_structure(genome_structure=genome,
@@ -113,6 +115,10 @@ class XOROptimizer(NeatOptimizerCallback):
         for agent in generation.agents:
             if agent.additional_info["solved"]:
                 text_representation.print_agent(agent)
+
+                # graph = NetworkXGenomeGraph()
+                # graph.draw_genome_graph(agent.genome, draw_labels=False)
+                # plt.show()
 
                 # Print actual results
                 nn = BasicNeuralNetwork()
