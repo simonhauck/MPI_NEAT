@@ -1,5 +1,6 @@
 from abc import ABC
 
+from neat_core.models.genome import Genome
 from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
@@ -25,13 +26,13 @@ class NeatOptimizer(ABC):
         """
         self.callback = None
 
-    def start_evaluation(self,
-                         amount_input_nodes: int,
-                         amount_output_nodes: int,
-                         activation_function,
-                         challenge: Challenge,
-                         config: NeatConfig,
-                         seed: int = None) -> None:
+    def evaluate(self,
+                 amount_input_nodes: int,
+                 amount_output_nodes: int,
+                 activation_function,
+                 challenge: Challenge,
+                 config: NeatConfig,
+                 seed: int) -> None:
         """
         Start the evaluation process with new genomes
         :param amount_input_nodes:  the number of inputs nodes in the genome
@@ -44,16 +45,13 @@ class NeatOptimizer(ABC):
         """
         pass
 
-    def evaluate_next_generation(self):
+    def evaluate_genome_structure(self, genome_structure: Genome, challenge: Challenge, config: NeatConfig, seed: int):
         """
-        Create next generations. Should be called, after the evaluation of a generation has finished
-        :return: None
-        """
-        pass
-
-    def cleanup(self) -> None:
-        """
-        Cleanup the challenges, should be called at the end of the evaluation process
-        :return: None
+        Create a generation with the given genome. Only the structure of the genome is used
+        :param genome_structure: the blueprint for the genomes
+        :param challenge: the challenge that should be solved
+        :param config: a neat config that specifies the parameters
+        :param seed: a seed for the challenge
+        :return:
         """
         pass

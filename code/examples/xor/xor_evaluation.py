@@ -1,18 +1,22 @@
+import sys
 from typing import Dict
 
-import matplotlib.pyplot as plt
 from loguru import logger
 
 from neat_core.activation_function import modified_sigmoid_function
 from neat_core.models.agent import Agent
+from neat_core.models.connection import Connection
 from neat_core.models.generation import Generation
+from neat_core.models.genome import Genome
+from neat_core.models.node import Node, NodeType
 from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer import NeatOptimizer
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
 from neat_single_core.neat_optimizer_single_core import NeatOptimizerSingleCore
+from neural_network.basic_neural_network import BasicNeuralNetwork
 from neural_network.neural_network_interface import NeuralNetworkInterface
-from utils.visualization.genome_visualization import NetworkXGenomeGraph
+from utils.visualization import text_representation
 
 
 class ChallengeXOR(Challenge):
@@ -47,18 +51,43 @@ class ChallengeXOR(Challenge):
 
 class XOROptimizer(NeatOptimizerCallback):
 
-    def __init__(self, optimizer: NeatOptimizer) -> None:
-        self.optimizer = optimizer
-        self.optimizer.register_callback(self)
+    def evaluate(self, optimizer: NeatOptimizer):
+        optimizer.register_callback(self)
+        config = NeatConfig()
 
-        self.agent_solved = None
-        self.counter = 0
+        optimizer.evaluate(amount_input_nodes=2,
+                           amount_output_nodes=1,
+                           activation_function=modified_sigmoid_function,
+                           challenge=ChallengeXOR(),
+                           config=config,
+                           seed=1)
 
-        self.optimizer.start_evaluation(amount_input_nodes=2,
-                                        amount_output_nodes=1,
-                                        activation_function=modified_sigmoid_function,
-                                        challenge=ChallengeXOR(),
-                                        config=NeatConfig())
+    def evaluate_fix_structure(self, optimizer: NeatOptimizer):
+        logger.remove()
+        logger.add(sys.stderr, level="DEBUG")
+
+        optimizer.register_callback(self)
+        config = NeatConfig()
+
+        genome = Genome(
+            0, 0,
+            [Node(0, NodeType.INPUT, 0, modified_sigmoid_function, 0),
+             Node(1, NodeType.INPUT, 0, modified_sigmoid_function, 0),
+             Node(2, NodeType.OUTPUT, 0, modified_sigmoid_function, 1),
+             Node(3, NodeType.HIDDEN, 0, modified_sigmoid_function, 0.5),
+             Node(4, NodeType.HIDDEN, 0, modified_sigmoid_function, 0.5)],
+            [Connection(1, 0, 3, 0, True),
+             Connection(2, 1, 3, 0, True),
+             Connection(3, 0, 4, 0, True),
+             Connection(4, 1, 4, 0, True),
+             Connection(5, 3, 2, 0, True),
+             Connection(6, 4, 2, 0, True)]
+        )
+
+        optimizer.evaluate_genome_structure(genome_structure=genome,
+                                            challenge=ChallengeXOR(),
+                                            config=config,
+                                            seed=1)
 
     def on_initialization(self) -> None:
         logger.info("On initialization called...")
@@ -67,31 +96,42 @@ class XOROptimizer(NeatOptimizerCallback):
         logger.info(
             "Starting evaluation of generation {} with {} agents".format(generation.number, len(generation.agents)))
 
-    def on_agent_evaluation_start(self, agent: Agent) -> None:
-        logger.debug("Starting evaluation of agent {}...".format(self.counter))
+    def on_agent_evaluation_start(self, i: int, agent: Agent) -> None:
+        logger.debug("Starting evaluation of agent {}...".format(i))
 
-    def on_agent_evaluation_end(self, agent: Agent) -> None:
-        logger.debug("Finished evaluation of agent {} with fitness {}".format(self.counter, agent.fitness))
-        self.counter += 1
-
-        if "solved" in agent.additional_info and agent.additional_info["solved"] or True:
-            self.agent_solved = agent
+    def on_agent_evaluation_end(self, i: int, agent: Agent) -> None:
+        logger.debug("Finished evaluation of agent {} with fitness {}".format(i, agent.fitness))
 
     def on_generation_evaluation_end(self, generation: Generation) -> None:
         logger.info("Finished evaluation of generation {}".format(generation.number))
 
-        if self.agent_solved is not None:
-            self.optimizer.cleanup()
-            logger.info("--------- Solution found ------------------")
-        else:
-            self.optimizer.evaluate_next_generation()
-
     def on_cleanup(self) -> None:
         logger.info("Cleanup called...")
 
+    def on_finish(self, generation: Generation) -> None:
+        logger.info("OnFinish called with generation {}".format(generation.number))
+        for agent in generation.agents:
+            if agent.additional_info["solved"]:
+                text_representation.print_agent(agent)
+
+                # Print actual results
+                nn = BasicNeuralNetwork()
+                nn.build(agent.genome)
+                for xor_tuple in ChallengeXOR.xor_tuples:
+                    actual_result = nn.activate([xor_tuple[0], xor_tuple[1]])
+                    logger.info(
+                        "Input1: {}, Input2: {}, Expected Output: {}, Actual Output: {}".format(xor_tuple[0],
+                                                                                                xor_tuple[1],
+                                                                                                xor_tuple[2],
+                                                                                                actual_result))
+
+    def finish_evaluation(self, generation: Generation) -> bool:
+        for agent in generation.agents:
+            if agent.additional_info["solved"]:
+                return True
+        return False
+
 
 if __name__ == '__main__':
-    xor_optimizer = XOROptimizer(NeatOptimizerSingleCore())
-    graph = NetworkXGenomeGraph()
-    graph.draw_genome_graph(xor_optimizer.agent_solved.genome, draw_labels=False)
-    plt.show()
+    xor_optimizer = XOROptimizer()
+    xor_optimizer.evaluate_fix_structure(NeatOptimizerSingleCore())

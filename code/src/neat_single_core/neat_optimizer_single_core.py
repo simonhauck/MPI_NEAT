@@ -1,12 +1,9 @@
 import numpy as np
 
-from neat_core.activation_function import modified_sigmoid_function
 from neat_core.models.agent import Agent
-from neat_core.models.connection import Connection
 from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
 from neat_core.models.inno_num_generator_interface import InnovationNumberGeneratorInterface
-from neat_core.models.node import Node, NodeType
 from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer import NeatOptimizer
@@ -18,91 +15,104 @@ from neural_network.basic_neural_network import BasicNeuralNetwork
 
 class NeatOptimizerSingleCore(NeatOptimizer):
 
-    def __init__(self):
-        super().__init__()
-        self.current_generation: Generation = None
-        self.innovation_number_generator: InnovationNumberGeneratorInterface = None
-        self.config: NeatConfig = None
-        self.challenge: Challenge = None
+    def evaluate(self, amount_input_nodes: int, amount_output_nodes,
+                 activation_function, challenge: Challenge, config: NeatConfig,
+                 seed: int) -> None:
+        assert self.callback is not None
 
-    def start_evaluation(self, amount_input_nodes: int, amount_output_nodes,
-                         activation_function, challenge: Challenge, config: NeatConfig,
-                         seed: int = 1) -> None:
-        self.innovation_number_generator = InnovationNumberGeneratorSingleCore()
-        self.config = config
-        self.challenge = challenge
+        # Initialize Parameters
+        innovation_number_generator = InnovationNumberGeneratorSingleCore()
 
         # Notify callback about starting evaluation
         self.callback.on_initialization()
         # Prepare challenge
-        self.challenge.initialization()
+        challenge.initialization()
 
-        # self.current_generation = gs.create_initial_generation(amount_input_nodes, amount_output_nodes,
-        #                                                        activation_function,
-        #                                                        self.innovation_number_generator,
-        #                                                        self.config,
-        #                                                        seed)
+        initial_generation = gs.create_initial_generation(amount_input_nodes, amount_output_nodes, activation_function,
+                                                          innovation_number_generator, config, seed)
 
-        genome = Genome(
-            0, 0,
-            [Node(0, NodeType.INPUT, 0, modified_sigmoid_function, 0),
-             Node(1, NodeType.INPUT, 0, modified_sigmoid_function, 0),
-             Node(2, NodeType.OUTPUT, 0, modified_sigmoid_function, 1),
-             Node(3, NodeType.HIDDEN, 0, modified_sigmoid_function, 0.5),
-             Node(4, NodeType.HIDDEN, 0, modified_sigmoid_function, 0.5)],
-            [Connection(1, 0, 3, 0, True),
-             Connection(2, 1, 3, 0, True),
-             Connection(3, 0, 4, 0, True),
-             Connection(4, 1, 4, 0, True),
-             Connection(5, 3, 2, 0, True),
-             Connection(6, 4, 2, 0, True)]
-        )
-        self.current_generation = gs.create_initial_generation_genome(genome, self.innovation_number_generator,
-                                                                      self.config, seed)
+        finished_generation = self._evaluation_loop(initial_generation, challenge, innovation_number_generator, config)
 
-        self._evaluate_generation()
+        # Finish the evaluation and notify the callback
+        self._cleanup(challenge)
+        self.callback.on_finish(finished_generation)
 
-    def evaluate_next_generation(self):
-        next_generation_number = self.current_generation.number + 1
+    def evaluate_genome_structure(self, genome_structure: Genome, challenge: Challenge, config: NeatConfig, seed: int):
+        assert self.callback is not None
 
-        new_agents = []
-        rnd = np.random.RandomState()
-        for agent in self.current_generation.agents:
-            copied_genome = rp.deep_copy_genome(agent.genome)
-            copied_genome = rp.mutate_weights(copied_genome, rnd, self.config)
-            copied_genome = rp.mutate_bias(copied_genome, rnd, self.config)
-            new_agents.append(Agent(copied_genome))
+        # Initialize Parameters
+        innovation_number_generator = InnovationNumberGeneratorSingleCore()
 
-        self.current_generation = Generation(next_generation_number, 0, new_agents, [])
+        # Notify callback about starting evaluation
+        self.callback.on_initialization()
+        # Prepare challenge
+        challenge.initialization()
 
-        self._evaluate_generation()
+        initial_generation = gs.create_initial_generation_genome(genome_structure, innovation_number_generator,
+                                                                 config, seed)
 
-    def cleanup(self) -> None:
-        # Notify callback and challenge
-        self.challenge.clean_up()
-        self.callback.on_cleanup()
+        finished_generation = self._evaluation_loop(initial_generation, challenge, innovation_number_generator, config)
 
-    def _evaluate_generation(self):
+        # Finish the evaluation and notify the callback
+        self._cleanup(challenge)
+        self.callback.on_finish(finished_generation)
+
+    def _evaluation_loop(self, generation: Generation, challenge: Challenge,
+                         innovation_number_generator: InnovationNumberGeneratorInterface,
+                         config: NeatConfig) -> Generation:
+
+        current_generation = generation
+        while True:
+            current_generation = self._evaluate_generation(current_generation, challenge)
+
+            # Should e new generation be built?
+            if self.callback.finish_evaluation(current_generation):
+                break
+
+            current_generation = self._build_new_generation(current_generation, innovation_number_generator, config)
+
+        return current_generation
+
+    def _evaluate_generation(self, generation: Generation, challenge: Challenge):
         # Notify callback
-        self.callback.on_generation_evaluation_start(self.current_generation)
+        self.callback.on_generation_evaluation_start(generation)
 
-        for agent in self.current_generation.agents:
+        for i, agent in zip(range(len(generation.agents)), generation.agents):
             # Prepare challenge and notify callback
-            self.callback.on_agent_evaluation_start(agent)
-            self.challenge.before_evaluation()
+            self.callback.on_agent_evaluation_start(i, agent)
+            challenge.before_evaluation()
 
             # Create and build neural network
             neural_network = BasicNeuralNetwork()
             neural_network.build(agent.genome)
 
             # Evaluate agent, set values
-            fitness, additional_info = self.challenge.evaluate(neural_network)
+            fitness, additional_info = challenge.evaluate(neural_network)
             agent.fitness = fitness
             agent.additional_info = additional_info
 
             # Postprocess challenge and notify callback
-            self.challenge.after_evaluation()
-            self.callback.on_agent_evaluation_end(agent)
+            challenge.after_evaluation()
+            self.callback.on_agent_evaluation_end(i, agent)
 
         # Notify callback
-        self.callback.on_generation_evaluation_end(self.current_generation)
+        self.callback.on_generation_evaluation_end(generation)
+        return generation
+
+    def _build_new_generation(self, generation: Generation,
+                              innovation_number_generator: InnovationNumberGeneratorInterface,
+                              config: NeatConfig) -> Generation:
+        new_agents = []
+        rnd = np.random.RandomState()
+        for agent in generation.agents:
+            copied_genome = rp.deep_copy_genome(agent.genome)
+            copied_genome = rp.mutate_weights(copied_genome, rnd, config)
+            copied_genome = rp.mutate_bias(copied_genome, rnd, config)
+            new_agents.append(Agent(copied_genome))
+
+        return Generation(generation.number + 1, 0, new_agents, [])
+
+    def _cleanup(self, challenge: Challenge) -> None:
+        # Notify callback and challenge
+        challenge.clean_up()
+        self.callback.on_cleanup()
