@@ -1,6 +1,7 @@
 import sys
 from typing import Dict
 
+import matplotlib.pyplot as plt
 from loguru import logger
 
 from neat_core.activation_function import modified_sigmoid_function
@@ -16,11 +17,15 @@ from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
 from neat_single_core.neat_optimizer_single_core import NeatOptimizerSingleCore
 from neural_network.basic_neural_network import BasicNeuralNetwork
 from neural_network.neural_network_interface import NeuralNetworkInterface
-from utils.visualization import text_representation
+from utils.fitness_evaluation import fitness_evaluation_utils
+from utils.visualization import generation_visualization
+from utils.visualization import genome_visualization
+from utils.visualization import text_visualization
 
 logger.remove()
 # logger.add(sys.stderr, level="DEBUG")
-logger.add(sys.stdout, colorize=True, format="<green>{time}</green> | {level}   | <level>{message}</level>")
+logger.add(sys.stdout, colorize=True, format="<green>{time}</green> | {level}   | <level>{message}</level>",
+           level="INFO")
 
 
 class ChallengeXOR(Challenge):
@@ -55,6 +60,9 @@ class ChallengeXOR(Challenge):
 
 class XOROptimizer(NeatOptimizerCallback):
 
+    def __init__(self) -> None:
+        self.plot_data = generation_visualization.PlotData()
+
     def evaluate(self, optimizer: NeatOptimizer):
         optimizer.register_callback(self)
         config = NeatConfig()
@@ -67,7 +75,6 @@ class XOROptimizer(NeatOptimizerCallback):
                            seed=1)
 
     def evaluate_fix_structure(self, optimizer: NeatOptimizer):
-
         optimizer.register_callback(self)
         config = NeatConfig()
 
@@ -106,36 +113,39 @@ class XOROptimizer(NeatOptimizerCallback):
 
     def on_generation_evaluation_end(self, generation: Generation) -> None:
         logger.info("Finished evaluation of generation {}".format(generation.number))
+        self.plot_data.add_generation(generation)
 
     def on_cleanup(self) -> None:
         logger.info("Cleanup called...")
 
     def on_finish(self, generation: Generation) -> None:
         logger.info("OnFinish called with generation {}".format(generation.number))
-        for agent in generation.agents:
-            if agent.additional_info["solved"]:
-                text_representation.print_agent(agent)
 
-                # graph = NetworkXGenomeGraph()
-                # graph.draw_genome_graph(agent.genome, draw_labels=False)
-                # plt.show()
+        # Get the best agent
+        agent = fitness_evaluation_utils.get_best_agent(generation.agents)
 
-                # Print actual results
-                nn = BasicNeuralNetwork()
-                nn.build(agent.genome)
-                for xor_tuple in ChallengeXOR.xor_tuples:
-                    actual_result = nn.activate([xor_tuple[0], xor_tuple[1]])
-                    logger.info(
-                        "Input1: {}, Input2: {}, Expected Output: {}, Actual Output: {}".format(xor_tuple[0],
+        # Print genome
+        text_visualization.print_agent(agent)
+
+        # Draw genome
+        generation_visualization.plot_fitness_values(self.plot_data)
+        plt.show()
+        genome_visualization.draw_genome_graph(agent.genome, draw_labels=True)
+        plt.show()
+
+        # Print actual results
+        nn = BasicNeuralNetwork()
+        nn.build(agent.genome)
+        for xor_tuple in ChallengeXOR.xor_tuples:
+            actual_result = nn.activate([xor_tuple[0], xor_tuple[1]])
+            logger.info("Input1: {}, Input2: {}, Expected Output: {}, Actual Output: {}".format(xor_tuple[0],
                                                                                                 xor_tuple[1],
                                                                                                 xor_tuple[2],
                                                                                                 actual_result))
 
     def finish_evaluation(self, generation: Generation) -> bool:
-        for agent in generation.agents:
-            if agent.additional_info["solved"]:
-                return True
-        return False
+        best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
+        return best_agent.additional_info["solved"]
 
 
 if __name__ == '__main__':

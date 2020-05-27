@@ -25,8 +25,8 @@ class BasicNeuron(object):
         self.x_position: float = x_position
 
         self.bias: float = bias
-        self.weights = np.ndarray = weights
-        self.input_keys = np.ndarray = input_keys
+        self.weights: np.ndarray = weights
+        self.input_keys: np.ndarray = input_keys
         self.activation_function: Callable[[float], float] = activation_function
 
 

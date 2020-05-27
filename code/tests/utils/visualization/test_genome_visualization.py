@@ -3,14 +3,12 @@ from unittest import TestCase
 from neat_core.models.connection import Connection
 from neat_core.models.genome import Genome
 from neat_core.models.node import NodeType, Node
-from utils.visualization.genome_visualization import NetworkXGenomeGraph
+from utils.visualization.genome_visualization import _get_color_for_node_type, _sort_nodes_in_layers
 
 
 class TestGenomeGraph(TestCase):
 
     def setUp(self) -> None:
-        self.genome_graph = NetworkXGenomeGraph()
-
         self.nodes_recurrent = [
             Node(1, NodeType.INPUT, 1.0, lambda x: x, x_position=0),
             Node(2, NodeType.INPUT, 1.2, lambda x: x, x_position=0),
@@ -37,12 +35,12 @@ class TestGenomeGraph(TestCase):
         self.genome_recurrent = Genome(2, 20, self.nodes_recurrent, self.connections_recurrent)
 
     def test_get_color_for_node_type(self):
-        self.assertEqual('#ff4105', self.genome_graph._get_color_for_node_type(NodeType.INPUT))
-        self.assertEqual('#4ada76', self.genome_graph._get_color_for_node_type(NodeType.HIDDEN))
-        self.assertEqual('#002fa7', self.genome_graph._get_color_for_node_type(NodeType.OUTPUT))
+        self.assertEqual('#ff4105', _get_color_for_node_type(NodeType.INPUT))
+        self.assertEqual('#4ada76', _get_color_for_node_type(NodeType.HIDDEN))
+        self.assertEqual('#002fa7', _get_color_for_node_type(NodeType.OUTPUT))
 
     def test_sort_nodes_in_layers(self):
-        sorted_nodes = self.genome_graph._sort_nodes_in_layers(self.genome_recurrent)
+        sorted_nodes = _sort_nodes_in_layers(self.genome_recurrent)
         self.assertEqual(3, len(sorted_nodes))
         self.assertEqual([1, 2, 3], [node.innovation_number for node in sorted_nodes[0]])
         self.assertEqual([10, 15], [node.innovation_number for node in sorted_nodes[0.5]])
