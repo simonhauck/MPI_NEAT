@@ -95,7 +95,6 @@ class TestBasicNeuralNetwork(TestCase):
         self.net_recurrent = BasicNeuralNetwork()
 
     def test_build(self):
-        # TODO test recurrent network
         neural_network = BasicNeuralNetwork()
 
         self.assertEqual(0, len(neural_network.input_neurons))

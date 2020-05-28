@@ -4,7 +4,6 @@ import numpy as np
 from neat_core.models.generation import Generation
 
 
-# TODO test
 class PlotData(object):
 
     def __init__(self) -> None:
