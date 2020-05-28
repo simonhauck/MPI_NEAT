@@ -1,10 +1,12 @@
 from typing import List
 
 from neat_core.models.agent import Agent
+from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
 from neat_core.models.species import Species
 from neat_core.models.species_id_generator import SpeciesIDGeneratorInterface
 from neat_core.optimizer.neat_config import NeatConfig
+from utils.fitness_evaluation import fitness_evaluation_utils
 
 
 def calculate_genetic_distance(genome1: Genome, genome2: Genome, config: NeatConfig) -> float:
@@ -118,3 +120,34 @@ def sort_agents_into_species(existing_species: List[Species], agents: List[Agent
             existing_species.append(new_species)
 
     return existing_species
+
+
+def update_fitness_species(generation: Generation) -> Generation:
+    """
+    Update the max fitness and the corresponding generation of each species with the values from its members.
+    :param generation: which contains the species
+    :return: the updated generation
+    """
+    for species in generation.species_list:
+        best_fitness_current_generation = fitness_evaluation_utils.get_best_agent(species.members).fitness
+
+        if species.max_species_fitness < best_fitness_current_generation:
+            species.max_species_fitness = best_fitness_current_generation
+            species.generation_max_species_fitness = generation.number
+
+    return generation
+
+
+def get_allow_species_for_reproduction(generation: Generation, max_stagnant_generations: int) -> List[Species]:
+    """
+    Get the allowed species of the generation that are allow to reproduce
+    :param generation: the last generation with the generation number and species
+    :param max_stagnant_generations: how long the fitness of a species can stagnate, before it can't reproduce
+    :return: the list with species
+    """
+    allowed_species = []
+    for species in generation.species_list:
+        # Species, which have improved the fitness x generations are allowed
+        if species.generation_max_species_fitness + max_stagnant_generations >= generation.number:
+            allowed_species.append(species)
+    return allowed_species

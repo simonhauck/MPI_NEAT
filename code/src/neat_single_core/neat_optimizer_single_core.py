@@ -102,6 +102,12 @@ class NeatOptimizerSingleCore(NeatOptimizer):
     def _build_new_generation(self, generation: Generation,
                               innovation_number_generator: InnovationNumberGeneratorInterface,
                               config: NeatConfig) -> Generation:
+
+        new_generation_seed = np.random.RandomState(generation.seed).randint(2 ** 24)
+        rnd = np.random.RandomState(new_generation_seed)
+
+        best_agents = gs.get_best_genomes_from_species(generation.species_list, 10)
+
         new_agents = []
         rnd = np.random.RandomState()
         for agent in generation.agents:

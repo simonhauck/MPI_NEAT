@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List
 
 import numpy as np
 
@@ -11,6 +11,7 @@ from neat_core.models.inno_num_generator_interface import InnovationNumberGenera
 from neat_core.models.node import Node, NodeType
 from neat_core.models.species import Species
 from neat_core.optimizer.neat_config import NeatConfig
+from utils.fitness_evaluation import fitness_evaluation_utils
 
 
 def create_initial_generation(amount_input_nodes: int, amount_output_nodes: int,
@@ -147,3 +148,32 @@ def create_genome_structure(amount_input_nodes: int, amount_output_nodes: int, a
                 enabled=True))
 
     return Genome(id_=0, seed=None, nodes=input_nodes + output_nodes, connections=connections)
+
+
+def get_best_genomes_from_species(species_list: List[Species], min_species_size) -> List[Genome]:
+    """
+    Get the best genomes from each species with more members then the given min_species_size. The agent, with the best
+    fitness value will be included, even if the species has less members then the given min_species_size
+    :param species_list: a list of species, from which the best members should be extraced
+    :param min_species_size: the min size if each species, that the best agent will be copied
+    :return: a list with the best genomes
+    """
+    best_generation_agent = None
+    best_genomes_list = []
+
+    for species in species_list:
+        best_species_agent = fitness_evaluation_utils.get_best_agent(species.members)
+
+        # Check if the species champions is the generation champion
+        if best_generation_agent is None or best_generation_agent.fitness < best_species_agent.fitness:
+            best_generation_agent = best_species_agent
+
+        # Check if species agent should be added
+        if len(species.members) >= min_species_size:
+            best_genomes_list.append(best_species_agent.genome)
+
+    # Check if best generation agent is in best genomes list
+    if best_generation_agent is not None and best_generation_agent.genome not in best_genomes_list:
+        best_genomes_list.append(best_generation_agent.genome)
+
+    return best_genomes_list

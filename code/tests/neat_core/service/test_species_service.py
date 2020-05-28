@@ -1,19 +1,26 @@
 from unittest import TestCase
 
+import neat_core.service.generation_service as gs
 import neat_core.service.reproduction_service as rs
 import neat_core.service.species_service as ss
 from neat_core.activation_function import step_function
 from neat_core.models.agent import Agent
 from neat_core.models.connection import Connection
+from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
 from neat_core.models.node import Node, NodeType
+from neat_core.models.species import Species
 from neat_core.optimizer.neat_config import NeatConfig
+from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
 from neat_single_core.species_id_generator_single_core import SpeciesIDGeneratorSingleCore
 
 
 class SpeciesServiceTest(TestCase):
 
     def setUp(self) -> None:
+        self.config = NeatConfig(compatibility_factor_matching_genes=1, compatibility_factor_disjoint_genes=2,
+                                 compatibility_threshold=2.5, population_size=8)
+
         self.g1_nodes = [
             Node(1, NodeType.INPUT, 0, step_function, 0),
             Node(2, NodeType.INPUT, 0, step_function, 0),
@@ -54,8 +61,44 @@ class SpeciesServiceTest(TestCase):
         self.agent1 = Agent(self.g1)
         self.agent2 = Agent(self.g2)
 
-        self.config = NeatConfig(compatibility_factor_matching_genes=1, compatibility_factor_disjoint_genes=2,
-                                 compatibility_threshold=2.5)
+        # Add some more agents, and complete species
+        self.inno_num_generator = InnovationNumberGeneratorSingleCore()
+        self.species_id_generator = SpeciesIDGeneratorSingleCore()
+        self.genome1 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome2 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome3 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome4 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome5 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome6 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome7 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome8 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+
+        self.agent3 = Agent(self.genome3)
+        self.agent3.fitness = 3
+        self.agent4 = Agent(self.genome4)
+        self.agent4.fitness = 4
+        self.agent5 = Agent(self.genome5)
+        self.agent5.fitness = 5
+        self.agent6 = Agent(self.genome6)
+        self.agent6.fitness = 6
+        self.agent7 = Agent(self.genome7)
+        self.agent7.fitness = 7
+        self.agent8 = Agent(self.genome8)
+        self.agent8.fitness = 8
+
+        self.species1 = Species(self.species_id_generator.get_species_id(), self.agent1.genome,
+                                [self.agent1, self.agent1, self.agent2, self.agent3], max_species_fitness=1.5,
+                                generation_max_species_fitness=10)
+        self.species2 = Species(self.species_id_generator.get_species_id(), self.agent4.genome,
+                                [self.agent4, self.agent5, self.agent6], max_species_fitness=7,
+                                generation_max_species_fitness=5)
+        self.species3 = Species(self.species_id_generator.get_species_id(), self.agent6.genome,
+                                [self.agent7, self.agent8], max_species_fitness=0, generation_max_species_fitness=6)
+
+        self.generation = Generation(21, 2,
+                                     agents=[self.agent1, self.agent2, self.agent3, self.agent4, self.agent5,
+                                             self.agent6, self.agent7, self.agent8],
+                                     species_list=[self.species1, self.species2, self.species3])
 
     def test_calculate_genetic_distance(self):
         genetic_distance = ss.calculate_genetic_distance(self.g1, self.g2, self.config)
@@ -119,3 +162,22 @@ class SpeciesServiceTest(TestCase):
         self.assertEqual(1, len(species_list_new[1].members))
         self.assertEqual(self.agent2, species_list_new[1].members[0])
         self.assertEqual(1, species_list_new[1].id_)
+
+    def test_update_fitness_species(self):
+        generation = ss.update_fitness_species(self.generation)
+
+        self.assertEqual(3, len(generation.species_list))
+        self.assertEqual(3, generation.species_list[0].max_species_fitness)
+        self.assertEqual(self.generation.number, generation.species_list[0].generation_max_species_fitness)
+
+        self.assertEqual(7, generation.species_list[1].max_species_fitness)
+        self.assertEqual(5, generation.species_list[1].generation_max_species_fitness)
+
+        self.assertEqual(8, generation.species_list[2].max_species_fitness)
+        self.assertEqual(self.generation.number, generation.species_list[2].generation_max_species_fitness)
+
+    def test_get_allow_species_for_reproduction(self):
+        allowed_species = ss.get_allow_species_for_reproduction(self.generation, 15)
+        self.assertEqual(2, len(allowed_species))
+        self.assertEqual(self.species1, allowed_species[0])
+        self.assertEqual(self.species3, allowed_species[1])

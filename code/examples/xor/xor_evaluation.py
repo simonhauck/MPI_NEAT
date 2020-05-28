@@ -128,8 +128,9 @@ class XOROptimizer(NeatOptimizerCallback):
         text_visualization.print_agent(agent)
 
         # Draw genome
+        plt.subplot(1, 2, 1)
         generation_visualization.plot_fitness_values(self.plot_data)
-        plt.show()
+        plt.subplot(1, 2, 2)
         genome_visualization.draw_genome_graph(agent.genome, draw_labels=True)
         plt.show()
 

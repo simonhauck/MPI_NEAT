@@ -4,14 +4,51 @@ import numpy as np
 
 import neat_core.service.generation_service as gs
 from neat_core.activation_function import step_function
+from neat_core.models.agent import Agent
 from neat_core.models.connection import Connection
 from neat_core.models.genome import Genome
 from neat_core.models.node import Node, NodeType
+from neat_core.models.species import Species
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
+from neat_single_core.species_id_generator_single_core import SpeciesIDGeneratorSingleCore
 
 
 class GenerationServiceTest(TestCase):
+
+    def setUp(self) -> None:
+        self.config = NeatConfig(population_size=7)
+        self.inno_num_generator = InnovationNumberGeneratorSingleCore()
+        self.species_id_generator = SpeciesIDGeneratorSingleCore()
+        self.genome1 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome2 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome3 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome4 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome5 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome6 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome7 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+
+        self.agent1 = Agent(self.genome1)
+        self.agent1.fitness = 1
+        self.agent2 = Agent(self.genome2)
+        self.agent2.fitness = 2
+        self.agent3 = Agent(self.genome3)
+        self.agent3.fitness = 3
+        self.agent4 = Agent(self.genome4)
+        self.agent4.fitness = 4
+        self.agent5 = Agent(self.genome5)
+        self.agent5.fitness = 5
+        self.agent6 = Agent(self.genome6)
+        self.agent6.fitness = 6
+        self.agent7 = Agent(self.genome7)
+        self.agent7.fitness = 7
+
+        self.species1 = Species(self.species_id_generator.get_species_id(), self.agent1.genome,
+                                [self.agent1, self.agent1, self.agent2, self.agent3])
+        self.species2 = Species(self.species_id_generator.get_species_id(), self.agent4.genome,
+                                [self.agent4, self.agent5])
+        self.species3 = Species(self.species_id_generator.get_species_id(), self.agent6.genome,
+                                [self.agent6, self.agent7])
 
     def test_create_initial_generation(self):
         generation1 = gs.create_initial_generation(10, 3, step_function, InnovationNumberGeneratorSingleCore(),
@@ -170,3 +207,9 @@ class GenerationServiceTest(TestCase):
         for connection, i in zip(generated_structure.connections, range(input_nodes * output_nodes)):
             self.assertEqual(i, connection.innovation_number)
             self.assertEqual(0, connection.weight)
+
+    def test_get_best_genomes_from_species(self):
+        best_genomes = gs.get_best_genomes_from_species([self.species1, self.species2, self.species3], 3)
+        self.assertEqual(2, len(best_genomes))
+        self.assertIn(self.genome3, best_genomes)
+        self.assertIn(self.genome7, best_genomes)
