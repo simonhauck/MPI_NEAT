@@ -79,7 +79,7 @@ class XOROptimizer(NeatOptimizerCallback):
         config = NeatConfig()
 
         genome = Genome(
-            0, 0,
+            0,
             [Node(0, NodeType.INPUT, 0, modified_sigmoid_function, 0),
              Node(1, NodeType.INPUT, 0, modified_sigmoid_function, 0),
              Node(2, NodeType.OUTPUT, 0, modified_sigmoid_function, 1),

@@ -10,7 +10,7 @@ def print_genome(genome: Genome) -> None:
     :param genome: that should be printed
     :return: None
     """
-    logger.info("Genome: {}".format(genome.id, genome))
+    logger.info("Genome:")
     logger.info("--- Nodes ---")
     for node in genome.nodes:
         logger.info(
@@ -29,5 +29,5 @@ def print_agent(agent: Agent) -> None:
     :param agent: the agent that should be printed
     :return: None
     """
-    logger.info("Agent - Fitness: {}, AdditionalInfo: ".format(agent.fitness, agent.additional_info))
+    logger.info("Agent {} - Fitness: {}, AdditionalInfo: ".format(agent.id, agent.fitness, agent.additional_info))
     print_genome(agent.genome)
