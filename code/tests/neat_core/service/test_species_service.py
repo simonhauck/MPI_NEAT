@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+import numpy as np
+
 import neat_core.service.generation_service as gs
 import neat_core.service.reproduction_service as rs
 import neat_core.service.species_service as ss
@@ -11,6 +13,7 @@ from neat_core.models.genome import Genome
 from neat_core.models.node import Node, NodeType
 from neat_core.models.species import Species
 from neat_core.optimizer.neat_config import NeatConfig
+from neat_single_core.agent_id_generator_single_core import AgentIDGeneratorSingleCore
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
 from neat_single_core.species_id_generator_single_core import SpeciesIDGeneratorSingleCore
 
@@ -218,3 +221,47 @@ class SpeciesServiceTest(TestCase):
         self.assertEqual(6, offspring[1])
         self.assertEqual(9, offspring[2])
         self.assertEqual(19, sum(offspring))
+
+    def test_remove_low_genomes(self):
+        species_list = ss.remove_low_genomes(self.generation.species_list, 0.5)
+
+        self.assertEqual(3, len(species_list))
+
+        # Check first species
+        self.assertEqual(2, len(species_list[0].members))
+        self.assertIn(self.agent2, species_list[0].members)
+        self.assertIn(self.agent3, species_list[0].members)
+
+        # Check second species
+        self.assertEqual(2, len(species_list[1].members))
+        self.assertIn(self.agent5, species_list[1].members)
+        self.assertIn(self.agent6, species_list[1].members)
+
+        # Check second species
+        self.assertEqual(1, len(species_list[2].members))
+        self.assertIn(self.agent8, species_list[2].members)
+
+    def test_create_offspring_pairs(self):
+        agent_id_generator = AgentIDGeneratorSingleCore()
+        config = NeatConfig()
+
+        rnd = np.random.RandomState(1)
+        # First 10 random values
+        # rnd.randint(3) = 1
+        # rnd.randint(3) = 0
+        # rnd.randint(3) = 0
+        # rnd.randint(3) = 1
+        # rnd.randint(3) = 1
+        # rnd.randint(3) = 0
+        # rnd.randint(3) = 0
+        # rnd.randint(3) = 1
+
+        tuple_list = ss.create_offspring_pairs(self.species1, 4, agent_id_generator, self.generation, rnd, config)
+
+        # Test tuples
+        agent_id_generator = AgentIDGeneratorSingleCore()
+        self.assertEqual(4, len(tuple_list))
+        self.assertEqual((self.agent2.id, self.agent1.id, agent_id_generator.get_agent_id()), tuple_list[0])
+        self.assertEqual((self.agent1.id, self.agent2.id, agent_id_generator.get_agent_id()), tuple_list[1])
+        self.assertEqual((self.agent2.id, self.agent1.id, agent_id_generator.get_agent_id()), tuple_list[2])
+        self.assertEqual((self.agent1.id, self.agent2.id, agent_id_generator.get_agent_id()), tuple_list[3])

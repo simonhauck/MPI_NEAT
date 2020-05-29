@@ -136,12 +136,21 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         max_fitness = max([a.fitness for a in generation.agents])
         species_list = ss.calculate_adjusted_fitness(species_list, min_fitness, max_fitness)
 
-        # TODO remove lower half
-        # TODO reset innovation number id generator
-        # Calculate off spring combinations
+        # TODO config value!
+        # Remove the low performing genomes
+        species_list = ss.remove_low_genomes(species_list, 0.5)
 
         # Calculate offspring for species
         off_spring_list = ss.calculate_amount_offspring(species_list, config.population_size - len(best_agents))
+
+        # Create offspring pairs
+        off_spring_pairs = []
+        for species, amount_offspring in zip(species_list, off_spring_list):
+            off_spring_pairs += ss.create_offspring_pairs(species, amount_offspring, agent_id_generator, generation,
+                                                          rnd, config)
+
+        # TODO reset innovation number id generator
+        # Calculate off spring combinations
 
         new_agents = []
         rnd = np.random.RandomState()
@@ -150,6 +159,8 @@ class NeatOptimizerSingleCore(NeatOptimizer):
             copied_genome = rp.mutate_weights(copied_genome, rnd, config)
             copied_genome = rp.mutate_bias(copied_genome, rnd, config)
             new_agents.append(Agent(1, copied_genome))
+
+        # TODO sort agents into species, select new random representive
 
         return Generation(generation.number + 1, 0, new_agents, [Species(1, new_agents[0].genome, new_agents)])
 

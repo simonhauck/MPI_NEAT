@@ -1,5 +1,5 @@
 import math
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
@@ -7,6 +7,7 @@ from neat_core.models.agent import Agent
 from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
 from neat_core.models.species import Species
+from neat_core.optimizer.generator.agent_id_generator_interface import AgentIDGeneratorInterface
 from neat_core.optimizer.generator.species_id_generator_interface import SpeciesIDGeneratorInterface
 from neat_core.optimizer.neat_config import NeatConfig
 from utils.fitness_evaluation import fitness_evaluation_utils
@@ -201,3 +202,52 @@ def calculate_amount_offspring(species_list: List[Species], amount_offspring) ->
         off_spring_list[i] = off_spring_list[i] + 1
 
     return off_spring_list
+
+
+def remove_low_genomes(species_list: List[Species], remove_percentage: float) -> List[Species]:
+    """
+    Remove the given percentage of low genomes from every species
+    :param species_list: the list of species, which members should be modified
+    :param remove_percentage: the percentage of low genomes that should be removed e.g 0.2 means the lower 20% percent
+    :return: the updated species list
+    """
+    for species in species_list:
+        remove_agents = math.floor(remove_percentage * len(species.members))
+        sorted_members = sorted(species.members, key=lambda member: member.fitness)
+        species.members = sorted_members[remove_agents:]
+
+    return species_list
+
+
+def create_offspring_pairs(species: Species, amount_offspring: int,
+                           agent_id_generator: AgentIDGeneratorInterface,
+                           generation: Generation,
+                           rnd: np.random.RandomState,
+                           config: NeatConfig) -> List[Tuple[int, int, int]]:
+    """
+    Create tuples, with ids of agents, that should be used in the crossover.
+    :param species: the species, for which the crossover values should be generated
+    :param amount_offspring: the amount of offspring for the given species
+    :param agent_id_generator: the id generator for the agents
+    :param generation the generation with all its members
+    :param rnd: the random generator, to select the parents
+    :param config: the neat config
+    :return: a list with tuples. The tuple contains the id of the first parent, the second parent and the child id
+    """
+    assert len(species.members) != 0
+
+    result_list = []
+    species_len = len(species.members)
+    for i in range(amount_offspring):
+        # TODO add probability only mutation
+        # TODO add reproduction with different species
+        first_parent_index = rnd.randint(species_len)
+        second_parent_index = rnd.randint(species_len)
+        new_agent_id = agent_id_generator.get_agent_id()
+
+        first_parent_id = species.members[first_parent_index].id
+        second_parent_id = species.members[second_parent_index].id
+
+        result_list.append((first_parent_id, second_parent_id, new_agent_id))
+
+    return result_list
