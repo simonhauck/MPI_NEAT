@@ -16,14 +16,13 @@ class SpeciesTest(TestCase):
 
         genome2 = create_genome_structure(5, 2, modified_sigmoid_function, NeatConfig(),
                                           InnovationNumberGeneratorSingleCore())
-        members = [Agent(genome1)]
+        members = [Agent(1, genome1)]
 
-        species = Species(1, genome2, members, max_species_fitness=10, generation_max_species_fitness=3, sum_fitness=12,
-                          sum_adjusted_fitness=8)
+        species = Species(1, genome2, members, max_species_fitness=10, generation_max_species_fitness=3,
+                          adjust_fitness=8)
 
         self.assertEqual(genome2, species.representative)
-        self.assertEqual(12, species.sum_fitness)
-        self.assertEqual(8, species.sum_adjusted_fitness)
+        self.assertEqual(8, species.adjusted_fitness)
         self.assertEqual(10, species.max_species_fitness)
         self.assertEqual(3, species.generation_max_species_fitness)
         self.assertEqual(members, species.members)

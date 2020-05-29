@@ -37,7 +37,7 @@ class SpeciesServiceTest(TestCase):
             Connection(5, 2, 6, 2.0, True),
             Connection(6, 6, 3, -1.1, False)
         ]
-        self.g1 = Genome(1, 1, self.g1_nodes, self.g1_connections)
+        self.g1 = Genome(1, self.g1_nodes, self.g1_connections)
 
         self.g2_nodes = [
             Node(1, NodeType.INPUT, 0, step_function, 0),
@@ -56,10 +56,12 @@ class SpeciesServiceTest(TestCase):
             Connection(7, 6, 3, -0.1, False),
             Connection(8, 1, 4, -1.1, False)
         ]
-        self.g2 = Genome(2, 2, self.g2_nodes, self.g2_connections)
+        self.g2 = Genome(2, self.g2_nodes, self.g2_connections)
 
-        self.agent1 = Agent(self.g1)
-        self.agent2 = Agent(self.g2)
+        self.agent1 = Agent(1, self.g1)
+        self.agent1.fitness = 1
+        self.agent2 = Agent(2, self.g2)
+        self.agent2.fitness = 2
 
         # Add some more agents, and complete species
         self.inno_num_generator = InnovationNumberGeneratorSingleCore()
@@ -73,21 +75,21 @@ class SpeciesServiceTest(TestCase):
         self.genome7 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
         self.genome8 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
 
-        self.agent3 = Agent(self.genome3)
+        self.agent3 = Agent(3, self.genome3)
         self.agent3.fitness = 3
-        self.agent4 = Agent(self.genome4)
+        self.agent4 = Agent(4, self.genome4)
         self.agent4.fitness = 4
-        self.agent5 = Agent(self.genome5)
+        self.agent5 = Agent(5, self.genome5)
         self.agent5.fitness = 5
-        self.agent6 = Agent(self.genome6)
+        self.agent6 = Agent(6, self.genome6)
         self.agent6.fitness = 6
-        self.agent7 = Agent(self.genome7)
+        self.agent7 = Agent(7, self.genome7)
         self.agent7.fitness = 7
-        self.agent8 = Agent(self.genome8)
+        self.agent8 = Agent(8, self.genome8)
         self.agent8.fitness = 8
 
         self.species1 = Species(self.species_id_generator.get_species_id(), self.agent1.genome,
-                                [self.agent1, self.agent1, self.agent2, self.agent3], max_species_fitness=1.5,
+                                [self.agent1, self.agent2, self.agent3], max_species_fitness=1.5,
                                 generation_max_species_fitness=10)
         self.species2 = Species(self.species_id_generator.get_species_id(), self.agent4.genome,
                                 [self.agent4, self.agent5, self.agent6], max_species_fitness=7,
@@ -146,7 +148,7 @@ class SpeciesServiceTest(TestCase):
 
         # Insert one more matching genome
         genome_new = rs.deep_copy_genome(self.g1)
-        agent_new = Agent(genome_new)
+        agent_new = Agent(1, genome_new)
 
         species_list_new = ss.sort_agents_into_species(species_list_new, [agent_new], species_id_generator, self.config)
         self.assertEqual(2, len(species_list_new))
@@ -176,8 +178,43 @@ class SpeciesServiceTest(TestCase):
         self.assertEqual(8, generation.species_list[2].max_species_fitness)
         self.assertEqual(self.generation.number, generation.species_list[2].generation_max_species_fitness)
 
-    def test_get_allow_species_for_reproduction(self):
-        allowed_species = ss.get_allow_species_for_reproduction(self.generation, 15)
+    def test_get_allowed_species_for_reproduction(self):
+        allowed_species = ss.get_allowed_species_for_reproduction(self.generation, 15)
         self.assertEqual(2, len(allowed_species))
         self.assertEqual(self.species1, allowed_species[0])
         self.assertEqual(self.species3, allowed_species[1])
+
+    def test_calculate_adjusted_fitness(self):
+        species = ss.calculate_adjusted_fitness(self.generation.species_list, min_fitness=1, max_fitness=8)
+        self.assertEqual(3, len(species))
+        self.assertEqual(1 / 7, species[0].adjusted_fitness)
+        self.assertEqual(4 / 7, species[1].adjusted_fitness)
+        self.assertEqual(6.5 / 7, species[2].adjusted_fitness)
+
+        # Set all agents to negative fitness values
+        self.agent1.fitness = -1
+        self.agent2.fitness = -2
+        self.agent3.fitness = -3
+        self.agent4.fitness = -4
+        self.agent5.fitness = -5
+        self.agent6.fitness = -6
+        self.agent7.fitness = -7
+        self.agent8.fitness = -8
+
+        species = ss.calculate_adjusted_fitness(self.generation.species_list, min_fitness=-8, max_fitness=-1)
+        self.assertEqual(3, len(species))
+        self.assertEqual(6 / 7, species[0].adjusted_fitness)
+        self.assertEqual(3 / 7, species[1].adjusted_fitness)
+        self.assertEqual(0.5 / 7, species[2].adjusted_fitness)
+
+    def test_calculate_amount_offspring(self):
+        self.species1.adjusted_fitness = 0.25
+        self.species2.adjusted_fitness = 0.5
+        self.species3.adjusted_fitness = 0.75
+
+        offspring = ss.calculate_amount_offspring(self.generation.species_list, 19)
+        self.assertEqual(3, len(offspring))
+        self.assertEqual(4, offspring[0])
+        self.assertEqual(6, offspring[1])
+        self.assertEqual(9, offspring[2])
+        self.assertEqual(19, sum(offspring))

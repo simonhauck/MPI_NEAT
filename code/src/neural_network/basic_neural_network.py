@@ -46,7 +46,7 @@ class BasicNeuralNetwork(NeuralNetworkInterface):
         :param genome: that encodes the neural network
         :return: None
         """
-        logger.trace("Building neural network with genome {}".format(genome.id))
+        logger.trace("Building neural network with genome")
 
         # Sort neurons according to output
         sorted_connection = BasicNeuralNetwork._sort_connections(genome.connections)

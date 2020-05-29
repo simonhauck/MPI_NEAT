@@ -1,7 +1,7 @@
 from typing import List
 
 from neat_core.models.species import Species
-from neat_core.models.species_id_generator import SpeciesIDGeneratorInterface
+from neat_core.optimizer.generator.species_id_generator_interface import SpeciesIDGeneratorInterface
 
 
 class SpeciesIDGeneratorSingleCore(SpeciesIDGeneratorInterface):

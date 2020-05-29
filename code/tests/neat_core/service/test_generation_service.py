@@ -10,6 +10,7 @@ from neat_core.models.genome import Genome
 from neat_core.models.node import Node, NodeType
 from neat_core.models.species import Species
 from neat_core.optimizer.neat_config import NeatConfig
+from neat_single_core.agent_id_generator_single_core import AgentIDGeneratorSingleCore
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
 from neat_single_core.species_id_generator_single_core import SpeciesIDGeneratorSingleCore
 
@@ -20,6 +21,8 @@ class GenerationServiceTest(TestCase):
         self.config = NeatConfig(population_size=7)
         self.inno_num_generator = InnovationNumberGeneratorSingleCore()
         self.species_id_generator = SpeciesIDGeneratorSingleCore()
+        self.agent_id_generator = AgentIDGeneratorSingleCore()
+
         self.genome1 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
         self.genome2 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
         self.genome3 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
@@ -28,19 +31,19 @@ class GenerationServiceTest(TestCase):
         self.genome6 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
         self.genome7 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
 
-        self.agent1 = Agent(self.genome1)
+        self.agent1 = Agent(1, self.genome1)
         self.agent1.fitness = 1
-        self.agent2 = Agent(self.genome2)
+        self.agent2 = Agent(2, self.genome2)
         self.agent2.fitness = 2
-        self.agent3 = Agent(self.genome3)
+        self.agent3 = Agent(3, self.genome3)
         self.agent3.fitness = 3
-        self.agent4 = Agent(self.genome4)
+        self.agent4 = Agent(4, self.genome4)
         self.agent4.fitness = 4
-        self.agent5 = Agent(self.genome5)
+        self.agent5 = Agent(5, self.genome5)
         self.agent5.fitness = 5
-        self.agent6 = Agent(self.genome6)
+        self.agent6 = Agent(6, self.genome6)
         self.agent6.fitness = 6
-        self.agent7 = Agent(self.genome7)
+        self.agent7 = Agent(7, self.genome7)
         self.agent7.fitness = 7
 
         self.species1 = Species(self.species_id_generator.get_species_id(), self.agent1.genome,
@@ -51,13 +54,15 @@ class GenerationServiceTest(TestCase):
                                 [self.agent6, self.agent7])
 
     def test_create_initial_generation(self):
+        config = NeatConfig(population_size=150, connection_max_weight=10, connection_min_weight=-10)
+
         generation1 = gs.create_initial_generation(10, 3, step_function, InnovationNumberGeneratorSingleCore(),
-                                                   NeatConfig(population_size=150, connection_max_weight=10,
-                                                              connection_min_weight=-10), seed=1)
+                                                   SpeciesIDGeneratorSingleCore(), AgentIDGeneratorSingleCore(),
+                                                   config, seed=1)
 
         generation2 = gs.create_initial_generation(10, 3, step_function, InnovationNumberGeneratorSingleCore(),
-                                                   NeatConfig(population_size=150, connection_max_weight=10,
-                                                              connection_min_weight=-10), seed=1)
+                                                   SpeciesIDGeneratorSingleCore(), AgentIDGeneratorSingleCore(),
+                                                   config, seed=1)
 
         self.assertEqual(0, generation1.number)
         self.assertEqual(0, generation2.number)
@@ -84,13 +89,14 @@ class GenerationServiceTest(TestCase):
                 self.assertNotAlmostEqual(0, connection1.weight, delta=0.000000000001)
 
     def test_create_initial_generation_genome(self):
-        genome = Genome(1, 20,
+        genome = Genome(20,
                         [Node("abc", NodeType.INPUT, 0.3, step_function, 0),
                          Node("def", NodeType.OUTPUT, 0.4, step_function, 1)],
                         [Connection("x", "abc", "def", 1.0, True),
                          Connection("y", "def", "abc", -5, True)])
 
         generation = gs.create_initial_generation_genome(genome, InnovationNumberGeneratorSingleCore(),
+                                                         SpeciesIDGeneratorSingleCore(), AgentIDGeneratorSingleCore(),
                                                          NeatConfig(population_size=3), seed=1)
 
         self.assertEqual(3, len(generation.agents))
@@ -124,7 +130,7 @@ class GenerationServiceTest(TestCase):
             self.assertEqual(connection3.innovation_number, i)
 
     def test_randomize_weight_bias(self):
-        genome = Genome(1, 20,
+        genome = Genome(20,
                         [Node(1, NodeType.INPUT, 0.0, step_function, 0),
                          Node(2, NodeType.OUTPUT, 0.0, step_function, 1)],
                         [Connection(3, 1, 2, 0, True),
@@ -143,14 +149,17 @@ class GenerationServiceTest(TestCase):
             self.assertTrue(3 <= conn.weight <= 4)
 
     def test_build_generation_from_genome(self):
-        initial_genome = Genome(1, 20,
+        initial_genome = Genome(20,
                                 [Node(1, NodeType.INPUT, 0, step_function, 0),
                                  Node(2, NodeType.OUTPUT, 0.4, step_function, 1)],
                                 [Connection(1, 1, 2, 1.0, True),
                                  Connection(2, 1, 2, -5, True)])
 
         rnd = np.random.RandomState(1)
-        generation = gs._build_generation_from_genome(initial_genome, 19, rnd, NeatConfig(population_size=3))
+        generation = gs._build_generation_from_genome(initial_genome,
+                                                      SpeciesIDGeneratorSingleCore(),
+                                                      AgentIDGeneratorSingleCore(),
+                                                      19, rnd, NeatConfig(population_size=3))
 
         self.assertEqual(3, len(generation.agents))
         self.assertEqual(0, generation.number)
@@ -167,8 +176,9 @@ class GenerationServiceTest(TestCase):
         self.assertEqual(6762380, generation.agents[2].genome.seed)
 
         # Check if every weight and bias is not equal to 0
-        for agent in generation.agents:
+        for agent, i in zip(generation.agents, range(len(generation.agents))):
             genome = agent.genome
+            self.assertEqual(i, agent.id)
             for node in genome.nodes:
                 # Input nodes can have bias 0
                 if node.node_type == NodeType.INPUT:

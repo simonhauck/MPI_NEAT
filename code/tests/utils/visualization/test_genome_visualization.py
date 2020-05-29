@@ -32,7 +32,7 @@ class TestGenomeGraph(TestCase):
             Connection(innovation_number=14, input_node=3, output_node=4, weight=-0.3, enabled=True),
         ]
 
-        self.genome_recurrent = Genome(2, 20, self.nodes_recurrent, self.connections_recurrent)
+        self.genome_recurrent = Genome(20, self.nodes_recurrent, self.connections_recurrent)
 
     def test_get_color_for_node_type(self):
         self.assertEqual('#ff4105', _get_color_for_node_type(NodeType.INPUT))

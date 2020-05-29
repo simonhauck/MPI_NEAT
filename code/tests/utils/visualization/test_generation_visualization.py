@@ -5,7 +5,9 @@ import numpy as np
 from neat_core.activation_function import step_function
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.service import generation_service as gs
+from neat_single_core.agent_id_generator_single_core import AgentIDGeneratorSingleCore
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
+from neat_single_core.species_id_generator_single_core import SpeciesIDGeneratorSingleCore
 from utils.visualization.generation_visualization import PlotData
 
 
@@ -13,7 +15,10 @@ class GenerationVisualizationTest(TestCase):
 
     def setUp(self) -> None:
         self.config = NeatConfig(population_size=150)
-        self.generation1 = gs.create_initial_generation(3, 2, step_function, InnovationNumberGeneratorSingleCore(),
+        self.generation1 = gs.create_initial_generation(3, 2, step_function,
+                                                        InnovationNumberGeneratorSingleCore(),
+                                                        SpeciesIDGeneratorSingleCore(),
+                                                        AgentIDGeneratorSingleCore(),
                                                         self.config, 1)
         for i, agent in zip(range(len(self.generation1.agents)), self.generation1.agents):
             agent.fitness = i

@@ -1,10 +1,13 @@
+import math
 from typing import List
+
+import numpy as np
 
 from neat_core.models.agent import Agent
 from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
 from neat_core.models.species import Species
-from neat_core.models.species_id_generator import SpeciesIDGeneratorInterface
+from neat_core.optimizer.generator.species_id_generator_interface import SpeciesIDGeneratorInterface
 from neat_core.optimizer.neat_config import NeatConfig
 from utils.fitness_evaluation import fitness_evaluation_utils
 
@@ -131,14 +134,15 @@ def update_fitness_species(generation: Generation) -> Generation:
     for species in generation.species_list:
         best_fitness_current_generation = fitness_evaluation_utils.get_best_agent(species.members).fitness
 
-        if species.max_species_fitness < best_fitness_current_generation:
+        # If fitness is none or lower, update the value
+        if species.max_species_fitness is None or species.max_species_fitness < best_fitness_current_generation:
             species.max_species_fitness = best_fitness_current_generation
             species.generation_max_species_fitness = generation.number
 
     return generation
 
 
-def get_allow_species_for_reproduction(generation: Generation, max_stagnant_generations: int) -> List[Species]:
+def get_allowed_species_for_reproduction(generation: Generation, max_stagnant_generations: int) -> List[Species]:
     """
     Get the allowed species of the generation that are allow to reproduce
     :param generation: the last generation with the generation number and species
@@ -151,3 +155,49 @@ def get_allow_species_for_reproduction(generation: Generation, max_stagnant_gene
         if species.generation_max_species_fitness + max_stagnant_generations >= generation.number:
             allowed_species.append(species)
     return allowed_species
+
+
+def calculate_adjusted_fitness(species_list: List[Species], min_fitness: float, max_fitness: float) -> List[Species]:
+    """
+    Calculate the adjusted fitness for each species
+    :param species_list: a list of species, for which the adjusted fitness should be calculated
+    :param min_fitness: the minimum fitness of the generation
+    :param max_fitness: the maximum fitness of the generation
+    :return: the updated species
+    """
+    fitness_range = max(1.0, max_fitness - min_fitness)
+    for species in species_list:
+        mean_species_fitness = np.mean([member.fitness for member in species.members])
+        species.adjusted_fitness = (mean_species_fitness - min_fitness) / fitness_range
+
+    return species_list
+
+
+def calculate_amount_offspring(species_list: List[Species], amount_offspring) -> List[int]:
+    """
+    Calculate the amount of offspring for each species.
+    :param species_list: the list fo species. Can not be None or empty!
+    :param amount_offspring: the combined amount of offspring
+    :return: a list with integer values, corresponding to the species
+    """
+    assert species_list is not None
+    assert len(species_list) != 0
+
+    off_spring_list = []
+    sum_adjusted_fitness = sum([s.adjusted_fitness for s in species_list])
+    remaining_offspring = amount_offspring
+
+    # Calculate initial distribution
+    for species in species_list:
+        off_spring_species = (species.adjusted_fitness / sum_adjusted_fitness) * amount_offspring
+        # The remaining species will be distributed later
+        off_spring_species = math.floor(off_spring_species)
+        # Reduce remaining off spring and add value to list
+        remaining_offspring -= off_spring_species
+        off_spring_list.append(off_spring_species)
+
+    # Assign remaining offspring
+    for i in range(remaining_offspring):
+        off_spring_list[i] = off_spring_list[i] + 1
+
+    return off_spring_list

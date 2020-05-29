@@ -12,8 +12,9 @@ class AgentTest(TestCase):
     def test_agent(self):
         genome = create_genome_structure(5, 2, modified_sigmoid_function, NeatConfig(),
                                          InnovationNumberGeneratorSingleCore())
-        agent = Agent(genome)
+        agent = Agent(1, genome)
 
+        self.assertEqual(1, agent.id)
         self.assertEqual(genome, agent.genome)
         self.assertIsNone(agent.neural_network)
         self.assertEqual(0, agent.fitness)

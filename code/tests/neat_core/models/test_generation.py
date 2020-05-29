@@ -18,12 +18,12 @@ class GenerationTest(TestCase):
         genome2 = create_genome_structure(5, 2, modified_sigmoid_function, NeatConfig(),
                                           InnovationNumberGeneratorSingleCore())
 
-        agent1 = Agent(genome1)
-        agent2 = Agent(genome2)
+        agent1 = Agent(1, genome1)
+        agent2 = Agent(2, genome2)
         members = [agent1, agent2]
 
         species = [Species(1, genome2, [agent1, agent2], max_species_fitness=10, generation_max_species_fitness=3,
-                           sum_fitness=12, sum_adjusted_fitness=8)]
+                           adjust_fitness=8)]
 
         seed = 10
         generation = Generation(2, seed, members, species)

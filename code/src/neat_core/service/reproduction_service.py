@@ -4,8 +4,8 @@ import numpy as np
 
 from neat_core.models.connection import Connection
 from neat_core.models.genome import Genome
-from neat_core.models.inno_num_generator_interface import InnovationNumberGeneratorInterface
 from neat_core.models.node import Node, NodeType
+from neat_core.optimizer.generator.inno_num_generator_interface import InnovationNumberGeneratorInterface
 from neat_core.optimizer.neat_config import NeatConfig
 
 
@@ -18,7 +18,7 @@ def deep_copy_genome(genome: Genome) -> Genome:
     nodes = [deep_copy_node(original_node) for original_node in genome.nodes]
     connections = [deep_copy_connection(connection) for connection in genome.connections]
 
-    return Genome(genome.id, genome.seed, nodes, connections)
+    return Genome(genome.seed, nodes, connections)
 
 
 def deep_copy_node(node: Node) -> Node:

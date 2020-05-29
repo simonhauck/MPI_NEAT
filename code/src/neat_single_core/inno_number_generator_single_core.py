@@ -1,7 +1,7 @@
 from typing import Union
 
-from neat_core.models.inno_num_generator_interface import InnovationNumberGeneratorInterface
 from neat_core.models.node import Node
+from neat_core.optimizer.generator.inno_num_generator_interface import InnovationNumberGeneratorInterface
 
 
 class InnovationNumberGeneratorSingleCore(InnovationNumberGeneratorInterface):

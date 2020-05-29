@@ -8,8 +8,7 @@ from neat_core.models.node import Node, NodeType
 class GenomeTest(TestCase):
 
     def test_genome(self):
-        genome_empty = Genome(1, 20)
-        self.assertEqual(1, genome_empty.id)
+        genome_empty = Genome(20)
         self.assertEqual(20, genome_empty.seed)
         self.assertEqual([], genome_empty.nodes)
 
@@ -23,8 +22,7 @@ class GenomeTest(TestCase):
             Connection("connection_number", 2, 3, 0.7, False)
         ]
 
-        genome = Genome(2, 40, node_list, connection_list)
-        self.assertEqual(2, genome.id)
+        genome = Genome(40, node_list, connection_list)
         self.assertEqual(40, genome.seed)
         self.assertEqual(node_list, genome.nodes)
         self.assertEqual(connection_list, genome.connections)

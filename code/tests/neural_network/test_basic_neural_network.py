@@ -53,7 +53,7 @@ class TestBasicNeuralNetwork(TestCase):
             Connection(innovation_number=19, input_node=3, output_node=4, weight=15.0, enabled=False)
         ]
 
-        self.genome_feed_forward = Genome(1, 10, self.nodes_feed_forward, self.connections_feed_forward)
+        self.genome_feed_forward = Genome(10, self.nodes_feed_forward, self.connections_feed_forward)
         # Truth table for the neural network above
         # X Y Z
         # Input 0 0 0: Result: 0.0
@@ -90,7 +90,7 @@ class TestBasicNeuralNetwork(TestCase):
             Connection(innovation_number=14, input_node=3, output_node=4, weight=-0.3, enabled=True),
         ]
 
-        self.genome_recurrent = Genome(2, 20, self.nodes_recurrent, self.connections_recurrent)
+        self.genome_recurrent = Genome(20, self.nodes_recurrent, self.connections_recurrent)
 
         self.net_recurrent = BasicNeuralNetwork()
 

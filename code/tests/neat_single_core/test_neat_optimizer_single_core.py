@@ -11,8 +11,10 @@ from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
 from neat_core.service import generation_service as gs
+from neat_single_core.agent_id_generator_single_core import AgentIDGeneratorSingleCore
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
 from neat_single_core.neat_optimizer_single_core import NeatOptimizerSingleCore
+from neat_single_core.species_id_generator_single_core import SpeciesIDGeneratorSingleCore
 from neural_network.neural_network_interface import NeuralNetworkInterface
 
 
@@ -129,7 +131,7 @@ class NeatOptimizerSingleCoreTest(TestCase):
 
     def test_evaluate_genome_structure(self):
         genome = Genome(
-            0, 0,
+            0,
             [Node(0, NodeType.INPUT, 0, modified_sigmoid_function, 0),
              Node(1, NodeType.INPUT, 0, modified_sigmoid_function, 0),
              Node(2, NodeType.OUTPUT, 0, modified_sigmoid_function, 1),
@@ -163,9 +165,13 @@ class NeatOptimizerSingleCoreTest(TestCase):
 
     def test_evaluation_loop(self):
         inno_generator = InnovationNumberGeneratorSingleCore()
-        initial_generation = gs.create_initial_generation(2, 1, step_function, inno_generator, self.config, 1)
+        species_id_generator = SpeciesIDGeneratorSingleCore()
+        agent_id_generator = AgentIDGeneratorSingleCore()
+
+        initial_generation = gs.create_initial_generation(2, 1, step_function, inno_generator, species_id_generator,
+                                                          agent_id_generator, self.config, 1)
         final_generation = self.optimizer_single._evaluation_loop(initial_generation, self.challenge, inno_generator,
-                                                                  self.config)
+                                                                  species_id_generator, agent_id_generator, self.config)
 
         expected_generation_number = 10
         self.assertEqual(expected_generation_number, final_generation.number)
@@ -193,6 +199,7 @@ class NeatOptimizerSingleCoreTest(TestCase):
 
     def test_evaluate_generation(self):
         generation = gs.create_initial_generation(2, 1, step_function, InnovationNumberGeneratorSingleCore(),
+                                                  SpeciesIDGeneratorSingleCore(), AgentIDGeneratorSingleCore(),
                                                   self.config, 1)
 
         self.optimizer_single._evaluate_generation(generation, self.challenge)

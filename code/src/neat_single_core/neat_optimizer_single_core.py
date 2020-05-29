@@ -3,13 +3,17 @@ import numpy as np
 from neat_core.models.agent import Agent
 from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
-from neat_core.models.inno_num_generator_interface import InnovationNumberGeneratorInterface
+from neat_core.models.species import Species
 from neat_core.optimizer.challenge import Challenge
+from neat_core.optimizer.generator.inno_num_generator_interface import InnovationNumberGeneratorInterface
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer import NeatOptimizer
 from neat_core.service import generation_service as gs
 from neat_core.service import reproduction_service as rp
+from neat_core.service import species_service as ss
+from neat_single_core.agent_id_generator_single_core import AgentIDGeneratorSingleCore
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
+from neat_single_core.species_id_generator_single_core import SpeciesIDGeneratorSingleCore
 from neural_network.basic_neural_network import BasicNeuralNetwork
 
 
@@ -22,6 +26,8 @@ class NeatOptimizerSingleCore(NeatOptimizer):
 
         # Initialize Parameters
         innovation_number_generator = InnovationNumberGeneratorSingleCore()
+        species_id_generator = SpeciesIDGeneratorSingleCore()
+        agent_id_generator = AgentIDGeneratorSingleCore()
 
         # Notify callback about starting evaluation
         self.callback.on_initialization()
@@ -29,9 +35,11 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         challenge.initialization()
 
         initial_generation = gs.create_initial_generation(amount_input_nodes, amount_output_nodes, activation_function,
-                                                          innovation_number_generator, config, seed)
+                                                          innovation_number_generator, species_id_generator,
+                                                          agent_id_generator, config, seed)
 
-        finished_generation = self._evaluation_loop(initial_generation, challenge, innovation_number_generator, config)
+        finished_generation = self._evaluation_loop(initial_generation, challenge, innovation_number_generator,
+                                                    species_id_generator, agent_id_generator, config)
 
         # Finish the evaluation and notify the callback
         self._cleanup(challenge)
@@ -42,6 +50,8 @@ class NeatOptimizerSingleCore(NeatOptimizer):
 
         # Initialize Parameters
         innovation_number_generator = InnovationNumberGeneratorSingleCore()
+        species_id_generator = SpeciesIDGeneratorSingleCore()
+        agent_id_generator = AgentIDGeneratorSingleCore()
 
         # Notify callback about starting evaluation
         self.callback.on_initialization()
@@ -49,9 +59,10 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         challenge.initialization()
 
         initial_generation = gs.create_initial_generation_genome(genome_structure, innovation_number_generator,
-                                                                 config, seed)
+                                                                 species_id_generator, agent_id_generator, config, seed)
 
-        finished_generation = self._evaluation_loop(initial_generation, challenge, innovation_number_generator, config)
+        finished_generation = self._evaluation_loop(initial_generation, challenge, innovation_number_generator,
+                                                    species_id_generator, agent_id_generator, config)
 
         # Finish the evaluation and notify the callback
         self._cleanup(challenge)
@@ -59,6 +70,8 @@ class NeatOptimizerSingleCore(NeatOptimizer):
 
     def _evaluation_loop(self, generation: Generation, challenge: Challenge,
                          innovation_number_generator: InnovationNumberGeneratorInterface,
+                         species_id_generator: SpeciesIDGeneratorSingleCore,
+                         agent_id_generator: AgentIDGeneratorSingleCore,
                          config: NeatConfig) -> Generation:
 
         current_generation = generation
@@ -69,7 +82,8 @@ class NeatOptimizerSingleCore(NeatOptimizer):
             if self.callback.finish_evaluation(current_generation):
                 break
 
-            current_generation = self._build_new_generation(current_generation, innovation_number_generator, config)
+            current_generation = self._build_new_generation(current_generation, innovation_number_generator,
+                                                            species_id_generator, agent_id_generator, config)
 
         return current_generation
 
@@ -101,12 +115,33 @@ class NeatOptimizerSingleCore(NeatOptimizer):
 
     def _build_new_generation(self, generation: Generation,
                               innovation_number_generator: InnovationNumberGeneratorInterface,
+                              species_id_generator: SpeciesIDGeneratorSingleCore,
+                              agent_id_generator: AgentIDGeneratorSingleCore,
                               config: NeatConfig) -> Generation:
 
+        # Get the random generator for the new generation
         new_generation_seed = np.random.RandomState(generation.seed).randint(2 ** 24)
         rnd = np.random.RandomState(new_generation_seed)
 
+        # Get the best agents, which will be copied later
         best_agents = gs.get_best_genomes_from_species(generation.species_list, 10)
+
+        # Get allowed species for reproduction
+        generation = ss.update_fitness_species(generation)
+        # TODO config value!!!
+        species_list = ss.get_allowed_species_for_reproduction(generation, 15)
+
+        # Calculate the adjusted fitness values
+        min_fitness = min([a.fitness for a in generation.agents])
+        max_fitness = max([a.fitness for a in generation.agents])
+        species_list = ss.calculate_adjusted_fitness(species_list, min_fitness, max_fitness)
+
+        # TODO remove lower half
+        # TODO reset innovation number id generator
+        # Calculate off spring combinations
+
+        # Calculate offspring for species
+        off_spring_list = ss.calculate_amount_offspring(species_list, config.population_size - len(best_agents))
 
         new_agents = []
         rnd = np.random.RandomState()
@@ -114,9 +149,9 @@ class NeatOptimizerSingleCore(NeatOptimizer):
             copied_genome = rp.deep_copy_genome(agent.genome)
             copied_genome = rp.mutate_weights(copied_genome, rnd, config)
             copied_genome = rp.mutate_bias(copied_genome, rnd, config)
-            new_agents.append(Agent(copied_genome))
+            new_agents.append(Agent(1, copied_genome))
 
-        return Generation(generation.number + 1, 0, new_agents, [])
+        return Generation(generation.number + 1, 0, new_agents, [Species(1, new_agents[0].genome, new_agents)])
 
     def _cleanup(self, challenge: Challenge) -> None:
         # Notify callback and challenge

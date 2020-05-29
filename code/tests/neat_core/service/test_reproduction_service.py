@@ -41,10 +41,10 @@ class ReproductionServiceTest(TestCase):
                                       output_node=self.node_output1.innovation_number, weight=0, enabled=False)
         self.connections = [self.connection1, self.connection2, self.connection3, self.connection4]
 
-        self.genome = Genome(1, 1, self.nodes, connections=self.connections)
+        self.genome = Genome(1, self.nodes, connections=self.connections)
 
     def test_deep_copy_genome(self):
-        original_genome = Genome(10, 123,
+        original_genome = Genome(123,
                                  [Node(1, NodeType.INPUT, 1.1, step_function, 0),
                                   Node("asfaf", NodeType.OUTPUT, 1.2, step_function, 1)],
                                  [Connection(124, 10, 20, 1.2, True),
@@ -58,7 +58,6 @@ class ReproductionServiceTest(TestCase):
         self.assertNotEqual(id(original_genome), id(copied_genome))
 
         # Compare values
-        self.assertEqual(original_genome.id, copied_genome.id)
         self.assertEqual(original_genome.seed, copied_genome.seed)
 
         for original_node, copied_node in zip(original_genome.nodes, copied_genome.nodes):
@@ -114,7 +113,7 @@ class ReproductionServiceTest(TestCase):
         self.assertEqual(original_connection.enabled, copied_connection.enabled)
 
     def test_set_new_genome_weights(self):
-        original_genome = Genome(10, 123,
+        original_genome = Genome(123,
                                  [Node(1, NodeType.INPUT, 1.1, step_function, 0)],
                                  [Connection(124, 10, 20, 1.2, True),
                                   Connection("124124", 12, 22, 0.8, False)])
@@ -245,7 +244,7 @@ class ReproductionServiceTest(TestCase):
 
         # Set recurrent to false
         config.allow_recurrent = False
-        genome_feed_forward = Genome(1, 1, self.nodes, connections=[])
+        genome_feed_forward = Genome(1, self.nodes, connections=[])
         for _ in range(1000):
             genome_feed_forward, _ = mutate_add_connection(genome_feed_forward, self.rnd, self.inn_generator, config)
         # Maximum connections with recurrent=false
@@ -331,8 +330,8 @@ class ReproductionServiceTest(TestCase):
         connection2_7 = Connection(innovation_number=7, input_node=1, output_node=2, weight=1.2, enabled=False)
         connections2 = [connection2_1, connection2_2, connection2_3, connection2_5, connection2_7]
 
-        more_fit_parent = Genome(1, 1, nodes1, connections1)
-        less_fit_parent = Genome(2, 2, nodes2, connections2)
+        more_fit_parent = Genome(1, nodes1, connections1)
+        less_fit_parent = Genome(2, nodes2, connections2)
 
         config = NeatConfig(probability_enable_gene=0.31)
         # Random values:

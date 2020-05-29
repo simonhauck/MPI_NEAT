@@ -7,23 +7,29 @@ from neat_core.models.agent import Agent
 from neat_core.models.connection import Connection
 from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
-from neat_core.models.inno_num_generator_interface import InnovationNumberGeneratorInterface
 from neat_core.models.node import Node, NodeType
 from neat_core.models.species import Species
+from neat_core.optimizer.generator.agent_id_generator_interface import AgentIDGeneratorInterface
+from neat_core.optimizer.generator.inno_num_generator_interface import InnovationNumberGeneratorInterface
+from neat_core.optimizer.generator.species_id_generator_interface import SpeciesIDGeneratorInterface
 from neat_core.optimizer.neat_config import NeatConfig
 from utils.fitness_evaluation import fitness_evaluation_utils
 
 
 def create_initial_generation(amount_input_nodes: int, amount_output_nodes: int,
                               activation_function: Callable[[float], float],
-                              generator: InnovationNumberGeneratorInterface,
+                              inno_generator: InnovationNumberGeneratorInterface,
+                              species_id_generator: SpeciesIDGeneratorInterface,
+                              agent_id_generator: AgentIDGeneratorInterface,
                               config: NeatConfig, seed: int) -> Generation:
     """
     Create an initial generation, with the specified genome information. The network will be fully connected.
     :param amount_input_nodes: the amount if input nodes in the neural network
     :param amount_output_nodes: the amount of output nodes in the neural network
     :param activation_function: the used activation function for the nodes
-    :param generator: implementation to generate innovation numbers
+    :param inno_generator: implementation to generate innovation numbers
+    :param species_id_generator a generator to get species ids
+    :param agent_id_generator a generator to get ids for agents
     :param config: a NeatConfig to set weights and population size
     :param seed: to generate deterministic random values
     :return: the generated generation
@@ -32,18 +38,22 @@ def create_initial_generation(amount_input_nodes: int, amount_output_nodes: int,
 
     # Create genome structure
     genome_structure = create_genome_structure(amount_input_nodes, amount_output_nodes, activation_function, config,
-                                               generator)
+                                               inno_generator)
 
-    return _build_generation_from_genome(genome_structure, seed, rnd, config)
+    return _build_generation_from_genome(genome_structure, species_id_generator, agent_id_generator, seed, rnd, config)
 
 
-def create_initial_generation_genome(genome: Genome, generator: InnovationNumberGeneratorInterface, config: NeatConfig,
+def create_initial_generation_genome(genome: Genome, inno_generator: InnovationNumberGeneratorInterface,
+                                     species_id_generator: SpeciesIDGeneratorInterface,
+                                     agent_id_generator: AgentIDGeneratorInterface, config: NeatConfig,
                                      seed: int) -> Generation:
     """
     Create an initial generation, with the given genome. This function only uses the structure of the genome. The nodes
     and connections will receive new innovation numbers according to the given InnovationNumberGeneratorInterface.
     :param genome: the initial genome, that will be copied
-    :param generator: to get the innovation numbers
+    :param inno_generator: to get the innovation numbers
+    :param species_id_generator a generator to get species ids
+    :param agent_id_generator a generator to get ids for agents
     :param config: that contains min, max weight and population size
     :param seed: for deterministic weights
     :return: a new initialized generation, with number 0, the corresponding agents and one species
@@ -55,7 +65,7 @@ def create_initial_generation_genome(genome: Genome, generator: InnovationNumber
     new_nodes = []
     for node in genome.nodes:
         new_node = rp.deep_copy_node(node)
-        new_node.innovation_number = generator.get_node_innovation_number()
+        new_node.innovation_number = inno_generator.get_node_innovation_number()
 
         # Store node
         new_nodes.append(new_node)
@@ -64,7 +74,7 @@ def create_initial_generation_genome(genome: Genome, generator: InnovationNumber
     new_connections = []
     for connection in genome.connections:
         new_connection = rp.deep_copy_connection(connection)
-        new_connection.innovation_number = generator.get_connection_innovation_number()
+        new_connection.innovation_number = inno_generator.get_connection_innovation_number()
         # Match old numbers to newly generated innovation numbers
         new_connection.input_node = tmp_node_key[connection.input_node]
         new_connection.output_node = tmp_node_key[connection.output_node]
@@ -78,7 +88,7 @@ def create_initial_generation_genome(genome: Genome, generator: InnovationNumber
 
     rnd = np.random.RandomState(seed)
 
-    return _build_generation_from_genome(initial_genome, seed, rnd, config)
+    return _build_generation_from_genome(initial_genome, species_id_generator, agent_id_generator, seed, rnd, config)
 
 
 def _randomize_weight_bias(genome: Genome, rnd: np.random.RandomState(), config: NeatConfig) -> Genome:
@@ -87,11 +97,15 @@ def _randomize_weight_bias(genome: Genome, rnd: np.random.RandomState(), config:
     return genome
 
 
-def _build_generation_from_genome(initial_genome: Genome, generation_seed: int, rnd: np.random.RandomState,
+def _build_generation_from_genome(initial_genome: Genome, species_id_generator: SpeciesIDGeneratorInterface,
+                                  agent_id_generator: AgentIDGeneratorInterface, generation_seed: int,
+                                  rnd: np.random.RandomState,
                                   config: NeatConfig) -> Generation:
     """
     Build a generation from the given genome. The genome will be copied and the weight and biases will be randomized
     :param initial_genome: the genome as initial structure
+    :param species_id_generator a generator to get species ids
+    :param a generator to get agent ids
     :param generation_seed the seed for the generation
     :param rnd: a random generator to generate the seeds
     :param config: the neat config to specify the weights bounds
@@ -109,8 +123,8 @@ def _build_generation_from_genome(initial_genome: Genome, generation_seed: int, 
         copied_genome.seed = seed
         genomes.append(copied_genome)
 
-    agents = [Agent(genome) for genome in genomes]
-    species = Species(id_=1, representative=genomes[0], members=agents)
+    agents = [Agent(agent_id_generator.get_agent_id(), genome) for genome in genomes]
+    species = Species(id_=species_id_generator.get_species_id(), representative=genomes[0], members=agents)
 
     return Generation(0, generation_seed, agents, [species])
 
@@ -147,7 +161,7 @@ def create_genome_structure(amount_input_nodes: int, amount_output_nodes: int, a
                 weight=0,
                 enabled=True))
 
-    return Genome(id_=0, seed=None, nodes=input_nodes + output_nodes, connections=connections)
+    return Genome(seed=None, nodes=input_nodes + output_nodes, connections=connections)
 
 
 def get_best_genomes_from_species(species_list: List[Species], min_species_size) -> List[Genome]:
