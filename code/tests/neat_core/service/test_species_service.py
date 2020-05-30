@@ -69,8 +69,6 @@ class SpeciesServiceTest(TestCase):
         # Add some more agents, and complete species
         self.inno_num_generator = InnovationNumberGeneratorSingleCore()
         self.species_id_generator = SpeciesIDGeneratorSingleCore()
-        self.genome1 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
-        self.genome2 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
         self.genome3 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
         self.genome4 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
         self.genome5 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
@@ -265,3 +263,38 @@ class SpeciesServiceTest(TestCase):
         self.assertEqual((self.agent1.id, self.agent2.id, agent_id_generator.get_agent_id()), tuple_list[1])
         self.assertEqual((self.agent2.id, self.agent1.id, agent_id_generator.get_agent_id()), tuple_list[2])
         self.assertEqual((self.agent1.id, self.agent2.id, agent_id_generator.get_agent_id()), tuple_list[3])
+
+    def test_select_new_representative(self):
+        self.assertEqual(self.g1, self.species1.representative)
+
+        rnd = np.random.RandomState(111111111)
+        # rnd.randint(3) = 2
+
+        species = ss.select_new_representative(self.species1, rnd)
+        self.assertEqual(self.genome3, species.representative)
+
+    def test_reset_species(self):
+        self.species1.adjusted_fitness = 10
+
+        self.assertEqual(10, self.species1.adjusted_fitness)
+        self.assertGreaterEqual(len(self.species1.members), 1)
+
+        # Reset species
+        species = ss.reset_species(self.species1)
+        self.assertIsNone(species.adjusted_fitness)
+        self.assertEqual([], species.members)
+
+    def test_get_species_with_members(self):
+        # Test when all species have members
+        specie_list1 = ss.get_species_with_members(self.generation.species_list)
+        self.assertEqual(3, len(specie_list1))
+        self.assertIn(self.species1, specie_list1)
+        self.assertIn(self.species2, specie_list1)
+        self.assertIn(self.species3, specie_list1)
+
+        # Check if one species has no members
+        self.species1.members = []
+        specie_list2 = ss.get_species_with_members(self.generation.species_list)
+        self.assertEqual(2, len(specie_list2))
+        self.assertIn(self.species2, specie_list2)
+        self.assertIn(self.species3, specie_list2)

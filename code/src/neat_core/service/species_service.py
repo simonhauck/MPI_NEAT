@@ -251,3 +251,36 @@ def create_offspring_pairs(species: Species, amount_offspring: int,
         result_list.append((first_parent_id, second_parent_id, new_agent_id))
 
     return result_list
+
+
+def select_new_representative(species: Species, rnd: np.random.RandomState) -> Species:
+    """
+    Assign a randomly selected genome from its members as new representative
+    :param species: the species, with its members
+    :param rnd: the random generator to select the representative
+    :return: the updated species
+    """
+    assert len(species.members) != 0
+    representative_index = rnd.randint(len(species.members))
+    species.representative = species.members[representative_index].genome
+    return species
+
+
+def reset_species(species: Species) -> Species:
+    """
+    Reset the species members and the adjusted fitness value
+    :param species: the species, that should be reset
+    :return: the updated species
+    """
+    species.members = []
+    species.adjusted_fitness = None
+    return species
+
+
+def get_species_with_members(species_list: List[Species]) -> List[Species]:
+    """
+    Get the species, which contain at least one member
+    :param species_list: the original species list
+    :return: a list with species, that contain more than one member
+    """
+    return list(filter(lambda species: len(species.members) >= 1, species_list))

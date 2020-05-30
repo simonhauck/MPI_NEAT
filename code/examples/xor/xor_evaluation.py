@@ -2,6 +2,7 @@ import sys
 from typing import Dict
 
 import matplotlib.pyplot as plt
+import numpy as np
 from loguru import logger
 
 from neat_core.activation_function import modified_sigmoid_function
@@ -65,18 +66,31 @@ class XOROptimizer(NeatOptimizerCallback):
 
     def evaluate(self, optimizer: NeatOptimizer):
         optimizer.register_callback(self)
-        config = NeatConfig()
+        config = NeatConfig(allow_recurrent_connections=False,
+                            population_size=150,
+                            compatibility_threshold=1.8,
+                            connection_min_weight=-3,
+                            connection_max_weight=3)
+
+        seed = np.random.RandomState().randint(2 ** 24)
+        # seed = 15545410
+        # seed = 4931215
+        # Good seed: 15545410
+        # Generation 24: 11760111
+        logger.info("Used Seed: {}".format(seed))
 
         optimizer.evaluate(amount_input_nodes=2,
                            amount_output_nodes=1,
                            activation_function=modified_sigmoid_function,
                            challenge=ChallengeXOR(),
                            config=config,
-                           seed=1)
+                           seed=seed)
 
     def evaluate_fix_structure(self, optimizer: NeatOptimizer):
         optimizer.register_callback(self)
-        config = NeatConfig()
+        config = NeatConfig(allow_recurrent_connections=False,
+                            probability_mutate_add_connection=0,
+                            probability_mutate_add_node=0)
 
         genome = Genome(
             0,
@@ -113,6 +127,16 @@ class XOROptimizer(NeatOptimizerCallback):
 
     def on_generation_evaluation_end(self, generation: Generation) -> None:
         logger.info("Finished evaluation of generation {}".format(generation.number))
+        best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
+        logger.info("Best Fitness in Agent {}: {}".format(best_agent.id, best_agent.fitness))
+        logger.info("Amount species: {}".format(len(generation.species_list)))
+
+        # for agent in generation.agents:
+        #     if len(agent.genome.nodes) >= 4:
+        #         print("agent with more then 4 nodes")
+        #
+        #     if len(agent.genome.connections) >= 6:
+        #         print("agent with more than 6 connections")
         self.plot_data.add_generation(generation)
 
     def on_cleanup(self) -> None:
@@ -151,4 +175,5 @@ class XOROptimizer(NeatOptimizerCallback):
 
 if __name__ == '__main__':
     xor_optimizer = XOROptimizer()
-    xor_optimizer.evaluate_fix_structure(NeatOptimizerSingleCore())
+    # xor_optimizer.evaluate_fix_structure(NeatOptimizerSingleCore())
+    xor_optimizer.evaluate(NeatOptimizerSingleCore())

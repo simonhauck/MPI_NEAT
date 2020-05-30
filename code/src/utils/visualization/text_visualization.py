@@ -14,7 +14,8 @@ def print_genome(genome: Genome) -> None:
     logger.info("--- Nodes ---")
     for node in genome.nodes:
         logger.info(
-            "InnovationNumber: {}, Type: {}, Bias: {}".format(node.innovation_number, node.node_type, node.bias))
+            "InnovationNumber: {}, Type: {}, Bias: {}, X-Position: {}".format(node.innovation_number, node.node_type,
+                                                                              node.bias, node.x_position))
     logger.info("--- Connections ---")
     for connection in genome.connections:
         logger.info("{} -> {}, Enabled: {}, InnovationNumber: {}, Weight: {}".

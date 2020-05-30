@@ -3,7 +3,6 @@ import numpy as np
 from neat_core.models.agent import Agent
 from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
-from neat_core.models.species import Species
 from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.generator.inno_num_generator_interface import InnovationNumberGeneratorInterface
 from neat_core.optimizer.neat_config import NeatConfig
@@ -124,12 +123,17 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         rnd = np.random.RandomState(new_generation_seed)
 
         # Get the best agents, which will be copied later
-        best_agents = gs.get_best_genomes_from_species(generation.species_list, 10)
+        best_agents_genomes = gs.get_best_genomes_from_species(generation.species_list, 10)
 
         # Get allowed species for reproduction
         generation = ss.update_fitness_species(generation)
         # TODO config value!!!
         species_list = ss.get_allowed_species_for_reproduction(generation, 15)
+
+        # TODO handle error no species
+        if len(species_list) <= 3:
+            species_list = generation.species_list
+        # assert len(species_list) >= 1
 
         # Calculate the adjusted fitness values
         min_fitness = min([a.fitness for a in generation.agents])
@@ -141,28 +145,74 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         species_list = ss.remove_low_genomes(species_list, 0.5)
 
         # Calculate offspring for species
-        off_spring_list = ss.calculate_amount_offspring(species_list, config.population_size - len(best_agents))
+        off_spring_list = ss.calculate_amount_offspring(species_list, config.population_size - len(best_agents_genomes))
 
-        # Create offspring pairs
+        # Calculate off spring combinations
         off_spring_pairs = []
         for species, amount_offspring in zip(species_list, off_spring_list):
             off_spring_pairs += ss.create_offspring_pairs(species, amount_offspring, agent_id_generator, generation,
                                                           rnd, config)
 
-        # TODO reset innovation number id generator
-        # Calculate off spring combinations
+        # Notify innovation number generator, that a new generation is created
+        innovation_number_generator.next_generation(generation.number)
 
-        new_agents = []
-        rnd = np.random.RandomState()
-        for agent in generation.agents:
-            copied_genome = rp.deep_copy_genome(agent.genome)
-            copied_genome = rp.mutate_weights(copied_genome, rnd, config)
-            copied_genome = rp.mutate_bias(copied_genome, rnd, config)
-            new_agents.append(Agent(1, copied_genome))
+        # Create a dictionary for easy access
+        agent_dict = {agent.id: agent for agent in generation.agents}
+
+        # Create new agents - fill initially with best agents
+        new_agents = [Agent(agent_id_generator.get_agent_id(), genome) for genome in best_agents_genomes]
+
+        # Create agents with crossover
+        for parent1_id, parent2_id, child_id in off_spring_pairs:
+            parent1 = agent_dict[parent1_id]
+            parent2 = agent_dict[parent2_id]
+
+            child_seed = (parent1.genome.seed + parent2.genome.seed) % 2 ** 24
+            rnd_child = np.random.RandomState(child_seed)
+
+            # Perform crossover for to get the nodes and connections for the child
+            if parent1.fitness > parent2.fitness:
+                child_nodes, child_connections = rp.cross_over(parent1.genome, parent2.genome, rnd_child, config)
+            else:
+                child_nodes, child_connections = rp.cross_over(parent2.genome, parent1.genome, rnd_child, config)
+
+            # Create child genome
+            child_genome = Genome(child_seed, child_nodes, child_connections)
+
+            # Mutate genome
+            child_genome = rp.mutate_weights(child_genome, rnd_child, config)
+            child_genome, _, _, _ = rp.mutate_add_node(child_genome, rnd_child, innovation_number_generator, config)
+            child_genome, _ = rp.mutate_add_connection(child_genome, rnd_child, innovation_number_generator, config)
+
+            child_agent = Agent(child_id, child_genome)
+            new_agents.append(child_agent)
+
+        # Select new representative
+        existing_species = [ss.select_new_representative(species, rnd) for species in generation.species_list]
+        # Reset members and fitness
+        existing_species = [ss.reset_species(species) for species in existing_species]
+
+        # Sort members into species
+        new_species_list = ss.sort_agents_into_species(existing_species, new_agents, species_id_generator, config)
+
+        # Filter out empty species
+        new_species_list = ss.get_species_with_members(new_species_list)
+
+        return Generation(generation.number + 1, new_generation_seed, new_agents, new_species_list)
+
+        # new_agents = []
+        # rnd = np.random.RandomState()
+        # for agent in generation.agents:
+        #     copied_genome = rp.deep_copy_genome(agent.genome)
+        #     copied_genome = rp.mutate_weights(copied_genome, rnd, config)
+        #     copied_genome = rp.mutate_bias(copied_genome, rnd, config)
+        #     new_agents.append(Agent(1, copied_genome))
+
+        # Clear species members
 
         # TODO sort agents into species, select new random representive
 
-        return Generation(generation.number + 1, 0, new_agents, [Species(1, new_agents[0].genome, new_agents)])
+        # return Generation(generation.number + 1, 0, new_agents, [Species(1, new_agents[0].genome, new_agents)])
 
     def _cleanup(self, challenge: Challenge) -> None:
         # Notify callback and challenge
