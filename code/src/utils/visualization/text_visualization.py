@@ -30,5 +30,5 @@ def print_agent(agent: Agent) -> None:
     :param agent: the agent that should be printed
     :return: None
     """
-    logger.info("Agent {} - Fitness: {}, AdditionalInfo: ".format(agent.id, agent.fitness, agent.additional_info))
+    logger.info("Agent {} - Fitness: {}, AdditionalInfo: {}".format(agent.id, agent.fitness, agent.additional_info))
     print_genome(agent.genome)
