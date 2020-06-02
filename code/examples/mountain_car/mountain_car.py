@@ -1,16 +1,21 @@
+import os.path as path
+import site
 import sys
+
+parentdir = path.abspath(path.join(__file__, "../../.."))
+site.addsitedir(parentdir + "/src/")
+print(sys.path)
+
 from typing import Dict
 
+import gym
 import matplotlib.pyplot as plt
 import numpy as np
 from loguru import logger
 
 from neat_core.activation_function import modified_sigmoid_function
 from neat_core.models.agent import Agent
-from neat_core.models.connection import Connection
 from neat_core.models.generation import Generation
-from neat_core.models.genome import Genome
-from neat_core.models.node import Node, NodeType
 from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer import NeatOptimizer
@@ -28,95 +33,82 @@ logger.add(sys.stdout, colorize=True, format="<green>{time}</green> | {level}   
            level="INFO")
 
 
-class ChallengeXOR(Challenge):
-    xor_tuples = [
-        [0, 0, 0],
-        [1, 0, 1],
-        [0, 1, 1],
-        [1, 1, 0]
-    ]
+class ChallengeMountainCar(Challenge):
+
+    def __init__(self) -> None:
+        self.env = None
+        self.observation = None
+
+    def initialization(self, **kwargs) -> None:
+        self.env = gym.make("MountainCar-v0")
+
+    def before_evaluation(self, **kwargs) -> None:
+        self.observation = self.env.reset()
 
     def evaluate(self, neural_network: NeuralNetworkInterface, **kwargs) -> (float, Dict[str, object]):
-        fitness_val = 4.0
-        solved = True
+        # Max episodes of environment, after which it terminates
+        max_episodes = 200
 
-        for xor_input in ChallengeXOR.xor_tuples:
-            # Calculate xor with value
-            inputs = [xor_input[0], xor_input[1]]
-            result_array = neural_network.activate(inputs)
-            result = result_array[0]
+        # Mix x position is -1.2, so that is never negative
+        fitness = 1.3 + max_episodes
+        max_x_progress = self.observation[0]
 
-            # Print results, if flag is given
+        for _ in range(max_episodes):
+            # Get action from neural network
+            action = neural_network.activate(self.observation)
+            index = np.argmax(action)
+
+            # if "show" in kwargs:
+            #     logger.info("Observation: {}, Selected Action: {}, Raw NN: {}".format(self.observation, index, action))
+
+            self.observation, reward, done, info = self.env.step(index)
+
             if "show" in kwargs:
-                logger.info(
-                    "Activate neural net - Inputs: {}, Expected Output: {}, Output: {}".format(inputs, xor_input[2],
-                                                                                               result_array))
+                self.env.render()
 
-            # Remove difference from fitness
-            difference = (abs(xor_input[2] - result))
-            fitness_val -= difference
+            # Used for fitness
+            fitness += reward
+            if self.observation[0] > max_x_progress:
+                max_x_progress = self.observation[0]
 
-            # Challenge is solved, if the difference is smaller than 0.5 for every input xor_input
-            solved = solved and difference < 0.5
+            if done:
+                break
+        else:
+            logger.error("Environment finished without done! Something is wrong..")
 
-        # Remaining fitness value is squared
-        fitness_val = fitness_val ** 2
+        solved = max_x_progress >= 0.5
+        return (fitness + max_x_progress) ** 2, {"solved": solved, "max_x": max_x_progress}
 
-        return fitness_val, {"solved": solved}
+    def clean_up(self, **kwargs):
+        self.env.close()
 
 
-class XOROptimizer(NeatOptimizerCallback):
+class MountainOptimizer(NeatOptimizerCallback):
 
     def __init__(self) -> None:
         self.plot_data = generation_visualization.PlotData()
+        self.challenge = None
 
     def evaluate(self, optimizer: NeatOptimizer):
+        # Good seed: 11357659, pop 400, threshold 1.0, min max weight = -3,3
+
         optimizer.register_callback(self)
-        config = NeatConfig(allow_recurrent_connections=False,
-                            population_size=150,
-                            compatibility_threshold=1.8,
+        config = NeatConfig(population_size=400,
+                            compatibility_threshold=1.0,
                             connection_min_weight=-3,
                             connection_max_weight=3)
 
         seed = np.random.RandomState().randint(2 ** 24)
-        # seed = 15545410
-        # seed = 4931215
-        # Good seed: 15545410
-        # Generation 24: 11760111
         logger.info("Used Seed: {}".format(seed))
 
+        self.challenge = ChallengeMountainCar()
+
         optimizer.evaluate(amount_input_nodes=2,
-                           amount_output_nodes=1,
+                           amount_output_nodes=3,
                            activation_function=modified_sigmoid_function,
-                           challenge=ChallengeXOR(),
+                           challenge=self.challenge,
                            config=config,
                            seed=seed)
-
-    def evaluate_fix_structure(self, optimizer: NeatOptimizer):
-        optimizer.register_callback(self)
-        config = NeatConfig(allow_recurrent_connections=False,
-                            probability_mutate_add_connection=0,
-                            probability_mutate_add_node=0)
-
-        genome = Genome(
-            0,
-            [Node(0, NodeType.INPUT, 0, modified_sigmoid_function, 0),
-             Node(1, NodeType.INPUT, 0, modified_sigmoid_function, 0),
-             Node(2, NodeType.OUTPUT, 0, modified_sigmoid_function, 1),
-             Node(3, NodeType.HIDDEN, 0, modified_sigmoid_function, 0.5),
-             Node(4, NodeType.HIDDEN, 0, modified_sigmoid_function, 0.5)],
-            [Connection(1, 0, 3, 0.1, True),
-             Connection(2, 1, 3, 0.1, True),
-             Connection(3, 0, 4, 0.1, True),
-             Connection(4, 1, 4, 0.1, True),
-             Connection(5, 3, 2, 0.1, True),
-             Connection(6, 4, 2, 0.1, True)]
-        )
-
-        optimizer.evaluate_genome_structure(genome_structure=genome,
-                                            challenge=ChallengeXOR(),
-                                            config=config,
-                                            seed=1)
 
     def on_initialization(self) -> None:
         logger.info("On initialization called...")
@@ -136,7 +128,8 @@ class XOROptimizer(NeatOptimizerCallback):
         self.plot_data.add_generation(generation)
 
         logger.info("Finished evaluation of generation {}".format(generation.number))
-        logger.info("Best Fitness in Agent {}: {}".format(best_agent.id, best_agent.fitness))
+        logger.info("Best Fitness in Agent {}: {}, AdditionalInfo: {}".format(best_agent.id, best_agent.fitness,
+                                                                              best_agent.additional_info))
         logger.info("Amount species: {}".format(len(generation.species_list)))
 
     def on_cleanup(self) -> None:
@@ -157,20 +150,24 @@ class XOROptimizer(NeatOptimizerCallback):
         genome_visualization.draw_genome_graph(agent.genome, draw_labels=True)
         plt.show()
 
-        # Print actual results
-        challenge = ChallengeXOR()
+        # Run best genome in endless loop
         nn = BasicNeuralNetwork()
         nn.build(agent.genome)
-        fitness, additional_info = challenge.evaluate(nn, show=True)
-        logger.info(
-            "Finished Evaluation - Fitness: {}, Challenge solved = {}".format(fitness, additional_info["solved"]))
+
+        challenge = ChallengeMountainCar()
+        challenge.initialization()
+
+        while True:
+            challenge.before_evaluation()
+            fitness, additional_info = challenge.evaluate(nn, show=True)
+            logger.info("Finished Neural network  Fitness: {}, Info: {}".format(fitness, additional_info))
 
     def finish_evaluation(self, generation: Generation) -> bool:
-        best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
-        return best_agent.additional_info["solved"]
+        # best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
+        # return best_agent.additional_info["solved"]
+        return generation.number >= 40
 
 
 if __name__ == '__main__':
-    xor_optimizer = XOROptimizer()
-    # xor_optimizer.evaluate_fix_structure(NeatOptimizerSingleCore())
-    xor_optimizer.evaluate(NeatOptimizerSingleCore())
+    mountain_optimizer = MountainOptimizer()
+    mountain_optimizer.evaluate(NeatOptimizerSingleCore())

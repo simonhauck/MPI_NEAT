@@ -9,6 +9,8 @@ class Agent(object):
     def __init__(self, id_: int, genome: Genome) -> None:
         self.id = id_
         self.genome: Genome = genome
+
+        # TODO remove neural network
         self.neural_network: NeuralNetworkInterface = None
 
         # TODO remove adjusted fitness

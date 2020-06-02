@@ -188,8 +188,13 @@ def calculate_amount_offspring(species_list: List[Species], amount_offspring) ->
     sum_adjusted_fitness = sum([s.adjusted_fitness for s in species_list])
     remaining_offspring = amount_offspring
 
+    # TODO dirty fix
+    if sum_adjusted_fitness == 0:
+        sum_adjusted_fitness = 1
+
     # Calculate initial distribution
     for species in species_list:
+        # TODO if all agents ahve same fitness -> Divided by 0 -> Check fix
         off_spring_species = (species.adjusted_fitness / sum_adjusted_fitness) * amount_offspring
         # The remaining species will be distributed later
         off_spring_species = math.floor(off_spring_species)
@@ -198,8 +203,10 @@ def calculate_amount_offspring(species_list: List[Species], amount_offspring) ->
         off_spring_list.append(off_spring_species)
 
     # Assign remaining offspring
+    len_off_spring_list = len(off_spring_list)
     for i in range(remaining_offspring):
-        off_spring_list[i] = off_spring_list[i] + 1
+        selected_index = i % len_off_spring_list
+        off_spring_list[selected_index] = off_spring_list[selected_index] + 1
 
     return off_spring_list
 

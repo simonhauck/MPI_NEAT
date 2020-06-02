@@ -200,20 +200,6 @@ class NeatOptimizerSingleCore(NeatOptimizer):
 
         return Generation(generation.number + 1, new_generation_seed, new_agents, new_species_list)
 
-        # new_agents = []
-        # rnd = np.random.RandomState()
-        # for agent in generation.agents:
-        #     copied_genome = rp.deep_copy_genome(agent.genome)
-        #     copied_genome = rp.mutate_weights(copied_genome, rnd, config)
-        #     copied_genome = rp.mutate_bias(copied_genome, rnd, config)
-        #     new_agents.append(Agent(1, copied_genome))
-
-        # Clear species members
-
-        # TODO sort agents into species, select new random representive
-
-        # return Generation(generation.number + 1, 0, new_agents, [Species(1, new_agents[0].genome, new_agents)])
-
     def _cleanup(self, challenge: Challenge) -> None:
         # Notify callback and challenge
         challenge.clean_up()

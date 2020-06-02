@@ -6,14 +6,14 @@ from neural_network.neural_network_interface import NeuralNetworkInterface
 
 class Challenge(ABC):
 
-    def initialization(self) -> None:
+    def initialization(self, **kwargs) -> None:
         """
         Initialize the challenge, only called once.
         :return: None
         """
         pass
 
-    def before_evaluation(self) -> None:
+    def before_evaluation(self, **kwargs) -> None:
         """
         Prepare the evaluation of a neural network. Called before every neural network.
         :return: None
@@ -21,7 +21,7 @@ class Challenge(ABC):
         pass
 
     @abstractmethod
-    def evaluate(self, neural_network: NeuralNetworkInterface) -> (float, Dict[str, object]):
+    def evaluate(self, neural_network: NeuralNetworkInterface, **kwargs) -> (float, Dict[str, object]):
         """
         Evaluate a neural network.
         :param neural_network: the neural network, that should be evaluated
@@ -29,14 +29,14 @@ class Challenge(ABC):
         """
         pass
 
-    def after_evaluation(self) -> None:
+    def after_evaluation(self, **kwargs) -> None:
         """
         Finish the evaluation. Called always after the evaluation finishes.
         :return: None
         """
         pass
 
-    def clean_up(self):
+    def clean_up(self, **kwargs):
         """
         Cleanup, when the evaluation of all networks is finished.
         :return: None
