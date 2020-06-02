@@ -39,7 +39,11 @@ def plot_fitness_values(plot_data: PlotData) -> None:
     :param plot_data: objects that holds the aggregated data
     :return: None
     """
-    plt.errorbar(plot_data.generations, plot_data.mean_values, plot_data.std_values, fmt='ok', lw=3)
-    plt.errorbar(plot_data.generations, plot_data.mean_values,
-                 [plot_data.mean_values - plot_data.min_values, plot_data.max_values - plot_data.mean_values],
-                 fmt='.k', ecolor='gray', lw=1)
+    plt.title("Fitness values")
+    plt.xlabel("Generations")
+    plt.ylabel("Fitness")
+
+    plt.plot(plot_data.generations, plot_data.max_values, label="max")
+    plt.plot(plot_data.generations, plot_data.mean_values, label="mean")
+    plt.plot(plot_data.generations, plot_data.min_values, label="min")
+    plt.legend()
