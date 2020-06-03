@@ -2,7 +2,9 @@ from typing import Dict
 
 import gym
 import numpy as np
+from gym import wrappers
 from loguru import logger
+from pyvirtualdisplay import Display
 
 from neat_core.optimizer.challenge import Challenge
 from neural_network.neural_network_interface import NeuralNetworkInterface
@@ -13,9 +15,14 @@ class ChallengeMountainCar(Challenge):
     def __init__(self) -> None:
         self.env = None
         self.observation = None
+        self.virtual_display = None
 
     def initialization(self, **kwargs) -> None:
         self.env = gym.make("MountainCar-v0")
+        if "show" in kwargs:
+            self.virtual_display = Display(visible=0, size=(1400, 900))
+            self.virtual_display.start()
+            self.env = gym.wrappers.Monitor(self.env, "/tmp/mountain_car")
 
     def before_evaluation(self, **kwargs) -> None:
         self.observation = self.env.reset()
@@ -56,3 +63,7 @@ class ChallengeMountainCar(Challenge):
 
     def clean_up(self, **kwargs):
         self.env.close()
+
+        if "show" in kwargs:
+            logger.info("Closing virtual display")
+            self.virtual_display.stop()

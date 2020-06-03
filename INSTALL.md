@@ -136,9 +136,18 @@ Graphviz and a python [library](https://github.com/pygraphviz/pygraphviz).
 ```shell script
 sudo apt-get install -y graphviz pkg-config libgraphviz-dev
 
-# Activate the virutak environment for the pr**oject and install
+# Activate the virtual environment for the project and install (or use requirements.txt)
 pip install pygraphviz
  ```
+
+## Record OpenAI Gym sessions
+To record environments from the open ai gym on a remote device, the following dependencies must be installed
+```shell script
+sudo apt-get install -y python-opengl ffmpeg xvfb
+
+# This also requires the following python package (is included in requirements.txt)
+pip install pyvirtualdisplay
+```
 
 ## Upload to Code to the Raspberry Pi and install the remaining dependencies
 Last, upload the code to the Raspberry Pi. Activate the created virtual environment and install the remaining 

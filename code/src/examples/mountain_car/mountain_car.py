@@ -34,6 +34,7 @@ class MountainCarOptimizer(NeatOptimizerCallback):
 
     def evaluate(self, optimizer: NeatOptimizer):
         # Good seed: 11357659, pop 400, threshold 1.0, min max weight = -3,3
+        # Good seed: 858826, pop 400, threshold 1.0, min max weight = -3,3 Solved in first generation
 
         optimizer.register_callback(self)
         config = NeatConfig(population_size=400, compatibility_threshold=1.0,
@@ -98,12 +99,14 @@ class MountainCarOptimizer(NeatOptimizerCallback):
         nn.build(agent.genome)
 
         challenge = ChallengeMountainCar()
-        challenge.initialization()
+        challenge.initialization(show=True)
 
-        while True:
-            challenge.before_evaluation()
-            fitness, additional_info = challenge.evaluate(nn, show=False)
+        for _ in range(10):
+            challenge.before_evaluation(show=True)
+            fitness, additional_info = challenge.evaluate(nn, show=True)
             logger.info("Finished Neural network  Fitness: {}, Info: {}".format(fitness, additional_info))
+
+        challenge.clean_up(show=True)
 
     def finish_evaluation(self, generation: Generation) -> bool:
         # best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
