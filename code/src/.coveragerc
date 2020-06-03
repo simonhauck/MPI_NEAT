@@ -1,0 +1,6 @@
+[run]
+omit =
+    */examples/*
+    */mpi_tutorial/*
+    */tf_tutorial/*
+

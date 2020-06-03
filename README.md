@@ -39,7 +39,7 @@ source ./neat_mpi_env/bin/activate
 # Go to the project directory
 
 # Run tets with code coverage
-pytest --cov=./code/src/
+pytest --cov-config=code/src/.coveragerc --cov=code/src/
 ```
 
 ## Used Tools for the thesis:
