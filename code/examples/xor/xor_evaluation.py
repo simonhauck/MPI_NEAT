@@ -92,6 +92,7 @@ class XOROptimizer(NeatOptimizerCallback):
                            config=config,
                            seed=seed)
 
+    # TODO remove at the end
     def evaluate_fix_structure(self, optimizer: NeatOptimizer):
         optimizer.register_callback(self)
         config = NeatConfig(allow_recurrent_connections=False,
@@ -154,7 +155,7 @@ class XOROptimizer(NeatOptimizerCallback):
         # Draw genome
         generation_visualization.plot_fitness_values(self.plot_data)
         plt.show()
-        genome_visualization.draw_genome_graph(agent.genome, draw_labels=True)
+        genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)
         plt.show()
 
         # Print actual results
