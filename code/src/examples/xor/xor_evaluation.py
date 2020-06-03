@@ -1,68 +1,22 @@
-import sys
-from typing import Dict
-
 import matplotlib.pyplot as plt
 import numpy as np
 from loguru import logger
 
+from examples.xor.xor_challenge import ChallengeXOR
 from neat_core.activation_function import modified_sigmoid_function
 from neat_core.models.agent import Agent
 from neat_core.models.connection import Connection
 from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
 from neat_core.models.node import Node, NodeType
-from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer import NeatOptimizer
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
-from neat_single_core.neat_optimizer_single_core import NeatOptimizerSingleCore
 from neural_network.basic_neural_network import BasicNeuralNetwork
-from neural_network.neural_network_interface import NeuralNetworkInterface
 from utils.fitness_evaluation import fitness_evaluation_utils
 from utils.visualization import generation_visualization
 from utils.visualization import genome_visualization
 from utils.visualization import text_visualization
-
-logger.remove()
-logger.add(sys.stdout, colorize=True, format="<green>{time}</green> | {level}   | <level>{message}</level>",
-           level="INFO")
-
-
-class ChallengeXOR(Challenge):
-    xor_tuples = [
-        [0, 0, 0],
-        [1, 0, 1],
-        [0, 1, 1],
-        [1, 1, 0]
-    ]
-
-    def evaluate(self, neural_network: NeuralNetworkInterface, **kwargs) -> (float, Dict[str, object]):
-        fitness_val = 4.0
-        solved = True
-
-        for xor_input in ChallengeXOR.xor_tuples:
-            # Calculate xor with value
-            inputs = [xor_input[0], xor_input[1]]
-            result_array = neural_network.activate(inputs)
-            result = result_array[0]
-
-            # Print results, if flag is given
-            if "show" in kwargs:
-                logger.info(
-                    "Activate neural net - Inputs: {}, Expected Output: {}, Output: {}".format(inputs, xor_input[2],
-                                                                                               result_array))
-
-            # Remove difference from fitness
-            difference = (abs(xor_input[2] - result))
-            fitness_val -= difference
-
-            # Challenge is solved, if the difference is smaller than 0.5 for every input xor_input
-            solved = solved and difference < 0.5
-
-        # Remaining fitness value is squared
-        fitness_val = fitness_val ** 2
-
-        return fitness_val, {"solved": solved}
 
 
 class XOROptimizer(NeatOptimizerCallback):
@@ -85,12 +39,8 @@ class XOROptimizer(NeatOptimizerCallback):
         # Generation 24: 11760111
         logger.info("Used Seed: {}".format(seed))
 
-        optimizer.evaluate(amount_input_nodes=2,
-                           amount_output_nodes=1,
-                           activation_function=modified_sigmoid_function,
-                           challenge=ChallengeXOR(),
-                           config=config,
-                           seed=seed)
+        optimizer.evaluate(amount_input_nodes=2, amount_output_nodes=1, activation_function=modified_sigmoid_function,
+                           challenge=ChallengeXOR(), config=config, seed=seed)
 
     # TODO remove at the end
     def evaluate_fix_structure(self, optimizer: NeatOptimizer):
@@ -169,9 +119,3 @@ class XOROptimizer(NeatOptimizerCallback):
     def finish_evaluation(self, generation: Generation) -> bool:
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
         return best_agent.additional_info["solved"]
-
-
-if __name__ == '__main__':
-    xor_optimizer = XOROptimizer()
-    # xor_optimizer.evaluate_fix_structure(NeatOptimizerSingleCore())
-    xor_optimizer.evaluate(NeatOptimizerSingleCore())

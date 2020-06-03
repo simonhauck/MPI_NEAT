@@ -3,4 +3,6 @@ omit =
     */examples/*
     */mpi_tutorial/*
     */tf_tutorial/*
+    */main.py
+    */conftest.py
 

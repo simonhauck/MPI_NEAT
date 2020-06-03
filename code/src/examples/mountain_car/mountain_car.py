@@ -1,90 +1,23 @@
-import os.path as path
-import site
-import sys
-
-parentdir = path.abspath(path.join(__file__, "../../.."))
-site.addsitedir(parentdir + "/src/")
-print(sys.path)
-
-from typing import Dict
-from loguru import logger
-
-import gym
 import matplotlib.pyplot as plt
 import numpy as np
 import progressbar
+from loguru import logger
 
+from examples.mountain_car.mountain_car_challenge import ChallengeMountainCar
 from neat_core.activation_function import modified_sigmoid_function
 from neat_core.models.agent import Agent
 from neat_core.models.generation import Generation
-from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer import NeatOptimizer
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
-from neat_single_core.neat_optimizer_single_core import NeatOptimizerSingleCore
 from neural_network.basic_neural_network import BasicNeuralNetwork
-from neural_network.neural_network_interface import NeuralNetworkInterface
 from utils.fitness_evaluation import fitness_evaluation_utils
 from utils.visualization import generation_visualization
 from utils.visualization import genome_visualization
 from utils.visualization import text_visualization
 
-logger.remove()
-logger.add(sys.stdout, colorize=True, format="<green>{time}</green> | {level}   | <level>{message}</level>",
-           level="INFO")
 
-
-class ChallengeMountainCar(Challenge):
-
-    def __init__(self) -> None:
-        self.env = None
-        self.observation = None
-
-    def initialization(self, **kwargs) -> None:
-        self.env = gym.make("MountainCar-v0")
-
-    def before_evaluation(self, **kwargs) -> None:
-        self.observation = self.env.reset()
-
-    def evaluate(self, neural_network: NeuralNetworkInterface, **kwargs) -> (float, Dict[str, object]):
-        # Max episodes of environment, after which it terminates
-        max_episodes = 200
-
-        # Mix x position is -1.2, so that is never negative
-        fitness = 1.3 + max_episodes
-        max_x_progress = self.observation[0]
-
-        for _ in range(max_episodes):
-            # Get action from neural network
-            action = neural_network.activate(self.observation)
-            index = np.argmax(action)
-
-            # if "show" in kwargs:
-            #     logger.info("Observation: {}, Selected Action: {}, Raw NN: {}".format(self.observation, index, action))
-
-            self.observation, reward, done, info = self.env.step(index)
-
-            if "show" in kwargs:
-                self.env.render()
-
-            # Used for fitness
-            fitness += reward
-            if self.observation[0] > max_x_progress:
-                max_x_progress = self.observation[0]
-
-            if done:
-                break
-        else:
-            logger.error("Environment finished without done! Something is wrong..")
-
-        solved = max_x_progress >= 0.5
-        return (fitness + max_x_progress) ** 2, {"solved": solved, "max_x": max_x_progress}
-
-    def clean_up(self, **kwargs):
-        self.env.close()
-
-
-class MountainOptimizer(NeatOptimizerCallback):
+class MountainCarOptimizer(NeatOptimizerCallback):
 
     def __init__(self) -> None:
         self.plot_data = generation_visualization.PlotData()
@@ -103,10 +36,8 @@ class MountainOptimizer(NeatOptimizerCallback):
         # Good seed: 11357659, pop 400, threshold 1.0, min max weight = -3,3
 
         optimizer.register_callback(self)
-        config = NeatConfig(population_size=400,
-                            compatibility_threshold=1.0,
-                            connection_min_weight=-3,
-                            connection_max_weight=3)
+        config = NeatConfig(population_size=400, compatibility_threshold=1.0,
+                            connection_min_weight=-3, connection_max_weight=3)
 
         self.progressbar_max = config.population_size
 
@@ -159,7 +90,7 @@ class MountainOptimizer(NeatOptimizerCallback):
         # Draw genome
         generation_visualization.plot_fitness_values(self.plot_data)
         plt.show()
-        genome_visualization.draw_genome_graph(agent.genome, draw_labels=True)
+        genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)
         plt.show()
 
         # Run best genome in endless loop
@@ -178,8 +109,3 @@ class MountainOptimizer(NeatOptimizerCallback):
         # best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
         # return best_agent.additional_info["solved"]
         return generation.number >= 40
-
-
-if __name__ == '__main__':
-    mountain_optimizer = MountainOptimizer()
-    mountain_optimizer.evaluate(NeatOptimizerSingleCore())

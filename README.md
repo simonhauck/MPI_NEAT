@@ -42,6 +42,21 @@ source ./neat_mpi_env/bin/activate
 pytest --cov-config=code/src/.coveragerc --cov=code/src/
 ```
 
+## Run Examples
+The following commands star the corresponding examples
+```shell script
+# Activate virutal env
+source ./neat_mpi_env/bin/activate
+
+# Go to the project directory
+
+# The xor problem
+python code/src/main.py xor
+
+# The mountain car challenge from the open ai gym
+python code/src/main.py mountain_car
+```
+
 ## Used Tools for the thesis:
 - Visual Paradigm Community Edition 16.1 for the UML-Diagrams
 - Latex for the Thesis
