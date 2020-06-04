@@ -22,7 +22,7 @@ class ChallengeMountainCar(Challenge):
         if "show" in kwargs:
             self.virtual_display = Display(visible=0, size=(1400, 900))
             self.virtual_display.start()
-            self.env = gym.wrappers.Monitor(self.env, "/tmp/mountain_car")
+            self.env = gym.wrappers.Monitor(self.env, "/tmp/mountain_car", video_callable=lambda episode_id: True)
 
     def before_evaluation(self, **kwargs) -> None:
         self.observation = self.env.reset()

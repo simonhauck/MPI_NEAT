@@ -101,7 +101,7 @@ class MountainCarOptimizer(NeatOptimizerCallback):
         challenge = ChallengeMountainCar()
         challenge.initialization(show=True)
 
-        for _ in range(10):
+        for i in range(100):
             challenge.before_evaluation(show=True)
             fitness, additional_info = challenge.evaluate(nn, show=True)
             logger.info("Finished Neural network  Fitness: {}, Info: {}".format(fitness, additional_info))
