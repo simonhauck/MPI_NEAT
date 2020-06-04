@@ -1,4 +1,6 @@
-import os, sys, inspect
+import inspect
+import os
+import sys
 
 # Mpi cant be started in subdirectory, or to be more specific, can't import custom module
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -19,7 +21,7 @@ status = MPI.Status()
 
 PRINT_NUMBERS = False
 START_SEARCH = 1
-END_SEARCH = 20000000
+END_SEARCH = 2000000
 
 
 # 35.60801696777344s for 1 - 20011000 with 44cores, 1271256 primes found
