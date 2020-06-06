@@ -141,6 +141,9 @@ def mutate_add_connection(genome: Genome, rnd: np.random.RandomState, generator:
     for _ in range(config.mutate_connection_tries):
         in_node = sorted_nodes[rnd.randint(len(sorted_nodes))]
 
+        if in_node.innovation_number == 225:
+            print("in node 225")
+
         if config.allow_recurrent:
             # In recurrent networks, all nodes except input nodes can be output nodes
             possible_out_nodes = hidden_output_nodes
@@ -153,7 +156,7 @@ def mutate_add_connection(genome: Genome, rnd: np.random.RandomState, generator:
         if len(possible_out_nodes) == 0:
             continue
 
-        out_node = hidden_output_nodes[rnd.randint(len(possible_out_nodes))]
+        out_node = possible_out_nodes[rnd.randint(len(possible_out_nodes))]
 
         # Check if connection already exists
         exists = any(
