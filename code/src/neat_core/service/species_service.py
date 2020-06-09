@@ -1,5 +1,5 @@
 import math
-from typing import List, Tuple
+from typing import List, Tuple, Set, Union
 
 import numpy as np
 
@@ -21,8 +21,10 @@ def calculate_genetic_distance(genome1: Genome, genome2: Genome, config: NeatCon
     :param config: the config that specifies the compatibility functions
     :return: the compatibility value between the two nodes
     """
-    return _calculate_genetic_distance_nodes(genome1, genome2, config) + _calculate_genetic_distance_connections(
-        genome1, genome2, config)
+    node_distance = _calculate_genetic_distance_nodes(genome1, genome2, config)
+    connection_distance = _calculate_genetic_distance_connections(genome1, genome2, config)
+
+    return node_distance + connection_distance
 
 
 def _calculate_genetic_distance_nodes(genome1: Genome, genome2: Genome, config: NeatConfig) -> float:
@@ -37,27 +39,29 @@ def _calculate_genetic_distance_nodes(genome1: Genome, genome2: Genome, config: 
     g2_nodes_innovation_numbers = set(node.innovation_number for node in genome2.nodes)
 
     # Calculate matching & disjoint node genes
-    matching_genes = g1_nodes_innovation_numbers & g2_nodes_innovation_numbers
-    g1_disjoint_genes = g1_nodes_innovation_numbers - matching_genes
-    g2_disjoint_genes = g2_nodes_innovation_numbers - matching_genes
+    matching_genes_innovation_numbers, disjoint_genes_innovation_numbers = _innovation_numbers_matching_disjoint_genes(
+        g1_nodes_innovation_numbers, g2_nodes_innovation_numbers)
 
     # Calculate disjoint node genes value
-    amount_disjoint_genes = (len(g1_disjoint_genes) + len(g2_disjoint_genes))
+    amount_disjoint_genes = len(disjoint_genes_innovation_numbers)
     max_genome_size = (max(len(genome1.nodes), len(genome2.nodes)))
+    # TODO divide by length
     disjoint_genes_result = (config.compatibility_factor_disjoint_genes * amount_disjoint_genes) / max_genome_size
 
-    # Calculate matching node genes
     # Create dictionary for matching genes
     g1_node_dict = {node.innovation_number: node for node in
-                    (filter(lambda node: node.innovation_number in matching_genes, genome1.nodes))}
-    matching_genes_difference_sum = 0
+                    (filter(lambda node: node.innovation_number in matching_genes_innovation_numbers, genome1.nodes))}
+
+    # Calculate matching node genes
+    matching_genes_differences = []
     # TODO maybe check also activation function
     for g2_node in genome2.nodes:
-        if g2_node.innovation_number in matching_genes:
+        if g2_node.innovation_number in matching_genes_innovation_numbers:
             # Matching node
-            matching_genes_difference_sum += abs(g2_node.bias - g1_node_dict[g2_node.innovation_number].bias)
-    matching_genes_result = matching_genes_difference_sum / len(
-        matching_genes) * config.compatibility_factor_matching_genes
+            g1_node = g1_node_dict[g2_node.innovation_number]
+            matching_genes_differences.append(abs(g2_node.bias - g1_node.bias))
+
+    matching_genes_result = np.mean(matching_genes_differences) * config.compatibility_factor_matching_genes
 
     return disjoint_genes_result + matching_genes_result
 
@@ -73,30 +77,48 @@ def _calculate_genetic_distance_connections(genome1: Genome, genome2: Genome, co
     g1_connection_innovation_numbers = set(con.innovation_number for con in genome1.connections)
     g2_connection_innovation_numbers = set(con.innovation_number for con in genome2.connections)
 
-    # Calculate matching & disjoint connection genes
-    matching_genes = g1_connection_innovation_numbers & g2_connection_innovation_numbers
-    g1_disjoint_genes = g1_connection_innovation_numbers - matching_genes
-    g2_disjoint_genes = g2_connection_innovation_numbers - matching_genes
+    # Calculate matching & disjoint node genes
+    matching_genes_innovation_numbers, disjoint_genes_innovation_numbers = _innovation_numbers_matching_disjoint_genes(
+        g1_connection_innovation_numbers, g2_connection_innovation_numbers)
 
     # Calculate disjoint connection genes value
-    amount_disjoint_genes = (len(g1_disjoint_genes) + len(g2_disjoint_genes))
+    amount_disjoint_genes = len(disjoint_genes_innovation_numbers)
     max_genome_size = (max(len(genome1.connections), len(genome2.connections)))
+    # TODO divide by length
     disjoint_genes_result = (config.compatibility_factor_disjoint_genes * amount_disjoint_genes) / max_genome_size
 
-    # Calculate matching connection genes
     # Create dictionary for matching genes
     g1_con_dict = {con.innovation_number: con for con in
-                   (filter(lambda con: con.innovation_number in matching_genes, genome1.connections))}
-    matching_genes_difference_sum = 0
+                   (filter(lambda con: con.innovation_number in matching_genes_innovation_numbers,
+                           genome1.connections))}
+
+    # Calculate matching connection genes
+    matching_genes_difference = []
     # TODO maybe check also if gene is enabled or disabled
     for g2_con in genome2.connections:
-        if g2_con.innovation_number in matching_genes:
+        if g2_con.innovation_number in matching_genes_innovation_numbers:
             # Matching node
-            matching_genes_difference_sum += abs(g2_con.weight - g1_con_dict[g2_con.innovation_number].weight)
-    matching_genes_result = matching_genes_difference_sum / len(
-        matching_genes) * config.compatibility_factor_matching_genes
+            g1_con = g1_con_dict[g2_con.innovation_number]
+            matching_genes_difference.append(abs(g2_con.weight - g1_con.weight))
+
+    matching_genes_result = np.mean(matching_genes_difference) * config.compatibility_factor_matching_genes
 
     return disjoint_genes_result + matching_genes_result
+
+
+def _innovation_numbers_matching_disjoint_genes(g1_innovation_numbers: Set[Union[int, str]],
+                                                g2_innovation_numbers: Set[Union[int, str]]) -> (
+        Set[Union[int, str]], Set[Union[int, str]]):
+    """
+    Get the innovation numbers of the matching and disjoint genes in two separate sets
+    :param g1_innovation_numbers: a set with innovation numbers from the first genome
+    :param g2_innovation_numbers: a set with innovation numbers from the second genome
+    :return: a tuple, the first set contains the matching genes, the second set the disjoint genes
+    """
+
+    matching_genes = g1_innovation_numbers & g2_innovation_numbers
+    disjoint_genes = g1_innovation_numbers ^ g2_innovation_numbers
+    return matching_genes, disjoint_genes
 
 
 def sort_agents_into_species(existing_species: List[Species], agents: List[Agent],

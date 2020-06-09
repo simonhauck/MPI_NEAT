@@ -129,6 +129,20 @@ class SpeciesServiceTest(TestCase):
         self.assertEqual(disjoint_gene_value + matching_genes_value,
                          ss._calculate_genetic_distance_connections(self.g1, self.g2, self.config))
 
+    def test_innovation_numbers_matching_disjoint_genes(self):
+        dict1_int = {1, 2, 3, 4}
+        dict2_int = {3, 4, 5, 6}
+        dict1_str = {"a", "b", "c", "d"}
+        dict2_str = {"c", "d", "e", "f"}
+
+        matching_genes_int, disjoint_genes_int = ss._innovation_numbers_matching_disjoint_genes(dict1_int, dict2_int)
+        self.assertEqual({3, 4}, matching_genes_int)
+        self.assertEqual({1, 2, 5, 6}, disjoint_genes_int)
+
+        matching_genes_str, disjoint_genes_str = ss._innovation_numbers_matching_disjoint_genes(dict1_str, dict2_str)
+        self.assertEqual({"c", "d"}, matching_genes_str)
+        self.assertEqual({"a", "b", "e", "f"}, disjoint_genes_str)
+
     def test_sort_agents_into_species(self):
         species_id_generator = SpeciesIDGeneratorSingleCore()
         species_list_new = ss.sort_agents_into_species([], [self.agent1, self.agent2], species_id_generator,
