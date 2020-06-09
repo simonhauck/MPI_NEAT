@@ -107,10 +107,18 @@ def mutate_weights(genome: Genome, rnd: np.random.RandomState, config: NeatConfi
             if rnd.uniform(0, 1) <= config.probability_random_weight_mutation:
                 connection.weight = rnd.uniform(config.connection_min_weight, config.connection_max_weight)
             else:
-                connection.weight += rnd.uniform(-config.weight_mutation_max_change, config.weight_mutation_max_change)
+                # Check how the connection weight should be mutated
+                mutation_type = config.weight_mutation_type
+                if mutation_type == "uniform":
+                    connection.weight += rnd.uniform(-config.weight_mutation_uniform_max_change,
+                                                     config.weight_mutation_uniform_max_change)
+                elif mutation_type == "normal":
+                    connection.weight += rnd.normal(loc=0, scale=config.weight_mutation_normal_sigma)
+                else:
+                    raise AssertionError("Unknown type of mutation type. Must be 'uniform' or 'normal'")
+
                 connection.weight = np.clip(connection.weight, a_min=config.connection_min_weight,
                                             a_max=config.connection_max_weight)
-
     return genome
 
 
@@ -140,9 +148,6 @@ def mutate_add_connection(genome: Genome, rnd: np.random.RandomState, generator:
     # If a selection is not possible, retry the specified amount of times
     for _ in range(config.mutate_connection_tries):
         in_node = sorted_nodes[rnd.randint(len(sorted_nodes))]
-
-        if in_node.innovation_number == 225:
-            print("in node 225")
 
         if config.allow_recurrent:
             # In recurrent networks, all nodes except input nodes can be output nodes

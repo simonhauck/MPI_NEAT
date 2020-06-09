@@ -138,13 +138,14 @@ class ReproductionServiceTest(TestCase):
         self.assertAlmostEqual(-0.4978679717845562, modified_genome.nodes[2].bias, delta=0.0000001)
         self.assertAlmostEqual(1.3219469606529488, modified_genome.nodes[3].bias, delta=0.0000001)
 
-    def test_mutate_weights(self):
+    def test_mutate_weights_uniform(self):
 
         config = NeatConfig(probability_weight_mutation=0.6,
                             probability_random_weight_mutation=0.5,
                             connection_min_weight=-3,
                             connection_max_weight=3,
-                            weight_mutation_max_change=1)
+                            weight_mutation_type="uniform",
+                            weight_mutation_uniform_max_change=1)
 
         # Random values for with seed 1
         # First connection
@@ -172,6 +173,46 @@ class ReproductionServiceTest(TestCase):
         self.assertAlmostEqual(-2.445968431387213, self.connection2.weight, delta=0.000000000001)
         self.assertAlmostEqual(-0.6193951546159804, self.connection3.weight, delta=0.000000000001)
         self.assertAlmostEqual(1.1113170023805568, self.connection4.weight, delta=0.000000000001)
+
+    def test_mutate_weights_normal(self):
+        config = NeatConfig(probability_weight_mutation=0.6,
+                            probability_random_weight_mutation=0.5,
+                            connection_min_weight=-3,
+                            connection_max_weight=3,
+                            weight_mutation_type="normal",
+                            weight_mutation_normal_sigma=0.5)
+
+        # Random values for with seed 1
+        # First connection
+        # rnd.uniform(0, 1) = 0.417022004702574 -> Mutate yes
+        # rnd.uniform(0, 1) = 0.7203244934421581 -> Perturb weight
+        # rnd.normal(scale=0.5) = -0.26408587613172785 -> Value to be subtracted (and clamped)
+        # Second connection
+        # rnd.uniform(0, 1) = 0.39676747423066994 -> Mutate yes
+        # rnd.uniform(0, 1) = 0.538816734003357 -> Perturb weight
+        # rnd.normal(scale=0.5) = -0.5364843110780853 -> Value to be subtracted (and clamped)
+        # Third connection
+        # rnd.uniform(0, 1) = 0.4191945144032948 -> Mutate yes
+        # rnd.uniform(0, 1) = 0.6852195003967595 -> Perturb weight
+        # rnd.normal(scale=0.5) = 0.15951954802854929 -> Value to be added (and clamped)
+        # Fourth connection
+        # rnd.uniform(0, 1) = 0.027387593197926163 -> Mutate yes
+        # rnd.uniform(0, 1) = 0.6704675101784022 -> Perturb weight
+        # rnd.normal(scale=0.5) = -0.12468518773870504 -> Value to be subtracted (and clamped)
+
+        connection1_new_weight = self.connection1.weight - 0.26408587613172785
+        connection2_new_weight = self.connection2.weight - 0.5364843110780853
+        connection3_new_weight = self.connection3.weight + 0.15951954802854929
+        connection4_new_weight = self.connection4.weight - 0.12468518773870504
+
+        new_genome = mutate_weights(self.genome, self.rnd, config)
+
+        # Same object
+        self.assertEqual(self.genome, new_genome)
+        self.assertAlmostEqual(connection1_new_weight, self.connection1.weight, delta=0.000000000001)
+        self.assertAlmostEqual(connection2_new_weight, self.connection2.weight, delta=0.000000000001)
+        self.assertAlmostEqual(connection3_new_weight, self.connection3.weight, delta=0.000000000001)
+        self.assertAlmostEqual(connection4_new_weight, self.connection4.weight, delta=0.000000000001)
 
     def test_mutate_bias(self):
         config = NeatConfig(probability_bias_mutation=0.6,

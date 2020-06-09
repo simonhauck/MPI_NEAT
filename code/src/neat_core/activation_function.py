@@ -20,3 +20,8 @@ def step_function(x: float) -> float:
         return 1.0
     else:
         return 0.0
+
+
+def sigmoid_activation(z):
+    z = max(-60.0, min(60.0, 5.0 * z))
+    return 1.0 / (1.0 + math.exp(-z))

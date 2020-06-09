@@ -9,7 +9,9 @@ class NeatConfig(object):
                  bias_max: float = 3,
                  probability_weight_mutation: float = 0.8,
                  probability_random_weight_mutation: float = 0.1,
-                 weight_mutation_max_change: float = 1,
+                 weight_mutation_type: str = "normal",
+                 weight_mutation_uniform_max_change: float = 1,
+                 weight_mutation_normal_sigma: float = 1.3,
                  probability_bias_mutation: float = 0.8,
                  probability_random_bias_mutation: float = 0.1,
                  bias_mutation_max_change: float = 1,
@@ -36,7 +38,9 @@ class NeatConfig(object):
         # Mutate weights param
         self.probability_weight_mutation: float = probability_weight_mutation
         self.probability_random_weight_mutation: float = probability_random_weight_mutation
-        self.weight_mutation_max_change: float = weight_mutation_max_change
+        self.weight_mutation_type: str = weight_mutation_type
+        self.weight_mutation_uniform_max_change: float = weight_mutation_uniform_max_change
+        self.weight_mutation_normal_sigma: float = weight_mutation_normal_sigma
 
         # Mutate bias param
         self.probability_bias_mutation = probability_bias_mutation
