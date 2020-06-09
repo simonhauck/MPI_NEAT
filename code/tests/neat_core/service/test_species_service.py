@@ -21,8 +21,11 @@ from neat_single_core.species_id_generator_single_core import SpeciesIDGenerator
 class SpeciesServiceTest(TestCase):
 
     def setUp(self) -> None:
-        self.config = NeatConfig(compatibility_factor_matching_genes=1, compatibility_factor_disjoint_genes=2,
-                                 compatibility_threshold=2.5, population_size=8)
+        self.config = NeatConfig(compatibility_factor_matching_genes=1,
+                                 compatibility_factor_disjoint_genes=2,
+                                 compatibility_threshold=2.5,
+                                 compatibility_genome_size_threshold=0,
+                                 population_size=8)
 
         self.g1_nodes = [
             Node(1, NodeType.INPUT, 0, step_function, 0),
@@ -117,17 +120,34 @@ class SpeciesServiceTest(TestCase):
             disjoint_gene_value_connection + matching_genes_value_connection + disjoint_gene_value_node +
             matching_genes_value_node, genetic_distance)
 
-    def test_calculate_genetic_distance_nodes(self):
+    def test_calculate_genetic_distance_nodes_normalized(self):
         disjoint_gene_value = (3 / 6) * self.config.compatibility_factor_disjoint_genes
         matching_genes_value = 0.325 * self.config.compatibility_factor_matching_genes
         self.assertEqual(disjoint_gene_value + matching_genes_value,
                          ss._calculate_genetic_distance_nodes(self.g1, self.g2, self.config))
 
-    def test_calculate_genetic_distance_connections(self):
+    def test_calculate_genetic_distance_nodes(self):
+        self.config.compatibility_genome_size_threshold = 7
+        disjoint_gene_value = 3.0 * self.config.compatibility_factor_disjoint_genes
+        matching_genes_value = 0.325 * self.config.compatibility_factor_matching_genes
+        self.assertAlmostEqual(disjoint_gene_value + matching_genes_value,
+                               ss._calculate_genetic_distance_nodes(self.g1, self.g2, self.config),
+                               delta=0.0000000001)
+
+    def test_calculate_genetic_distance_connections_normalized(self):
         disjoint_gene_value = (3 / 7) * self.config.compatibility_factor_disjoint_genes
         matching_genes_value = 1.36 * self.config.compatibility_factor_matching_genes
         self.assertEqual(disjoint_gene_value + matching_genes_value,
                          ss._calculate_genetic_distance_connections(self.g1, self.g2, self.config))
+
+    def test_calculate_genetic_distance_connections(self):
+        self.config.compatibility_genome_size_threshold = 8
+
+        disjoint_gene_value = 3.0 * self.config.compatibility_factor_disjoint_genes
+        matching_genes_value = 1.36 * self.config.compatibility_factor_matching_genes
+        self.assertAlmostEqual(disjoint_gene_value + matching_genes_value,
+                               ss._calculate_genetic_distance_connections(self.g1, self.g2, self.config),
+                               delta=0.00000000001)
 
     def test_innovation_numbers_matching_disjoint_genes(self):
         dict1_int = {1, 2, 3, 4}

@@ -45,8 +45,10 @@ def _calculate_genetic_distance_nodes(genome1: Genome, genome2: Genome, config: 
     # Calculate disjoint node genes value
     amount_disjoint_genes = len(disjoint_genes_innovation_numbers)
     max_genome_size = (max(len(genome1.nodes), len(genome2.nodes)))
-    # TODO divide by length
-    disjoint_genes_result = (config.compatibility_factor_disjoint_genes * amount_disjoint_genes) / max_genome_size
+    # In the original paper, small genomes are not normalized (divided by 1)
+    divisor = max_genome_size if max_genome_size >= config.compatibility_genome_size_threshold else 1.0
+
+    disjoint_genes_result = (config.compatibility_factor_disjoint_genes * amount_disjoint_genes) / divisor
 
     # Create dictionary for matching genes
     g1_node_dict = {node.innovation_number: node for node in
@@ -84,8 +86,10 @@ def _calculate_genetic_distance_connections(genome1: Genome, genome2: Genome, co
     # Calculate disjoint connection genes value
     amount_disjoint_genes = len(disjoint_genes_innovation_numbers)
     max_genome_size = (max(len(genome1.connections), len(genome2.connections)))
-    # TODO divide by length
-    disjoint_genes_result = (config.compatibility_factor_disjoint_genes * amount_disjoint_genes) / max_genome_size
+    # In the original paper, small genomes are not normalized (divided by 1)
+    divisor = max_genome_size if max_genome_size >= config.compatibility_genome_size_threshold else 1.0
+
+    disjoint_genes_result = (config.compatibility_factor_disjoint_genes * amount_disjoint_genes) / divisor
 
     # Create dictionary for matching genes
     g1_con_dict = {con.innovation_number: con for con in
