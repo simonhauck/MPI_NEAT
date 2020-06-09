@@ -136,7 +136,8 @@ class GenerationServiceTest(TestCase):
                         [Connection(3, 1, 2, 0, True),
                          Connection(4, 2, 1, 0, True)])
 
-        config = NeatConfig(bias_min=1, bias_max=2, connection_min_weight=3, connection_max_weight=4)
+        config = NeatConfig(bias_initial_min=1, bias_initial_max=2,
+                            connection_initial_min_weight=3, connection_initial_max_weight=4)
         randomized_genome = gs._randomize_weight_bias(genome, np.random.RandomState(1), config)
 
         for node in randomized_genome.nodes:

@@ -3,10 +3,14 @@ class NeatConfig(object):
     def __init__(self,
                  population_size: int = 150,
                  allow_recurrent_connections: bool = True,
-                 connection_min_weight: float = -5.0,
-                 connection_max_weight: float = 5.0,
-                 bias_min: float = -3,
-                 bias_max: float = 3,
+                 connection_initial_min_weight: float = -10.0,
+                 connection_initial_max_weight: float = 10.0,
+                 connection_min_weight: float = -20.0,
+                 connection_max_weight: float = 20.0,
+                 bias_initial_min: float = -15.0,
+                 bias_initial_max: float = 15.0,
+                 bias_min: float = -25,
+                 bias_max: float = 25,
                  probability_weight_mutation: float = 0.8,
                  probability_random_weight_mutation: float = 0.1,
                  weight_mutation_type: str = "normal",
@@ -21,6 +25,7 @@ class NeatConfig(object):
                  probability_enable_gene: float = 0.25,
                  compatibility_factor_disjoint_genes: float = 1.0,
                  compatibility_factor_matching_genes: float = 0.4,
+                 compatibility_genome_size_threshold: int = 0,
                  compatibility_threshold: float = 3.0
                  ) -> None:
         # General params
@@ -28,10 +33,14 @@ class NeatConfig(object):
         self.allow_recurrent: bool = allow_recurrent_connections
 
         # Connection params
+        self.connection_initial_min_weight: float = connection_initial_min_weight
+        self.connection_initial_max_weight: float = connection_initial_max_weight
         self.connection_min_weight: float = connection_min_weight
         self.connection_max_weight: float = connection_max_weight
 
         # Bias params
+        self.bias_initial_min: float = bias_initial_min
+        self.bias_initial_max: float = bias_initial_max
         self.bias_min: float = bias_min
         self.bias_max: float = bias_max
 
@@ -43,13 +52,13 @@ class NeatConfig(object):
         self.weight_mutation_normal_sigma: float = weight_mutation_normal_sigma
 
         # Mutate bias param
-        self.probability_bias_mutation = probability_bias_mutation
-        self.probability_random_bias_mutation = probability_random_bias_mutation
-        self.bias_mutation_max_change = bias_mutation_max_change
+        self.probability_bias_mutation: float = probability_bias_mutation
+        self.probability_random_bias_mutation: float = probability_random_bias_mutation
+        self.bias_mutation_max_change: float = bias_mutation_max_change
 
         # Mutate connection
         self.probability_mutate_add_connection: float = probability_mutate_add_connection
-        self.mutate_connection_tries = mutate_connection_tries
+        self.mutate_connection_tries: int = mutate_connection_tries
 
         # Mutate node
         self.probability_mutate_add_node: float = probability_mutate_add_node
@@ -61,4 +70,5 @@ class NeatConfig(object):
         # Compatibility factors
         self.compatibility_factor_disjoint_genes: float = compatibility_factor_disjoint_genes
         self.compatibility_factor_matching_genes: float = compatibility_factor_matching_genes
+        self.compatibility_genome_size_threshold: int = compatibility_genome_size_threshold
         self.compatibility_threshold: float = compatibility_threshold

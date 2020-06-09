@@ -49,7 +49,8 @@ def set_new_genome_weights(genome: Genome, rnd: np.random.RandomState, config: N
     :return: the modified genome
     """
     for connection in genome.connections:
-        connection.weight = rnd.uniform(low=config.connection_min_weight, high=config.connection_max_weight)
+        connection.weight = rnd.uniform(low=config.connection_initial_min_weight,
+                                        high=config.connection_initial_max_weight)
 
     return genome
 
@@ -65,7 +66,7 @@ def set_new_genome_bias(genome: Genome, rnd: np.random.RandomState, config: Neat
     for node in genome.nodes:
         if node.node_type == NodeType.INPUT:
             continue
-        node.bias = rnd.uniform(low=config.bias_min, high=config.bias_max)
+        node.bias = rnd.uniform(low=config.bias_initial_min, high=config.bias_initial_max)
     return genome
 
 
@@ -85,8 +86,9 @@ def mutate_bias(genome: Genome, rnd: np.random.RandomState, config: NeatConfig) 
         if rnd.uniform(0, 1) <= config.probability_bias_mutation:
             # Assign random bias or perturb value
             if rnd.uniform(0, 1) <= config.probability_random_bias_mutation:
-                node.bias = rnd.uniform(low=config.bias_min, high=config.bias_max)
+                node.bias = rnd.uniform(low=config.bias_initial_min, high=config.bias_initial_max)
             else:
+                # TODO mutate with normal distribution
                 node.bias += rnd.uniform(low=-config.bias_mutation_max_change, high=config.bias_mutation_max_change)
                 node.bias = np.clip(node.bias, a_min=config.bias_min, a_max=config.bias_max)
     return genome
@@ -105,7 +107,8 @@ def mutate_weights(genome: Genome, rnd: np.random.RandomState, config: NeatConfi
         if rnd.uniform(0, 1) <= config.probability_weight_mutation:
             # Assign random weight or perturb existing weight?
             if rnd.uniform(0, 1) <= config.probability_random_weight_mutation:
-                connection.weight = rnd.uniform(config.connection_min_weight, config.connection_max_weight)
+                connection.weight = rnd.uniform(low=config.connection_initial_min_weight,
+                                                high=config.connection_initial_max_weight)
             else:
                 # Check how the connection weight should be mutated
                 mutation_type = config.weight_mutation_type
@@ -174,7 +177,8 @@ def mutate_add_connection(genome: Genome, rnd: np.random.RandomState, generator:
 
         innovation_number = generator.get_connection_innovation_number(in_node, out_node)
         new_connection = Connection(innovation_number, in_node.innovation_number, out_node.innovation_number,
-                                    weight=rnd.uniform(config.connection_min_weight, config.connection_max_weight),
+                                    weight=rnd.uniform(config.connection_initial_min_weight,
+                                                       config.connection_initial_max_weight),
                                     enabled=True)
 
         genome.connections.append(new_connection)
@@ -212,7 +216,7 @@ def mutate_add_node(genome: Genome, rnd: np.random.RandomState, generator: Innov
     new_node = Node(
         generator.get_node_innovation_number(in_node, out_node),
         NodeType.HIDDEN,
-        rnd.uniform(low=config.bias_min, high=config.bias_max),
+        rnd.uniform(low=config.bias_initial_min, high=config.bias_initial_max),
         new_node_activation,
         new_node_x_position
     )

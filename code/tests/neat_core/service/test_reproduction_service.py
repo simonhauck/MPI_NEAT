@@ -129,7 +129,7 @@ class ReproductionServiceTest(TestCase):
         self.assertAlmostEqual(-9.481475363442174, new_genome.connections[1].weight, delta=0.00000001)
 
     def test_set_new_genome_bias(self):
-        config = NeatConfig(bias_min=-3, bias_max=3)
+        config = NeatConfig(bias_initial_min=-3, bias_initial_max=3)
         modified_genome = set_new_genome_bias(self.genome, self.rnd, config)
 
         # Input nodes should be skipped
@@ -142,8 +142,10 @@ class ReproductionServiceTest(TestCase):
 
         config = NeatConfig(probability_weight_mutation=0.6,
                             probability_random_weight_mutation=0.5,
-                            connection_min_weight=-3,
-                            connection_max_weight=3,
+                            connection_min_weight=-4,
+                            connection_max_weight=4,
+                            connection_initial_min_weight=-3,
+                            connection_initial_max_weight=3,
                             weight_mutation_type="uniform",
                             weight_mutation_uniform_max_change=1)
 
@@ -165,11 +167,13 @@ class ReproductionServiceTest(TestCase):
         # rnd.uniform(0, 1) = 0.4191945144032948 -> Random weight
         # rnd.uniform(-3, 3) = 1.1113170023805568 -> new random weight
 
+        con1_expected_weight = self.connection1.weight - 0.9997712503653102
+
         new_genome = mutate_weights(self.genome, self.rnd, config)
 
         # Same object
         self.assertEqual(self.genome, new_genome)
-        self.assertEqual(config.connection_min_weight, self.connection1.weight)
+        self.assertAlmostEqual(con1_expected_weight, self.connection1.weight, delta=0.000000000001)
         self.assertAlmostEqual(-2.445968431387213, self.connection2.weight, delta=0.000000000001)
         self.assertAlmostEqual(-0.6193951546159804, self.connection3.weight, delta=0.000000000001)
         self.assertAlmostEqual(1.1113170023805568, self.connection4.weight, delta=0.000000000001)
@@ -214,10 +218,12 @@ class ReproductionServiceTest(TestCase):
         self.assertAlmostEqual(connection3_new_weight, self.connection3.weight, delta=0.000000000001)
         self.assertAlmostEqual(connection4_new_weight, self.connection4.weight, delta=0.000000000001)
 
-    def test_mutate_bias(self):
+    def test_mutate_bias_uniform(self):
         config = NeatConfig(probability_bias_mutation=0.6,
                             bias_max=3,
                             bias_min=-3,
+                            bias_initial_min=-5,
+                            bias_initial_max=5,
                             probability_random_bias_mutation=0.5,
                             bias_mutation_max_change=1)
 
@@ -226,17 +232,17 @@ class ReproductionServiceTest(TestCase):
         # rnd.uniform(-1, 1) = -0.9997712503653102 -> Substract form bias
         # rnd.uniform(0, 1) = 0.30233257263183977 -> Mutate
         # rnd.uniform(0, 1) = 0.14675589081711304 -> Random weight
-        # rnd.uniform(-1, 1) = -2.445968431387213 -> new random weight
+        # rnd.uniform(-5, 5) = -4.0766140523120225 -> new random weight
 
         old_output_bias = self.node_output1.bias
 
         new_genome = mutate_bias(self.genome, self.rnd, config)
         self.assertAlmostEqual(old_output_bias - 0.9997712503653102, new_genome.nodes[2].bias, delta=0.000000001)
-        self.assertAlmostEqual(-2.445968431387213, new_genome.nodes[3].bias, delta=0.0000000001)
+        self.assertAlmostEqual(-4.0766140523120225, new_genome.nodes[3].bias, delta=0.0000000001)
 
     def test_mutate_add_connection(self):
-        config = NeatConfig(connection_min_weight=-3,
-                            connection_max_weight=3,
+        config = NeatConfig(connection_initial_min_weight=-3,
+                            connection_initial_max_weight=3,
                             allow_recurrent_connections=True,
                             probability_mutate_add_connection=0.4,
                             mutate_connection_tries=2)
@@ -292,7 +298,7 @@ class ReproductionServiceTest(TestCase):
         self.assertEqual(5, len(genome_feed_forward.connections))
 
     def test_mutate_add_node(self):
-        config = NeatConfig(probability_mutate_add_node=0.1)
+        config = NeatConfig(probability_mutate_add_node=0.1, bias_initial_min=-3, bias_initial_max=3)
         genome, node, con1, con2 = mutate_add_node(self.genome, self.rnd, self.inn_generator, config)
 
         # Should not mutate
