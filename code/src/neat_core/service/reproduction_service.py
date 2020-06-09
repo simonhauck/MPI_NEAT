@@ -88,8 +88,16 @@ def mutate_bias(genome: Genome, rnd: np.random.RandomState, config: NeatConfig) 
             if rnd.uniform(0, 1) <= config.probability_random_bias_mutation:
                 node.bias = rnd.uniform(low=config.bias_initial_min, high=config.bias_initial_max)
             else:
-                # TODO mutate with normal distribution
-                node.bias += rnd.uniform(low=-config.bias_mutation_max_change, high=config.bias_mutation_max_change)
+                # Check how the connection weight should be mutated
+                mutation_type = config.bias_mutation_type
+                if mutation_type == "uniform":
+                    node.bias += rnd.uniform(low=-config.bias_mutation_uniform_max_change,
+                                             high=config.bias_mutation_uniform_max_change)
+                elif mutation_type == "normal":
+                    node.bias += rnd.normal(loc=0, scale=config.bias_mutation_normal_sigma)
+                else:
+                    raise AssertionError("Unknown type of mutation type. Must be 'uniform' or 'normal'")
+
                 node.bias = np.clip(node.bias, a_min=config.bias_min, a_max=config.bias_max)
     return genome
 

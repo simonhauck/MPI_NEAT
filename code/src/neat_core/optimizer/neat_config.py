@@ -18,7 +18,9 @@ class NeatConfig(object):
                  weight_mutation_normal_sigma: float = 1.3,
                  probability_bias_mutation: float = 0.8,
                  probability_random_bias_mutation: float = 0.1,
-                 bias_mutation_max_change: float = 1,
+                 bias_mutation_type: str = "normal",
+                 bias_mutation_uniform_max_change: float = 1,
+                 bias_mutation_normal_sigma: float = 1.3,
                  probability_mutate_add_connection: float = 0.05,
                  mutate_connection_tries=5,
                  probability_mutate_add_node: float = 0.03,
@@ -54,7 +56,9 @@ class NeatConfig(object):
         # Mutate bias param
         self.probability_bias_mutation: float = probability_bias_mutation
         self.probability_random_bias_mutation: float = probability_random_bias_mutation
-        self.bias_mutation_max_change: float = bias_mutation_max_change
+        self.bias_mutation_type: str = bias_mutation_type
+        self.bias_mutation_uniform_max_change: float = bias_mutation_uniform_max_change
+        self.bias_mutation_normal_sigma: float = bias_mutation_normal_sigma
 
         # Mutate connection
         self.probability_mutate_add_connection: float = probability_mutate_add_connection

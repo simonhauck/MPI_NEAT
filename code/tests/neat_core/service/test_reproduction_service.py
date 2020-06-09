@@ -222,23 +222,47 @@ class ReproductionServiceTest(TestCase):
         config = NeatConfig(probability_bias_mutation=0.6,
                             bias_max=3,
                             bias_min=-3,
-                            bias_initial_min=-5,
-                            bias_initial_max=5,
+                            bias_initial_min=-2,
+                            bias_initial_max=2,
                             probability_random_bias_mutation=0.5,
-                            bias_mutation_max_change=1)
+                            bias_mutation_uniform_max_change=1,
+                            bias_mutation_type="uniform")
 
         # rnd.uniform(0, 1) = 0.417022004702574 -> Mutate
         # rnd.uniform(0, 1) = 0.7203244934421581 -> Perturb
         # rnd.uniform(-1, 1) = -0.9997712503653102 -> Substract form bias
         # rnd.uniform(0, 1) = 0.30233257263183977 -> Mutate
         # rnd.uniform(0, 1) = 0.14675589081711304 -> Random weight
-        # rnd.uniform(-5, 5) = -4.0766140523120225 -> new random weight
+        # rnd.uniform(-2, 2) = -1.6306456209248088 -> new random weight
 
         old_output_bias = self.node_output1.bias
 
         new_genome = mutate_bias(self.genome, self.rnd, config)
         self.assertAlmostEqual(old_output_bias - 0.9997712503653102, new_genome.nodes[2].bias, delta=0.000000001)
-        self.assertAlmostEqual(-4.0766140523120225, new_genome.nodes[3].bias, delta=0.0000000001)
+        self.assertAlmostEqual(-1.6306456209248088, new_genome.nodes[3].bias, delta=0.0000000001)
+
+    def test_mutate_bias_normal(self):
+        config = NeatConfig(probability_bias_mutation=0.6,
+                            bias_max=3,
+                            bias_min=-3,
+                            bias_initial_min=-2,
+                            bias_initial_max=2,
+                            probability_random_bias_mutation=0.6,
+                            bias_mutation_normal_sigma=1.0,
+                            bias_mutation_type="normal")
+
+        # rnd.uniform(0, 1) = 0.417022004702574 -> Mutate
+        # rnd.uniform(0, 1) = 0.7203244934421581 -> Perturb
+        # rnd.normal(scale=1) = -0.5281717522634557 -> Substract form bias
+        # rnd.uniform(0, 1) = 0.39676747423066994 -> Mutate
+        # rnd.uniform(0, 1) = 0.538816734003357 -> Random weight
+        # rnd.uniform(-2, 2) = -0.3232219423868208 -> new random weight
+
+        old_output_bias = self.node_output1.bias
+
+        new_genome = mutate_bias(self.genome, self.rnd, config)
+        self.assertAlmostEqual(old_output_bias - 0.5281717522634557, new_genome.nodes[2].bias, delta=0.000000001)
+        self.assertAlmostEqual(-0.3232219423868208, new_genome.nodes[3].bias, delta=0.0000000001)
 
     def test_mutate_add_connection(self):
         config = NeatConfig(connection_initial_min_weight=-3,
