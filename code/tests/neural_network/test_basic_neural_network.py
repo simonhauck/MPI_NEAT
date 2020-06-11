@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from neat_core.activation_function import step_function, modified_sigmoid_function
+from neat_core.activation_function import step_activation, modified_sigmoid_activation
 from neat_core.models.connection import Connection
 from neat_core.models.genome import Genome
 from neat_core.models.node import Node, NodeType
@@ -15,7 +15,7 @@ class TestBasicNeuron(TestCase):
         weights = np.array([1.0, 2.0, 3.0])
         input_keys = np.array([10, 11, 12])
 
-        neuron_valid = BasicNeuron(1, 1.5, weights, input_keys, step_function, 1.0)
+        neuron_valid = BasicNeuron(1, 1.5, weights, input_keys, step_activation, 1.0)
         self.assertEqual(1, neuron_valid.innovation_number)
         self.assertEqual(0, neuron_valid.val)
         self.assertEqual(0, neuron_valid.last_val)
@@ -26,7 +26,7 @@ class TestBasicNeuron(TestCase):
         self.assertTrue((input_keys == neuron_valid.input_keys).all())
 
         with self.assertRaises(AssertionError):
-            BasicNeuron(1, 1.1, weights, np.zeros([1]), step_function, 1.0)
+            BasicNeuron(1, 1.1, weights, np.zeros([1]), step_activation, 1.0)
 
 
 class TestBasicNeuralNetwork(TestCase):
@@ -36,11 +36,11 @@ class TestBasicNeuralNetwork(TestCase):
         self.feed_forward_output_bias = -0.6
 
         self.nodes_feed_forward = [
-            Node(1, NodeType.INPUT, 0, step_function, x_position=0),
-            Node(2, NodeType.INPUT, 0, step_function, x_position=0),
-            Node(3, NodeType.INPUT, 0, step_function, x_position=0),
-            Node(4, NodeType.OUTPUT, self.feed_forward_output_bias, step_function, x_position=1),
-            Node(15, NodeType.HIDDEN, self.feed_forward_hidden_bias, step_function, x_position=0.5),
+            Node(1, NodeType.INPUT, 0, step_activation, x_position=0),
+            Node(2, NodeType.INPUT, 0, step_activation, x_position=0),
+            Node(3, NodeType.INPUT, 0, step_activation, x_position=0),
+            Node(4, NodeType.OUTPUT, self.feed_forward_output_bias, step_activation, x_position=1),
+            Node(15, NodeType.HIDDEN, self.feed_forward_hidden_bias, step_activation, x_position=0.5),
         ]
 
         self.connections_feed_forward = [
@@ -68,12 +68,12 @@ class TestBasicNeuralNetwork(TestCase):
         self.net_feed_forward = BasicNeuralNetwork()
 
         self.nodes_recurrent = [
-            Node(1, NodeType.INPUT, 0, modified_sigmoid_function, x_position=0),
-            Node(2, NodeType.INPUT, 0, modified_sigmoid_function, x_position=0),
-            Node(3, NodeType.INPUT, 0, modified_sigmoid_function, x_position=0),
-            Node(4, NodeType.OUTPUT, -1.0, modified_sigmoid_function, x_position=1),
-            Node(10, NodeType.HIDDEN, -0.6, modified_sigmoid_function, x_position=0.5),
-            Node(15, NodeType.HIDDEN, -1.2, modified_sigmoid_function, x_position=0.5),
+            Node(1, NodeType.INPUT, 0, modified_sigmoid_activation, x_position=0),
+            Node(2, NodeType.INPUT, 0, modified_sigmoid_activation, x_position=0),
+            Node(3, NodeType.INPUT, 0, modified_sigmoid_activation, x_position=0),
+            Node(4, NodeType.OUTPUT, -1.0, modified_sigmoid_activation, x_position=1),
+            Node(10, NodeType.HIDDEN, -0.6, modified_sigmoid_activation, x_position=0.5),
+            Node(15, NodeType.HIDDEN, -1.2, modified_sigmoid_activation, x_position=0.5),
         ]
 
         self.connections_recurrent = [

@@ -1,5 +1,6 @@
 import sys
 
+import numpy as np
 from loguru import logger
 
 from examples.mountain_car.mountain_car import MountainCarOptimizer
@@ -12,8 +13,19 @@ logger.add(sys.stdout, colorize=True, format="<green>{time}</green> | {level}   
 
 
 def xor_single():
-    xor_optimizer = XOROptimizer()
-    xor_optimizer.evaluate(NeatOptimizerSingleCore())
+    amount_runs = 100
+    solved_generations = []
+
+    for i in range(amount_runs):
+        xor_optimizer = XOROptimizer()
+        xor_optimizer.evaluate(NeatOptimizerSingleCore())
+        solved_generations.append(xor_optimizer.solved_generation_number)
+
+    logger.info("Finished running XOR {} times".format(len(solved_generations)))
+    logger.info(
+        "Best generation: {}, Worst generation: {}, Mean: {}".format(np.min(solved_generations),
+                                                                     np.max(solved_generations),
+                                                                     np.mean(solved_generations)))
 
 
 def mountain_car_single():

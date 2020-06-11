@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from neat_core.activation_function import step_function, modified_sigmoid_function
+from neat_core.activation_function import step_activation, modified_sigmoid_activation
 from neat_core.models.connection import Connection
 from neat_core.models.genome import Genome
 from neat_core.models.node import NodeType, Node
@@ -19,11 +19,11 @@ class ReproductionServiceTest(TestCase):
         self.inn_generator = InnovationNumberGeneratorSingleCore()
         self.rnd = np.random.RandomState(1)
 
-        self.node_input1 = Node(self.inn_generator.get_node_innovation_number(), NodeType.INPUT, 0, step_function, 0)
-        self.node_input2 = Node(self.inn_generator.get_node_innovation_number(), NodeType.INPUT, 0, step_function, 0)
-        self.node_output1 = Node(self.inn_generator.get_node_innovation_number(), NodeType.OUTPUT, 1.2, step_function,
+        self.node_input1 = Node(self.inn_generator.get_node_innovation_number(), NodeType.INPUT, 0, step_activation, 0)
+        self.node_input2 = Node(self.inn_generator.get_node_innovation_number(), NodeType.INPUT, 0, step_activation, 0)
+        self.node_output1 = Node(self.inn_generator.get_node_innovation_number(), NodeType.OUTPUT, 1.2, step_activation,
                                  1)
-        self.node_hidden1 = Node(self.inn_generator.get_node_innovation_number(), NodeType.HIDDEN, 1.3, step_function,
+        self.node_hidden1 = Node(self.inn_generator.get_node_innovation_number(), NodeType.HIDDEN, 1.3, step_activation,
                                  0.5)
         self.nodes = [self.node_input1, self.node_input2, self.node_output1, self.node_hidden1]
 
@@ -45,8 +45,8 @@ class ReproductionServiceTest(TestCase):
 
     def test_deep_copy_genome(self):
         original_genome = Genome(123,
-                                 [Node(1, NodeType.INPUT, 1.1, step_function, 0),
-                                  Node("asfaf", NodeType.OUTPUT, 1.2, step_function, 1)],
+                                 [Node(1, NodeType.INPUT, 1.1, step_activation, 0),
+                                  Node("asfaf", NodeType.OUTPUT, 1.2, step_activation, 1)],
                                  [Connection(124, 10, 20, 1.2, True),
                                   Connection("124124", 12, 22, 0.8, False)])
 
@@ -67,8 +67,8 @@ class ReproductionServiceTest(TestCase):
             self.compare_connections(original_connection, copied_connection)
 
     def test_deep_copy_node(self):
-        original_node = Node(1, NodeType.INPUT, 1.1, step_function, 0)
-        original_node_str = Node("asfaf", NodeType.OUTPUT, 1.2, step_function, 1)
+        original_node = Node(1, NodeType.INPUT, 1.1, step_activation, 0)
+        original_node_str = Node("asfaf", NodeType.OUTPUT, 1.2, step_activation, 1)
 
         copied_node = deep_copy_node(original_node)
         copied_node_str = deep_copy_node(original_node_str)
@@ -114,11 +114,11 @@ class ReproductionServiceTest(TestCase):
 
     def test_set_new_genome_weights(self):
         original_genome = Genome(123,
-                                 [Node(1, NodeType.INPUT, 1.1, step_function, 0)],
+                                 [Node(1, NodeType.INPUT, 1.1, step_activation, 0)],
                                  [Connection(124, 10, 20, 1.2, True),
                                   Connection("124124", 12, 22, 0.8, False)])
 
-        config = NeatConfig(connection_min_weight=-10, connection_max_weight=10)
+        config = NeatConfig(connection_initial_min_weight=-10, connection_initial_max_weight=10)
         new_genome = set_new_genome_weights(original_genome, np.random.RandomState(2), config=config)
         # First 3 random values
         # 1. -1.2801019571599248
@@ -334,7 +334,7 @@ class ReproductionServiceTest(TestCase):
         # Set probability high, and reset randomState
         config.probability_mutate_add_node = 1
         self.rnd = np.random.RandomState(1)
-        self.node_output1.activation_function = modified_sigmoid_function
+        self.node_output1.activation_function = modified_sigmoid_activation
         # Random values for with seed 1
         # rnd.uniform(0, 1) = 0.417022004702574 -> Mutate
         # rnd.randint(low=0,high=4) = 0 -> connection1
@@ -355,7 +355,7 @@ class ReproductionServiceTest(TestCase):
 
         # Check the generated node
         self.assertEqual(NodeType.HIDDEN, node.node_type)
-        self.assertEqual(modified_sigmoid_function, node.activation_function)
+        self.assertEqual(modified_sigmoid_activation, node.activation_function)
         self.assertEqual(4, node.innovation_number)
         self.assertAlmostEqual(-2.23125331242386, node.bias, delta=0.0000000001)
         self.assertEqual(0.5, node.x_position)
@@ -375,17 +375,17 @@ class ReproductionServiceTest(TestCase):
         self.assertTrue(con2.enabled)
 
     def test_cross_over(self):
-        node1_1 = Node(1, NodeType.INPUT, 1.1, step_function, 0)
-        node1_2 = Node(2, NodeType.INPUT, 1.2, step_function, 0)
-        node1_5 = Node(5, NodeType.OUTPUT, 1.5, step_function, 1)
-        node1_7 = Node(7, NodeType.HIDDEN, 1.7, step_function, 0.5)
+        node1_1 = Node(1, NodeType.INPUT, 1.1, step_activation, 0)
+        node1_2 = Node(2, NodeType.INPUT, 1.2, step_activation, 0)
+        node1_5 = Node(5, NodeType.OUTPUT, 1.5, step_activation, 1)
+        node1_7 = Node(7, NodeType.HIDDEN, 1.7, step_activation, 0.5)
         nodes1 = [node1_1, node1_2, node1_5, node1_7]
 
-        node2_1 = Node(1, NodeType.INPUT, 2.1, modified_sigmoid_function, 0)
-        node2_2 = Node(2, NodeType.INPUT, 2.2, modified_sigmoid_function, 0)
-        node2_4 = Node(4, NodeType.OUTPUT, 2.4, modified_sigmoid_function, 1)
-        node2_7 = Node(7, NodeType.HIDDEN, 2.7, modified_sigmoid_function, 0.5)
-        node2_8 = Node(8, NodeType.HIDDEN, 2.8, modified_sigmoid_function, 0.5)
+        node2_1 = Node(1, NodeType.INPUT, 2.1, modified_sigmoid_activation, 0)
+        node2_2 = Node(2, NodeType.INPUT, 2.2, modified_sigmoid_activation, 0)
+        node2_4 = Node(4, NodeType.OUTPUT, 2.4, modified_sigmoid_activation, 1)
+        node2_7 = Node(7, NodeType.HIDDEN, 2.7, modified_sigmoid_activation, 0.5)
+        node2_8 = Node(8, NodeType.HIDDEN, 2.8, modified_sigmoid_activation, 0.5)
         nodes2 = [node2_1, node2_2, node2_4, node2_7, node2_8]
 
         connection1_1 = Connection(innovation_number=1, input_node=1, output_node=2, weight=1.2, enabled=False)

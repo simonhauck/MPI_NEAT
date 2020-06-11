@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 
 import neat_core.service.generation_service as gs
-from neat_core.activation_function import step_function
+from neat_core.activation_function import step_activation
 from neat_core.models.agent import Agent
 from neat_core.models.connection import Connection
 from neat_core.models.genome import Genome
@@ -23,13 +23,13 @@ class GenerationServiceTest(TestCase):
         self.species_id_generator = SpeciesIDGeneratorSingleCore()
         self.agent_id_generator = AgentIDGeneratorSingleCore()
 
-        self.genome1 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
-        self.genome2 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
-        self.genome3 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
-        self.genome4 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
-        self.genome5 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
-        self.genome6 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
-        self.genome7 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome1 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
+        self.genome2 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
+        self.genome3 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
+        self.genome4 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
+        self.genome5 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
+        self.genome6 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
+        self.genome7 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
 
         self.agent1 = Agent(1, self.genome1)
         self.agent1.fitness = 1
@@ -56,11 +56,11 @@ class GenerationServiceTest(TestCase):
     def test_create_initial_generation(self):
         config = NeatConfig(population_size=150, connection_max_weight=10, connection_min_weight=-10)
 
-        generation1 = gs.create_initial_generation(10, 3, step_function, InnovationNumberGeneratorSingleCore(),
+        generation1 = gs.create_initial_generation(10, 3, step_activation, InnovationNumberGeneratorSingleCore(),
                                                    SpeciesIDGeneratorSingleCore(), AgentIDGeneratorSingleCore(),
                                                    config, seed=1)
 
-        generation2 = gs.create_initial_generation(10, 3, step_function, InnovationNumberGeneratorSingleCore(),
+        generation2 = gs.create_initial_generation(10, 3, step_activation, InnovationNumberGeneratorSingleCore(),
                                                    SpeciesIDGeneratorSingleCore(), AgentIDGeneratorSingleCore(),
                                                    config, seed=1)
 
@@ -90,8 +90,8 @@ class GenerationServiceTest(TestCase):
 
     def test_create_initial_generation_genome(self):
         genome = Genome(20,
-                        [Node("abc", NodeType.INPUT, 0.3, step_function, 0),
-                         Node("def", NodeType.OUTPUT, 0.4, step_function, 1)],
+                        [Node("abc", NodeType.INPUT, 0.3, step_activation, 0),
+                         Node("def", NodeType.OUTPUT, 0.4, step_activation, 1)],
                         [Connection("x", "abc", "def", 1.0, True),
                          Connection("y", "def", "abc", -5, True)])
 
@@ -131,8 +131,8 @@ class GenerationServiceTest(TestCase):
 
     def test_randomize_weight_bias(self):
         genome = Genome(20,
-                        [Node(1, NodeType.INPUT, 0.0, step_function, 0),
-                         Node(2, NodeType.OUTPUT, 0.0, step_function, 1)],
+                        [Node(1, NodeType.INPUT, 0.0, step_activation, 0),
+                         Node(2, NodeType.OUTPUT, 0.0, step_activation, 1)],
                         [Connection(3, 1, 2, 0, True),
                          Connection(4, 2, 1, 0, True)])
 
@@ -151,8 +151,8 @@ class GenerationServiceTest(TestCase):
 
     def test_build_generation_from_genome(self):
         initial_genome = Genome(20,
-                                [Node(1, NodeType.INPUT, 0, step_function, 0),
-                                 Node(2, NodeType.OUTPUT, 0.4, step_function, 1)],
+                                [Node(1, NodeType.INPUT, 0, step_activation, 0),
+                                 Node(2, NodeType.OUTPUT, 0.4, step_activation, 1)],
                                 [Connection(1, 1, 2, 1.0, True),
                                  Connection(2, 1, 2, -5, True)])
 
@@ -197,7 +197,7 @@ class GenerationServiceTest(TestCase):
 
         generated_structure = gs.create_genome_structure(amount_input_nodes=input_nodes,
                                                          amount_output_nodes=output_nodes,
-                                                         activation_function=step_function, config=config,
+                                                         activation_function=step_activation, config=config,
                                                          generator=InnovationNumberGeneratorSingleCore())
 
         self.assertEqual(input_nodes + output_nodes, len(generated_structure.nodes))
@@ -205,7 +205,7 @@ class GenerationServiceTest(TestCase):
 
         for node, i in zip(generated_structure.nodes, range(input_nodes + output_nodes)):
             self.assertEqual(i, node.innovation_number)
-            self.assertEqual(step_function, node.activation_function)
+            self.assertEqual(step_activation, node.activation_function)
             self.assertEqual(0, node.bias)
 
             if i < input_nodes:

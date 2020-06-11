@@ -123,7 +123,7 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         rnd = np.random.RandomState(new_generation_seed)
 
         # Get the best agents, which will be copied later
-        best_agents_genomes = gs.get_best_genomes_from_species(generation.species_list, 10)
+        best_agents_genomes = gs.get_best_genomes_from_species(generation.species_list, 5)
 
         # Get allowed species for reproduction
         generation = ss.update_fitness_species(generation)

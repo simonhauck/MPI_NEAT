@@ -4,7 +4,7 @@ import progressbar
 from loguru import logger
 
 from examples.mountain_car.mountain_car_challenge import ChallengeMountainCar
-from neat_core.activation_function import modified_sigmoid_function
+from neat_core.activation_function import modified_sigmoid_activation
 from neat_core.models.agent import Agent
 from neat_core.models.generation import Generation
 from neat_core.optimizer.neat_config import NeatConfig
@@ -37,8 +37,17 @@ class MountainCarOptimizer(NeatOptimizerCallback):
         # Good seed: 858826, pop 400, threshold 1.0, min max weight = -3,3 Solved in first generation
 
         optimizer.register_callback(self)
-        config = NeatConfig(population_size=400, compatibility_threshold=1.0,
-                            connection_min_weight=-3, connection_max_weight=3)
+        config = NeatConfig(allow_recurrent_connections=True,
+                            population_size=400,
+                            compatibility_threshold=3,
+                            connection_min_weight=-30,
+                            connection_max_weight=30,
+                            bias_min=-30,
+                            bias_max=30,
+                            compatibility_factor_disjoint_genes=1.0,
+                            compatibility_factor_matching_genes=0.5,
+                            probability_mutate_add_connection=0.5,
+                            probability_mutate_add_node=0.2)
 
         self.progressbar_max = config.population_size
 
@@ -47,7 +56,7 @@ class MountainCarOptimizer(NeatOptimizerCallback):
 
         self.challenge = ChallengeMountainCar()
 
-        optimizer.evaluate(amount_input_nodes=2, amount_output_nodes=3, activation_function=modified_sigmoid_function,
+        optimizer.evaluate(amount_input_nodes=2, amount_output_nodes=3, activation_function=modified_sigmoid_activation,
                            challenge=self.challenge, config=config, seed=seed)
 
     def on_initialization(self) -> None:
@@ -109,6 +118,6 @@ class MountainCarOptimizer(NeatOptimizerCallback):
         challenge.clean_up(show=True)
 
     def finish_evaluation(self, generation: Generation) -> bool:
-        # best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
-        # return best_agent.additional_info["solved"]
-        return generation.number >= 40
+        best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
+        return best_agent.additional_info["solved"]
+        # return generation.number >= 40

@@ -5,7 +5,7 @@ import numpy as np
 import neat_core.service.generation_service as gs
 import neat_core.service.reproduction_service as rs
 import neat_core.service.species_service as ss
-from neat_core.activation_function import step_function
+from neat_core.activation_function import step_activation
 from neat_core.models.agent import Agent
 from neat_core.models.connection import Connection
 from neat_core.models.generation import Generation
@@ -28,12 +28,12 @@ class SpeciesServiceTest(TestCase):
                                  population_size=8)
 
         self.g1_nodes = [
-            Node(1, NodeType.INPUT, 0, step_function, 0),
-            Node(2, NodeType.INPUT, 0, step_function, 0),
-            Node(3, NodeType.OUTPUT, 1.2, step_function, 1),
-            Node(4, NodeType.HIDDEN, 1.5, step_function, 0.5),
-            Node(6, NodeType.HIDDEN, 0.5, step_function, 0.5),
-            Node(7, NodeType.HIDDEN, 0.2, step_function, 0.25)
+            Node(1, NodeType.INPUT, 0, step_activation, 0),
+            Node(2, NodeType.INPUT, 0, step_activation, 0),
+            Node(3, NodeType.OUTPUT, 1.2, step_activation, 1),
+            Node(4, NodeType.HIDDEN, 1.5, step_activation, 0.5),
+            Node(6, NodeType.HIDDEN, 0.5, step_activation, 0.5),
+            Node(7, NodeType.HIDDEN, 0.2, step_activation, 0.25)
         ]
         self.g1_connections = [
             Connection(1, 1, 3, 1.2, True),
@@ -46,11 +46,11 @@ class SpeciesServiceTest(TestCase):
         self.g1 = Genome(1, self.g1_nodes, self.g1_connections)
 
         self.g2_nodes = [
-            Node(1, NodeType.INPUT, 0, step_function, 0),
-            Node(2, NodeType.INPUT, 0, step_function, 0),
-            Node(3, NodeType.OUTPUT, 0.2, step_function, 1),
-            Node(4, NodeType.HIDDEN, 1.2, step_function, 0.5),
-            Node(5, NodeType.HIDDEN, 2.8, step_function, 0.5)
+            Node(1, NodeType.INPUT, 0, step_activation, 0),
+            Node(2, NodeType.INPUT, 0, step_activation, 0),
+            Node(3, NodeType.OUTPUT, 0.2, step_activation, 1),
+            Node(4, NodeType.HIDDEN, 1.2, step_activation, 0.5),
+            Node(5, NodeType.HIDDEN, 2.8, step_activation, 0.5)
         ]
 
         self.g2_connections = [
@@ -72,12 +72,12 @@ class SpeciesServiceTest(TestCase):
         # Add some more agents, and complete species
         self.inno_num_generator = InnovationNumberGeneratorSingleCore()
         self.species_id_generator = SpeciesIDGeneratorSingleCore()
-        self.genome3 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
-        self.genome4 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
-        self.genome5 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
-        self.genome6 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
-        self.genome7 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
-        self.genome8 = gs.create_genome_structure(2, 1, step_function, self.config, self.inno_num_generator)
+        self.genome3 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
+        self.genome4 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
+        self.genome5 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
+        self.genome6 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
+        self.genome7 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
+        self.genome8 = gs.create_genome_structure(2, 1, step_activation, self.config, self.inno_num_generator)
 
         self.agent3 = Agent(3, self.genome3)
         self.agent3.fitness = 3

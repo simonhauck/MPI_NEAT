@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from neat_core.activation_function import modified_sigmoid_function
+from neat_core.activation_function import modified_sigmoid_activation
 from neat_core.models.agent import Agent
 from neat_core.models.species import Species
 from neat_core.optimizer.neat_config import NeatConfig
@@ -11,10 +11,10 @@ from neat_single_core.inno_number_generator_single_core import InnovationNumberG
 class SpeciesTest(TestCase):
 
     def test_species(self):
-        genome1 = create_genome_structure(5, 2, modified_sigmoid_function, NeatConfig(),
+        genome1 = create_genome_structure(5, 2, modified_sigmoid_activation, NeatConfig(),
                                           InnovationNumberGeneratorSingleCore())
 
-        genome2 = create_genome_structure(5, 2, modified_sigmoid_function, NeatConfig(),
+        genome2 = create_genome_structure(5, 2, modified_sigmoid_activation, NeatConfig(),
                                           InnovationNumberGeneratorSingleCore())
         members = [Agent(1, genome1)]
 

@@ -1,7 +1,7 @@
 from typing import Dict
 from unittest import TestCase
 
-from neat_core.activation_function import step_function, modified_sigmoid_function
+from neat_core.activation_function import step_activation, modified_sigmoid_activation
 from neat_core.models.agent import Agent
 from neat_core.models.connection import Connection
 from neat_core.models.generation import Generation
@@ -110,7 +110,7 @@ class NeatOptimizerSingleCoreTest(TestCase):
         self.assertIsNone(self.optimizer_single.callback)
 
     def test_evaluate(self):
-        self.optimizer_single.evaluate(3, 2, step_function, self.challenge, self.config, 1)
+        self.optimizer_single.evaluate(3, 2, step_activation, self.challenge, self.config, 1)
 
         expected_generation_number = 10
 
@@ -132,11 +132,11 @@ class NeatOptimizerSingleCoreTest(TestCase):
     def test_evaluate_genome_structure(self):
         genome = Genome(
             0,
-            [Node(0, NodeType.INPUT, 0, modified_sigmoid_function, 0),
-             Node(1, NodeType.INPUT, 0, modified_sigmoid_function, 0),
-             Node(2, NodeType.OUTPUT, 0, modified_sigmoid_function, 1),
-             Node(3, NodeType.HIDDEN, 0, modified_sigmoid_function, 0.5),
-             Node(4, NodeType.HIDDEN, 0, modified_sigmoid_function, 0.5)],
+            [Node(0, NodeType.INPUT, 0, modified_sigmoid_activation, 0),
+             Node(1, NodeType.INPUT, 0, modified_sigmoid_activation, 0),
+             Node(2, NodeType.OUTPUT, 0, modified_sigmoid_activation, 1),
+             Node(3, NodeType.HIDDEN, 0, modified_sigmoid_activation, 0.5),
+             Node(4, NodeType.HIDDEN, 0, modified_sigmoid_activation, 0.5)],
             [Connection(1, 0, 3, 0.1, True),
              Connection(2, 1, 3, 0.1, True),
              Connection(3, 0, 4, 0.1, True),
@@ -168,7 +168,7 @@ class NeatOptimizerSingleCoreTest(TestCase):
         species_id_generator = SpeciesIDGeneratorSingleCore()
         agent_id_generator = AgentIDGeneratorSingleCore()
 
-        initial_generation = gs.create_initial_generation(2, 1, step_function, inno_generator, species_id_generator,
+        initial_generation = gs.create_initial_generation(2, 1, step_activation, inno_generator, species_id_generator,
                                                           agent_id_generator, self.config, 1)
         final_generation = self.optimizer_single._evaluation_loop(initial_generation, self.challenge, inno_generator,
                                                                   species_id_generator, agent_id_generator, self.config)
@@ -198,7 +198,7 @@ class NeatOptimizerSingleCoreTest(TestCase):
         self.assertEqual(expected_generation_number + 1, self.callback.on_generation_evaluation_end_count)
 
     def test_evaluate_generation(self):
-        generation = gs.create_initial_generation(2, 1, step_function, InnovationNumberGeneratorSingleCore(),
+        generation = gs.create_initial_generation(2, 1, step_activation, InnovationNumberGeneratorSingleCore(),
                                                   SpeciesIDGeneratorSingleCore(), AgentIDGeneratorSingleCore(),
                                                   self.config, 1)
 

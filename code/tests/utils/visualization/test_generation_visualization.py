@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from neat_core.activation_function import step_function
+from neat_core.activation_function import step_activation
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.service import generation_service as gs
 from neat_single_core.agent_id_generator_single_core import AgentIDGeneratorSingleCore
@@ -15,7 +15,7 @@ class GenerationVisualizationTest(TestCase):
 
     def setUp(self) -> None:
         self.config = NeatConfig(population_size=150)
-        self.generation1 = gs.create_initial_generation(3, 2, step_function,
+        self.generation1 = gs.create_initial_generation(3, 2, step_activation,
                                                         InnovationNumberGeneratorSingleCore(),
                                                         SpeciesIDGeneratorSingleCore(),
                                                         AgentIDGeneratorSingleCore(),

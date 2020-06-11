@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from neat_core.activation_function import modified_sigmoid_function
+from neat_core.activation_function import modified_sigmoid_activation
 from neat_core.models.agent import Agent
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.service.generation_service import create_genome_structure
@@ -10,7 +10,7 @@ from neat_single_core.inno_number_generator_single_core import InnovationNumberG
 class AgentTest(TestCase):
 
     def test_agent(self):
-        genome = create_genome_structure(5, 2, modified_sigmoid_function, NeatConfig(),
+        genome = create_genome_structure(5, 2, modified_sigmoid_activation, NeatConfig(),
                                          InnovationNumberGeneratorSingleCore())
         agent = Agent(1, genome)
 
