@@ -19,7 +19,8 @@ class ChallengeMountainCar(Challenge):
 
     def initialization(self, **kwargs) -> None:
         self.env = gym.make("MountainCar-v0")
-        if "show" in kwargs:
+
+        if kwargs.get("record", False):
             self.virtual_display = Display(visible=0, size=(1400, 900))
             self.virtual_display.start()
             self.env = gym.wrappers.Monitor(self.env, "/tmp/mountain_car", video_callable=lambda episode_id: True)
@@ -40,12 +41,10 @@ class ChallengeMountainCar(Challenge):
             action = neural_network.activate(self.observation)
             index = np.argmax(action)
 
-            # if "show" in kwargs:
-            #    logger.info("Observation: {}, Selected Action: {}, Raw NN: {}".format(self.observation, index, action))
-
             self.observation, reward, done, info = self.env.step(index)
 
-            if "show" in kwargs:
+            # Render environment only if it is specifically requested
+            if kwargs.get("record", False) or kwargs.get("show", False):
                 self.env.render()
 
             # Used for fitness
@@ -64,6 +63,6 @@ class ChallengeMountainCar(Challenge):
     def clean_up(self, **kwargs):
         self.env.close()
 
-        if "show" in kwargs:
+        if kwargs.get("record", False):
             logger.info("Closing virtual display")
             self.virtual_display.stop()

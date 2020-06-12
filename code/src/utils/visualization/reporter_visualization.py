@@ -20,4 +20,4 @@ def plot_fitness_reporter(reporter: FitnessReporter, plot: bool = False) -> None
     plt.legend()
 
     if plot:
-        plt.plot()
+        plt.show()

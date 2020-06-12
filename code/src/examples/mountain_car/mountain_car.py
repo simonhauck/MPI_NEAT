@@ -34,26 +34,45 @@ class MountainCarOptimizer(NeatOptimizerCallback):
         ]
 
     def evaluate(self, optimizer: NeatOptimizer):
+        # Reporter for fitness values
+        self.fitness_reporter = fitness_reporter.FitnessReporter()
+
+        # Register this class as callback
         optimizer.register_callback(self)
+
+        # Config
         config = NeatConfig(allow_recurrent_connections=True,
-                            population_size=400,
+                            population_size=300,
                             compatibility_threshold=3,
-                            connection_min_weight=-30,
-                            connection_max_weight=30,
-                            bias_min=-30,
-                            bias_max=30,
+                            weight_mutation_type="normal",
+                            weight_mutation_normal_sigma=1.3,
+                            connection_initial_min_weight=-5,
+                            connection_initial_max_weight=5,
+                            connection_min_weight=-5,
+                            connection_max_weight=5,
+                            bias_mutation_type="normal",
+                            bias_mutation_normal_sigma=1.3,
+                            bias_initial_min=-1,
+                            bias_initial_max=1,
+                            bias_min=-5,
+                            bias_max=5,
                             compatibility_factor_disjoint_genes=1.0,
                             compatibility_factor_matching_genes=0.5,
                             probability_mutate_add_connection=0.5,
-                            probability_mutate_add_node=0.2)
+                            probability_mutate_add_node=0.2,
+                            compatibility_genome_size_threshold=0)
 
+        # Progressbar size
         self.progressbar_max = config.population_size
 
+        # Set seed
         seed = np.random.RandomState().randint(2 ** 24)
         logger.info("Used Seed: {}".format(seed))
 
+        # Create the challenge
         self.challenge = ChallengeMountainCar()
 
+        # Start evaluation
         optimizer.evaluate(amount_input_nodes=2,
                            amount_output_nodes=3,
                            activation_function=modified_sigmoid_activation,
@@ -116,7 +135,8 @@ class MountainCarOptimizer(NeatOptimizerCallback):
         challenge = ChallengeMountainCar()
         challenge.initialization(show=True)
 
-        for i in range(100):
+        # for i in range(100):
+        while True:
             challenge.before_evaluation(show=True)
             fitness, additional_info = challenge.evaluate(nn, show=True)
             logger.info("Finished Neural network  Fitness: {}, Info: {}".format(fitness, additional_info))
