@@ -14,18 +14,22 @@ from neat_core.optimizer.neat_optimizer import NeatOptimizer
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
 from neural_network.basic_neural_network import BasicNeuralNetwork
 from utils.fitness_evaluation import fitness_evaluation_utils
-from utils.visualization import generation_visualization
+from utils.reporter import fitness_reporter
 from utils.visualization import genome_visualization
+from utils.visualization import reporter_visualization
 from utils.visualization import text_visualization
 
 
 class XOROptimizer(NeatOptimizerCallback):
 
     def __init__(self) -> None:
-        self.plot_data = generation_visualization.PlotData()
-        self.solved_generation_number = 0
+        self.fitness_reporter = None
+        self.solved_generation_number = None
 
     def evaluate(self, optimizer: NeatOptimizer):
+        self.fitness_reporter = fitness_reporter.FitnessReporter()
+
+        # Register this class as callback
         optimizer.register_callback(self)
         # config = NeatConfig(allow_recurrent_connections=False,
         #                     population_size=150,
@@ -51,6 +55,7 @@ class XOROptimizer(NeatOptimizerCallback):
         #                     probability_mutate_add_connection=0.05,
         #                     probability_mutate_add_node=0.03)
 
+        # Specify the config
         config = NeatConfig(allow_recurrent_connections=False,
                             population_size=150,
                             compatibility_threshold=3,
@@ -73,14 +78,14 @@ class XOROptimizer(NeatOptimizerCallback):
                             compatibility_genome_size_threshold=0)
 
         seed = np.random.RandomState().randint(2 ** 24)
-        # seed = 15545410
-        # seed = 4931215
-        # Good seed: 15545410
-        # Generation 24: 11760111
         logger.info("Used Seed: {}".format(seed))
 
-        optimizer.evaluate(amount_input_nodes=2, amount_output_nodes=1, activation_function=modified_sigmoid_activation,
-                           challenge=ChallengeXOR(), config=config, seed=seed)
+        optimizer.evaluate(amount_input_nodes=2,
+                           amount_output_nodes=1,
+                           activation_function=modified_sigmoid_activation,
+                           challenge=ChallengeXOR(),
+                           config=config,
+                           seed=seed)
 
     # TODO remove at the end
     def evaluate_fix_structure(self, optimizer: NeatOptimizer):
@@ -132,8 +137,9 @@ class XOROptimizer(NeatOptimizerCallback):
         logger.debug("Finished evaluation of agent {} with fitness {}".format(i, agent.fitness))
 
     def on_generation_evaluation_end(self, generation: Generation) -> None:
+        fitness_reporter.add_generation_fitness_reporter(self.fitness_reporter, generation)
+
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
-        self.plot_data.add_generation(generation)
 
         logger.info("Finished evaluation of generation {}".format(generation.number))
         logger.info("Best Fitness in Agent {}: {}".format(best_agent.id, best_agent.fitness))
@@ -152,9 +158,10 @@ class XOROptimizer(NeatOptimizerCallback):
         # Print genome
         text_visualization.print_agent(agent)
 
+        # Plot fitness curve
+        reporter_visualization.plot_fitness_reporter(self.fitness_reporter, plot=True)
+
         # Draw genome
-        generation_visualization.plot_fitness_values(self.plot_data)
-        plt.show()
         genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)
         plt.show()
 

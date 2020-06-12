@@ -131,7 +131,7 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         species_list = ss.get_allowed_species_for_reproduction(generation, 15)
 
         # TODO handle error no species
-        if len(species_list) <= 3:
+        if len(species_list) <= 5:
             species_list = generation.species_list
         # assert len(species_list) >= 1
 

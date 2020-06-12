@@ -12,30 +12,28 @@ from neat_core.optimizer.neat_optimizer import NeatOptimizer
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
 from neural_network.basic_neural_network import BasicNeuralNetwork
 from utils.fitness_evaluation import fitness_evaluation_utils
-from utils.visualization import generation_visualization
+from utils.reporter import fitness_reporter
 from utils.visualization import genome_visualization
+from utils.visualization import reporter_visualization
 from utils.visualization import text_visualization
 
 
 class MountainCarOptimizer(NeatOptimizerCallback):
 
     def __init__(self) -> None:
-        self.plot_data = generation_visualization.PlotData()
+        self.fitness_reporter = None
         self.challenge = None
 
         self.progressbar = None
+        self.progressbar_max = None
         self.progressbar_widgets = [
             'Generation: ', progressbar.Percentage(),
             ' ', progressbar.Bar(marker='#', left='[', right=']'),
             ' ', progressbar.Counter('Evaluated Agents: %(value)03d'),
             ', ', progressbar.ETA()
         ]
-        self.progressbar_max = 0
 
     def evaluate(self, optimizer: NeatOptimizer):
-        # Good seed: 11357659, pop 400, threshold 1.0, min max weight = -3,3
-        # Good seed: 858826, pop 400, threshold 1.0, min max weight = -3,3 Solved in first generation
-
         optimizer.register_callback(self)
         config = NeatConfig(allow_recurrent_connections=True,
                             population_size=400,
@@ -56,8 +54,12 @@ class MountainCarOptimizer(NeatOptimizerCallback):
 
         self.challenge = ChallengeMountainCar()
 
-        optimizer.evaluate(amount_input_nodes=2, amount_output_nodes=3, activation_function=modified_sigmoid_activation,
-                           challenge=self.challenge, config=config, seed=seed)
+        optimizer.evaluate(amount_input_nodes=2,
+                           amount_output_nodes=3,
+                           activation_function=modified_sigmoid_activation,
+                           challenge=self.challenge,
+                           config=config,
+                           seed=seed)
 
     def on_initialization(self) -> None:
         logger.info("On initialization called...")
@@ -77,8 +79,11 @@ class MountainCarOptimizer(NeatOptimizerCallback):
 
     def on_generation_evaluation_end(self, generation: Generation) -> None:
         self.progressbar.finish()
+
+        # Add generation to fitness reporter
+        fitness_reporter.add_generation_fitness_reporter(self.fitness_reporter, generation)
+
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
-        self.plot_data.add_generation(generation)
 
         logger.info("Finished evaluation of generation {}".format(generation.number))
         logger.info("Best Fitness in Agent {}: {}, AdditionalInfo: {}".format(best_agent.id, best_agent.fitness,
@@ -97,9 +102,10 @@ class MountainCarOptimizer(NeatOptimizerCallback):
         # Print genome
         text_visualization.print_agent(agent)
 
-        # Draw genome
-        generation_visualization.plot_fitness_values(self.plot_data)
-        plt.show()
+        # Plot fitness values
+        reporter_visualization.plot_fitness_reporter(self.fitness_reporter, plot=True)
+
+        # Plot genome
         genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)
         plt.show()
 
