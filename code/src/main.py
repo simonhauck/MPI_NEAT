@@ -13,7 +13,7 @@ logger.add(sys.stdout, colorize=True, format="<green>{time}</green> | {level}   
 
 
 def xor_single():
-    amount_runs = 100
+    amount_runs = 1
     solved_generations = []
 
     for i in range(amount_runs):

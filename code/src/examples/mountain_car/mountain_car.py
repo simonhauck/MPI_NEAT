@@ -12,7 +12,7 @@ from neat_core.optimizer.neat_optimizer import NeatOptimizer
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
 from neural_network.basic_neural_network import BasicNeuralNetwork
 from utils.fitness_evaluation import fitness_evaluation_utils
-from utils.reporter import fitness_reporter
+from utils.reporter import fitness_reporter, species_reporter
 from utils.visualization import genome_visualization
 from utils.visualization import reporter_visualization
 from utils.visualization import text_visualization
@@ -22,6 +22,7 @@ class MountainCarOptimizer(NeatOptimizerCallback):
 
     def __init__(self) -> None:
         self.fitness_reporter = None
+        self.species_reporter = None
         self.challenge = None
 
         self.progressbar = None
@@ -36,6 +37,7 @@ class MountainCarOptimizer(NeatOptimizerCallback):
     def evaluate(self, optimizer: NeatOptimizer):
         # Reporter for fitness values
         self.fitness_reporter = fitness_reporter.FitnessReporter()
+        self.species_reporter = species_reporter.SpeciesReporter()
 
         # Register this class as callback
         optimizer.register_callback(self)
@@ -101,6 +103,7 @@ class MountainCarOptimizer(NeatOptimizerCallback):
 
         # Add generation to fitness reporter
         fitness_reporter.add_generation_fitness_reporter(self.fitness_reporter, generation)
+        species_reporter.add_generation_species_reporter(self.species_reporter, generation)
 
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
 
@@ -124,6 +127,9 @@ class MountainCarOptimizer(NeatOptimizerCallback):
         # Plot fitness values
         reporter_visualization.plot_fitness_reporter(self.fitness_reporter, plot=True)
 
+        # Plot species sizes
+        reporter_visualization.plot_species_reporter(self.species_reporter, plot=True)
+
         # Plot genome
         genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)
         plt.show()
@@ -145,5 +151,6 @@ class MountainCarOptimizer(NeatOptimizerCallback):
 
     def finish_evaluation(self, generation: Generation) -> bool:
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
-        return best_agent.additional_info["solved"]
+        return best_agent.fitness >= 90 ** 2
+        # return best_agent.additional_info["solved"]
         # return generation.number >= 40

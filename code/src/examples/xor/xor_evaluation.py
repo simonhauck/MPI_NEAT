@@ -14,7 +14,7 @@ from neat_core.optimizer.neat_optimizer import NeatOptimizer
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
 from neural_network.basic_neural_network import BasicNeuralNetwork
 from utils.fitness_evaluation import fitness_evaluation_utils
-from utils.reporter import fitness_reporter
+from utils.reporter import fitness_reporter, species_reporter
 from utils.visualization import genome_visualization
 from utils.visualization import reporter_visualization
 from utils.visualization import text_visualization
@@ -25,9 +25,11 @@ class XOROptimizer(NeatOptimizerCallback):
     def __init__(self) -> None:
         self.fitness_reporter = None
         self.solved_generation_number = None
+        self.species_reporter = None
 
     def evaluate(self, optimizer: NeatOptimizer):
         self.fitness_reporter = fitness_reporter.FitnessReporter()
+        self.species_reporter = species_reporter.SpeciesReporter()
 
         # Register this class as callback
         optimizer.register_callback(self)
@@ -138,6 +140,7 @@ class XOROptimizer(NeatOptimizerCallback):
 
     def on_generation_evaluation_end(self, generation: Generation) -> None:
         fitness_reporter.add_generation_fitness_reporter(self.fitness_reporter, generation)
+        species_reporter.add_generation_species_reporter(self.species_reporter, generation)
 
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
 
@@ -160,6 +163,9 @@ class XOROptimizer(NeatOptimizerCallback):
 
         # Plot fitness curve
         reporter_visualization.plot_fitness_reporter(self.fitness_reporter, plot=True)
+
+        # Plot species sizes
+        reporter_visualization.plot_species_reporter(self.species_reporter, plot=True)
 
         # Draw genome
         genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)
