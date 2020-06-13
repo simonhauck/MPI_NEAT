@@ -6,7 +6,7 @@ from neat_core.service import generation_service as gs
 from neat_single_core.agent_id_generator_single_core import AgentIDGeneratorSingleCore
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
 from neat_single_core.species_id_generator_single_core import SpeciesIDGeneratorSingleCore
-from utils.reporter import fitness_reporter
+from utils.reporter import fitness_reporter, species_reporter
 from utils.visualization import reporter_visualization
 
 
@@ -28,3 +28,10 @@ class ReporterVisualizationTest(TestCase):
 
         # Test if error occurs
         reporter_visualization.plot_fitness_reporter(reporter, plot=True)
+
+    def test_plot_species_reporter(self):
+        reporter = species_reporter.SpeciesReporter()
+        reporter = species_reporter.add_generation_species_reporter(reporter, self.generation)
+
+        # Test if error occurs
+        reporter_visualization.plot_species_reporter(reporter, plot=True)

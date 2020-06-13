@@ -25,6 +25,12 @@ def plot_fitness_reporter(reporter: FitnessReporter, plot: bool = False) -> None
 
 
 def plot_species_reporter(reporter: SpeciesReporter, plot: bool = False) -> None:
+    """
+    Plot the species reporter in a stacked area plot
+    :param reporter: the reporter with the species data
+    :param plot: true, if the plt.show() method should be invoked
+    :return: None
+    """
     x = range(reporter.min_generation, reporter.max_generation + 1)
     y = []
 
