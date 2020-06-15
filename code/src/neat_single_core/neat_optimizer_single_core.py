@@ -123,12 +123,12 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         rnd = np.random.RandomState(new_generation_seed)
 
         # Get the best agents, which will be copied later
-        best_agents_genomes = gs.get_best_genomes_from_species(generation.species_list, 5)
+        best_agents_genomes = gs.get_best_genomes_from_species(generation.species_list,
+                                                               config.species_size_copy_best_genome)
 
         # Get allowed species for reproduction
         generation = ss.update_fitness_species(generation)
-        # TODO config value!!!
-        species_list = ss.get_allowed_species_for_reproduction(generation, 15)
+        species_list = ss.get_allowed_species_for_reproduction(generation, config.species_stagnant_after_generations)
 
         # TODO handle error no species
         if len(species_list) <= 5:
@@ -140,9 +140,8 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         max_fitness = max([a.fitness for a in generation.agents])
         species_list = ss.calculate_adjusted_fitness(species_list, min_fitness, max_fitness)
 
-        # TODO config value!
         # Remove the low performing genomes
-        species_list = ss.remove_low_genomes(species_list, 0.5)
+        species_list = ss.remove_low_genomes(species_list, config.percentage_remove_low_genomes)
 
         # Calculate offspring for species
         off_spring_list = ss.calculate_amount_offspring(species_list, config.population_size - len(best_agents_genomes))
