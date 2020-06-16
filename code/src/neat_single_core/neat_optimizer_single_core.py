@@ -112,32 +112,35 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         self.callback.on_generation_evaluation_end(generation)
         return generation
 
-    def _build_new_generation(self, generation: Generation,
+    def _build_new_generation(self, new_generation: Generation,
                               innovation_number_generator: InnovationNumberGeneratorInterface,
                               species_id_generator: SpeciesIDGeneratorSingleCore,
                               agent_id_generator: AgentIDGeneratorSingleCore,
                               config: NeatConfig) -> Generation:
+        # Notify callback
+        self.callback.on_reproduction_start(new_generation)
 
         # Get the random generator for the new generation
-        new_generation_seed = np.random.RandomState(generation.seed).randint(2 ** 24)
+        new_generation_seed = np.random.RandomState(new_generation.seed).randint(2 ** 24)
         rnd = np.random.RandomState(new_generation_seed)
 
         # Get the best agents, which will be copied later
-        best_agents_genomes = gs.get_best_genomes_from_species(generation.species_list,
+        best_agents_genomes = gs.get_best_genomes_from_species(new_generation.species_list,
                                                                config.species_size_copy_best_genome)
 
         # Get allowed species for reproduction
-        generation = ss.update_fitness_species(generation)
-        species_list = ss.get_allowed_species_for_reproduction(generation, config.species_stagnant_after_generations)
+        new_generation = ss.update_fitness_species(new_generation)
+        species_list = ss.get_allowed_species_for_reproduction(new_generation,
+                                                               config.species_stagnant_after_generations)
 
         # TODO handle error no species
         if len(species_list) <= 5:
-            species_list = generation.species_list
+            species_list = new_generation.species_list
         # assert len(species_list) >= 1
 
         # Calculate the adjusted fitness values
-        min_fitness = min([a.fitness for a in generation.agents])
-        max_fitness = max([a.fitness for a in generation.agents])
+        min_fitness = min([a.fitness for a in new_generation.agents])
+        max_fitness = max([a.fitness for a in new_generation.agents])
         species_list = ss.calculate_adjusted_fitness(species_list, min_fitness, max_fitness)
 
         # Remove the low performing genomes
@@ -149,19 +152,20 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         # Calculate off spring combinations
         off_spring_pairs = []
         for species, amount_offspring in zip(species_list, off_spring_list):
-            off_spring_pairs += ss.create_offspring_pairs(species, amount_offspring, agent_id_generator, generation,
+            off_spring_pairs += ss.create_offspring_pairs(species, amount_offspring, agent_id_generator, new_generation,
                                                           rnd, config)
 
         # Notify innovation number generator, that a new generation is created
-        innovation_number_generator.next_generation(generation.number)
+        innovation_number_generator.next_generation(new_generation.number)
 
         # Create a dictionary for easy access
-        agent_dict = {agent.id: agent for agent in generation.agents}
+        agent_dict = {agent.id: agent for agent in new_generation.agents}
 
         # Create new agents - fill initially with best agents
         new_agents = [Agent(agent_id_generator.get_agent_id(), genome) for genome in best_agents_genomes]
 
         # Create agents with crossover
+        self.callback.on_compose_offsprings_start()
         for parent1_id, parent2_id, child_id in off_spring_pairs:
             parent1 = agent_dict[parent1_id]
             parent2 = agent_dict[parent2_id]
@@ -186,8 +190,11 @@ class NeatOptimizerSingleCore(NeatOptimizer):
             child_agent = Agent(child_id, child_genome)
             new_agents.append(child_agent)
 
+        # Notify callback end
+        self.callback.on_compose_offsprings_end()
+
         # Select new representative
-        existing_species = [ss.select_new_representative(species, rnd) for species in generation.species_list]
+        existing_species = [ss.select_new_representative(species, rnd) for species in new_generation.species_list]
         # Reset members and fitness
         existing_species = [ss.reset_species(species) for species in existing_species]
 
@@ -197,7 +204,10 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         # Filter out empty species
         new_species_list = ss.get_species_with_members(new_species_list)
 
-        return Generation(generation.number + 1, new_generation_seed, new_agents, new_species_list)
+        # Create new generation, notify callback and return new generation
+        new_generation = Generation(new_generation.number + 1, new_generation_seed, new_agents, new_species_list)
+        self.callback.on_reproduction_end(new_generation)
+        return new_generation
 
     def _cleanup(self, challenge: Challenge) -> None:
         # Notify callback and challenge

@@ -14,6 +14,39 @@ class NeatOptimizerCallback(ABC):
         """
         pass
 
+    def on_reproduction_start(self, generation: Generation) -> None:
+        """
+        Called at the start of the reproduction functions.
+        This includes cleaning out the species, assigning offspring for each species, building parent pairs, the
+        crossover and mutation process as well as sorting the agents into species
+        :param generation: the old generation
+        :return: None
+        """
+        pass
+
+    def on_compose_offsprings_start(self) -> None:
+        """
+        Called before the offsprings are composed
+        :return: None
+        """
+        pass
+
+    def on_compose_offsprings_end(self) -> None:
+        """
+        Called when the composing offspring process is finished.
+        This includes, the the crossover and mutation process
+        :return: None
+        """
+        pass
+
+    def on_reproduction_end(self, generation: Generation) -> None:
+        """
+        Called at the end of the reproductions
+        :param generation:
+        :return:
+        """
+        pass
+
     def on_generation_evaluation_start(self, generation: Generation) -> None:
         """
         Called with the start of the evaluation of each generation.

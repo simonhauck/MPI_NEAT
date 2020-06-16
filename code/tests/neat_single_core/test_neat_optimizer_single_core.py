@@ -22,6 +22,10 @@ class MockCallback(NeatOptimizerCallback):
 
     def __init__(self) -> None:
         self.on_initialization_count = 0
+        self.on_reproduction_start_count = 0
+        self.on_reproduction_end_count = 0
+        self.on_compose_offsprings_start_count = 0
+        self.on_compose_offsprings_end_count = 0
         self.on_generation_evaluation_start_count = 0
         self.on_agent_evaluation_start_count = 0
         self.on_agent_evaluation_end_count = 0
@@ -33,6 +37,18 @@ class MockCallback(NeatOptimizerCallback):
 
     def on_initialization(self) -> None:
         self.on_initialization_count += 1
+
+    def on_reproduction_start(self, generation: Generation) -> None:
+        self.on_reproduction_start_count += 1
+
+    def on_compose_offsprings_start(self) -> None:
+        self.on_compose_offsprings_start_count += 1
+
+    def on_compose_offsprings_end(self) -> None:
+        self.on_compose_offsprings_end_count += 1
+
+    def on_reproduction_end(self, generation: Generation) -> None:
+        self.on_reproduction_end_count += 1
 
     def on_generation_evaluation_start(self, generation: Generation) -> None:
         self.on_generation_evaluation_start_count += 1
@@ -75,7 +91,7 @@ class MockChallenge(Challenge):
     def before_evaluation(self) -> None:
         self.before_evaluation_count += 1
 
-    def evaluate(self, neural_network: NeuralNetworkInterface) -> (float, Dict[str, object]):
+    def evaluate(self, neural_network: NeuralNetworkInterface, **kwargs) -> (float, Dict[str, object]):
         fitness = self.evaluate_count
         self.evaluate_count += 1
         return fitness, {}
@@ -116,6 +132,14 @@ class NeatOptimizerSingleCoreTest(TestCase):
 
         # Test callback functions
         self.assertEqual(1, self.challenge.initialization_count)
+
+        # Reproduction functions
+        self.assertEqual(expected_generation_number, self.callback.on_reproduction_start_count)
+        self.assertEqual(expected_generation_number, self.callback.on_compose_offsprings_start_count)
+        self.assertEqual(expected_generation_number, self.callback.on_compose_offsprings_end_count)
+        self.assertEqual(expected_generation_number, self.callback.on_reproduction_start_count)
+
+        # Evaluation functions
         self.assertEqual(expected_generation_number + 1, self.callback.on_generation_evaluation_start_count)
         self.assertEqual((1 + expected_generation_number) * self.config.population_size,
                          self.callback.on_agent_evaluation_start_count)
@@ -123,6 +147,7 @@ class NeatOptimizerSingleCoreTest(TestCase):
                          self.callback.on_agent_evaluation_end_count)
         self.assertEqual(expected_generation_number + 1, self.callback.on_generation_evaluation_end_count)
         self.assertEqual(expected_generation_number, self.callback.finish_evaluation_count)
+
         self.assertEqual(1, self.callback.on_finish_count)
         self.assertEqual(1, self.callback.on_cleanup_count)
 
@@ -150,6 +175,14 @@ class NeatOptimizerSingleCoreTest(TestCase):
 
         # Test callback functions
         self.assertEqual(1, self.challenge.initialization_count)
+
+        # Reproduction functions
+        self.assertEqual(expected_generation_number, self.callback.on_reproduction_start_count)
+        self.assertEqual(expected_generation_number, self.callback.on_compose_offsprings_start_count)
+        self.assertEqual(expected_generation_number, self.callback.on_compose_offsprings_end_count)
+        self.assertEqual(expected_generation_number, self.callback.on_reproduction_start_count)
+
+        # Evaluation loop
         self.assertEqual(expected_generation_number + 1, self.callback.on_generation_evaluation_start_count)
         self.assertEqual((1 + expected_generation_number) * self.config.population_size,
                          self.callback.on_agent_evaluation_start_count)
@@ -157,6 +190,8 @@ class NeatOptimizerSingleCoreTest(TestCase):
                          self.callback.on_agent_evaluation_end_count)
         self.assertEqual(expected_generation_number + 1, self.callback.on_generation_evaluation_end_count)
         self.assertEqual(expected_generation_number, self.callback.finish_evaluation_count)
+
+        # Finish evaluation
         self.assertEqual(1, self.callback.on_finish_count)
         self.assertEqual(1, self.callback.on_cleanup_count)
 
