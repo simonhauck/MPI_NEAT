@@ -14,7 +14,9 @@ from neat_core.optimizer.neat_optimizer import NeatOptimizer
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
 from neural_network.basic_neural_network import BasicNeuralNetwork
 from utils.fitness_evaluation import fitness_evaluation_utils
-from utils.reporter import fitness_reporter, species_reporter
+from utils.reporter.fitness_reporter import FitnessReporter
+from utils.reporter.species_reporter import SpeciesReporter
+from utils.reporter.time_reporter import TimeReporter
 from utils.visualization import genome_visualization
 from utils.visualization import reporter_visualization
 from utils.visualization import text_visualization
@@ -23,16 +25,21 @@ from utils.visualization import text_visualization
 class XOROptimizer(NeatOptimizerCallback):
 
     def __init__(self) -> None:
-        self.fitness_reporter = None
+        self.fitness_reporter: FitnessReporter = None
+        self.species_reporter: SpeciesReporter = None
+        self.time_reporter: TimeReporter = None
         self.solved_generation_number = None
-        self.species_reporter = None
 
     def evaluate(self, optimizer: NeatOptimizer):
-        self.fitness_reporter = fitness_reporter.FitnessReporter()
-        self.species_reporter = species_reporter.SpeciesReporter()
+        # Create reporter
+        self.fitness_reporter = FitnessReporter()
+        self.species_reporter = SpeciesReporter()
+        self.time_reporter = TimeReporter()
 
-        # Register this class as callback
+        # Register this class as callback and reporter
         optimizer.register_callback(self)
+        optimizer.register_reporters(self.time_reporter, self.fitness_reporter, self.species_reporter)
+
         # config = NeatConfig(allow_recurrent_connections=False,
         #                     population_size=150,
         #                     compatibility_threshold=3,
@@ -139,9 +146,6 @@ class XOROptimizer(NeatOptimizerCallback):
         logger.debug("Finished evaluation of agent {} with fitness {}".format(i, agent.fitness))
 
     def on_generation_evaluation_end(self, generation: Generation) -> None:
-        fitness_reporter.add_generation_fitness_reporter(self.fitness_reporter, generation)
-        species_reporter.add_generation_species_reporter(self.species_reporter, generation)
-
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
 
         logger.info("Finished evaluation of generation {}".format(generation.number))
@@ -162,10 +166,13 @@ class XOROptimizer(NeatOptimizerCallback):
         text_visualization.print_agent(agent)
 
         # Plot fitness curve
-        reporter_visualization.plot_fitness_reporter(self.fitness_reporter, plot=True)
+        reporter_visualization.plot_fitness_reporter(self.fitness_reporter.data, plot=True)
 
         # Plot species sizes
-        reporter_visualization.plot_species_reporter(self.species_reporter, plot=True)
+        reporter_visualization.plot_species_reporter(self.species_reporter.data, plot=True)
+
+        # Plot required time
+        reporter_visualization.plot_time_reporter(self.time_reporter.data, plot=True)
 
         # Draw genome
         genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)

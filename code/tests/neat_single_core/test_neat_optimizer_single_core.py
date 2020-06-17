@@ -10,12 +10,15 @@ from neat_core.models.node import Node, NodeType
 from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
+from neat_core.optimizer.neat_reporter import NeatReporter
 from neat_core.service import generation_service as gs
 from neat_single_core.agent_id_generator_single_core import AgentIDGeneratorSingleCore
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
 from neat_single_core.neat_optimizer_single_core import NeatOptimizerSingleCore
 from neat_single_core.species_id_generator_single_core import SpeciesIDGeneratorSingleCore
 from neural_network.neural_network_interface import NeuralNetworkInterface
+from utils.reporter.species_reporter import SpeciesReporter
+from utils.reporter.time_reporter import TimeReporter
 
 
 class MockCallback(NeatOptimizerCallback):
@@ -103,6 +106,15 @@ class MockChallenge(Challenge):
         self.clean_up_count += 1
 
 
+class MockReporter(NeatReporter):
+
+    def __init__(self) -> None:
+        self.on_finish_count = 0
+
+    def on_finish(self, generation: Generation) -> None:
+        self.on_finish_count += 1
+
+
 class NeatOptimizerSingleCoreTest(TestCase):
 
     def setUp(self) -> None:
@@ -124,6 +136,35 @@ class NeatOptimizerSingleCoreTest(TestCase):
         self.assertEqual(self.callback, self.optimizer_single.callback)
         self.optimizer_single.unregister_callback()
         self.assertIsNone(self.optimizer_single.callback)
+
+    def test_register_reporters(self):
+        reporter1 = SpeciesReporter()
+        reporter2 = TimeReporter()
+
+        self.assertEqual([], self.optimizer_single.reporters)
+        self.optimizer_single.register_reporters(reporter1, reporter2)
+        self.assertEqual([reporter1, reporter2], self.optimizer_single.reporters)
+
+    def test_unregister_reporter(self):
+        reporter1 = MockReporter()
+        reporter2 = MockReporter()
+
+        self.optimizer_single.register_reporters(reporter1, reporter2)
+        self.assertEqual([reporter1, reporter2], self.optimizer_single.reporters)
+
+        self.optimizer_single.unregister_reporter(reporter2)
+        self.assertEqual([reporter1], self.optimizer_single.reporters)
+
+    def test_notify_reporters_callback(self):
+        reporter1 = MockReporter()
+        reporter2 = MockReporter()
+
+        self.optimizer_single.register_reporters(reporter1, reporter2)
+        self.optimizer_single._notify_reporters_callback(lambda r: r.on_finish(None))
+
+        self.assertEqual(1, self.callback.on_finish_count)
+        self.assertEqual(1, reporter1.on_finish_count)
+        self.assertEqual(1, reporter2.on_finish_count)
 
     def test_evaluate(self):
         self.optimizer_single.evaluate(3, 2, step_activation, self.challenge, self.config, 1)

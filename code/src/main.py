@@ -1,4 +1,5 @@
 import sys
+import time
 
 import numpy as np
 from loguru import logger
@@ -17,9 +18,13 @@ def xor_single():
     solved_generations = []
 
     for i in range(amount_runs):
+        start_time = time.time()
         xor_optimizer = XOROptimizer()
         xor_optimizer.evaluate(NeatOptimizerSingleCore())
         solved_generations.append(xor_optimizer.solved_generation_number)
+        end_time = time.time()
+
+        logger.info("Run finished with time {}s".format(end_time - start_time))
 
     logger.info("Finished running XOR {} times".format(len(solved_generations)))
     logger.info(

@@ -1,9 +1,10 @@
 import numpy as np
 
 from neat_core.models.generation import Generation
+from neat_core.optimizer.neat_reporter import NeatReporter
 
 
-class FitnessReporter(object):
+class FitnessReporterData(object):
 
     def __init__(self) -> None:
         self.generations: np.ndarray = np.array([])
@@ -13,25 +14,27 @@ class FitnessReporter(object):
         self.std_values: np.ndarray = np.array([])
 
 
-def add_generation_fitness_reporter(reporter: FitnessReporter, generation: Generation) -> FitnessReporter:
-    """
-    Add a generation to the fitness reporter. The reporter extracts the min, max and mean fitness values and calculates
-    the standard deviation
-    :param reporter: the reporter, to which the data will be added
-    :param generation: the generation data that should be added
-    :return: the updated fitness reporter
-    """
-    reporter.generations = np.append(reporter.generations, generation.number)
+class FitnessReporter(NeatReporter):
 
-    fitness_values = np.array([agent.fitness for agent in generation.agents])
-    min = np.min(fitness_values)
-    max = np.max(fitness_values)
-    mean = np.mean(fitness_values)
-    std = np.std(fitness_values)
+    def __init__(self) -> None:
+        self.data = FitnessReporterData()
 
-    reporter.min_values = np.append(reporter.min_values, min)
-    reporter.max_values = np.append(reporter.max_values, max)
-    reporter.mean_values = np.append(reporter.mean_values, mean)
-    reporter.std_values = np.append(reporter.std_values, std)
+    def on_generation_evaluation_end(self, generation: Generation) -> None:
+        """
+        Add a generation to the fitness reporter. The reporter extracts the min, max and mean fitness values and calculates
+        the standard deviation
+        :param generation: the generation that will be added
+        :return: None
+        """
+        self.data.generations = np.append(self.data.generations, generation.number)
 
-    return reporter
+        fitness_values = np.array([agent.fitness for agent in generation.agents])
+        min = np.min(fitness_values)
+        max = np.max(fitness_values)
+        mean = np.mean(fitness_values)
+        std = np.std(fitness_values)
+
+        self.data.min_values = np.append(self.data.min_values, min)
+        self.data.max_values = np.append(self.data.max_values, max)
+        self.data.mean_values = np.append(self.data.mean_values, mean)
+        self.data.std_values = np.append(self.data.std_values, std)

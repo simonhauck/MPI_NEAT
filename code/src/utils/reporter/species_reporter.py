@@ -1,9 +1,10 @@
 from typing import Dict, List
 
 from neat_core.models.generation import Generation
+from neat_core.optimizer.neat_reporter import NeatReporter
 
 
-class SpeciesReporter(object):
+class SpeciesReporterData(object):
 
     def __init__(self) -> None:
         self.min_generation: int = None
@@ -12,30 +13,31 @@ class SpeciesReporter(object):
         self.species_size_dict: Dict[int, (List[int], List[int])] = {}
 
 
-def add_generation_species_reporter(reporter: SpeciesReporter, generation: Generation) -> SpeciesReporter:
-    """
-    Add the given generation to the given species reporter. The species reporter tracks, how many species exist in every
-    species
-    :param reporter: the species reporter, to which the data should be added
-    :param generation: the generation with its species and members
-    :return: the updated species reporter
-    """
-    # Set smallest/largest generation number
-    reporter.min_generation = min(reporter.min_generation,
-                                  generation.number) if reporter.min_generation is not None else generation.number
-    reporter.max_generation = max(reporter.max_generation,
-                                  generation.number) if reporter.max_generation is not None else generation.number
+class SpeciesReporter(NeatReporter):
 
-    for species in generation.species_list:
-        if species.id_ in reporter.species_size_dict:
-            # Update values
-            generation_numbers, member_size = reporter.species_size_dict[species.id_]
-            generation_numbers.append(generation.number)
-            member_size.append(len(species.members))
-        else:
-            # Add a new entry
-            generation_numbers = [generation.number]
-            member_size = [len(species.members)]
-            reporter.species_size_dict[species.id_] = (generation_numbers, member_size)
+    def __init__(self) -> None:
+        self.data = SpeciesReporterData()
 
-    return reporter
+    def on_generation_evaluation_end(self, generation: Generation) -> None:
+        """
+        Add the given generation to the species reporter. The species reporter data tracks, how many species exist in
+        every generation and how many members each species has
+        :param generation: the generation that is added
+        :return:
+        """
+        self.data.min_generation = min(self.data.min_generation,
+                                       generation.number) if self.data.min_generation is not None else generation.number
+        self.data.max_generation = max(self.data.max_generation,
+                                       generation.number) if self.data.max_generation is not None else generation.number
+
+        for species in generation.species_list:
+            if species.id_ in self.data.species_size_dict:
+                # Update values
+                generation_numbers, member_size = self.data.species_size_dict[species.id_]
+                generation_numbers.append(generation.number)
+                member_size.append(len(species.members))
+            else:
+                # Add a new entry
+                generation_numbers = [generation.number]
+                member_size = [len(species.members)]
+                self.data.species_size_dict[species.id_] = (generation_numbers, member_size)

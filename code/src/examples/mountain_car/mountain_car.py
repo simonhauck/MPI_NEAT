@@ -36,7 +36,7 @@ class MountainCarOptimizer(NeatOptimizerCallback):
 
     def evaluate(self, optimizer: NeatOptimizer):
         # Reporter for fitness values
-        self.fitness_reporter = fitness_reporter.FitnessReporter()
+        self.fitness_reporter = fitness_reporter.FitnessReporterData()
         self.species_reporter = species_reporter.SpeciesReporter()
 
         # Register this class as callback
