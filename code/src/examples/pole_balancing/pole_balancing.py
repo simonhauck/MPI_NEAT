@@ -3,7 +3,7 @@ import numpy as np
 import progressbar
 from loguru import logger
 
-from examples.mountain_car.mountain_car_challenge import ChallengeMountainCar
+from examples.pole_balancing.pole_balancing_challenge import PoleBalancingChallenge
 from neat_core.activation_function import modified_sigmoid_activation
 from neat_core.models.agent import Agent
 from neat_core.models.generation import Generation
@@ -15,13 +15,10 @@ from utils.fitness_evaluation import fitness_evaluation_utils
 from utils.reporter.fitness_reporter import FitnessReporter
 from utils.reporter.species_reporter import SpeciesReporter
 from utils.reporter.time_reporter import TimeReporter
-from utils.visualization import genome_visualization
-from utils.visualization import reporter_visualization
-from utils.visualization import text_visualization
+from utils.visualization import text_visualization, reporter_visualization, genome_visualization
 
 
-class MountainCarOptimizer(NeatOptimizerCallback):
-
+class PoleBalancingOptimizer(NeatOptimizerCallback):
     def __init__(self) -> None:
         self.fitness_reporter = None
         self.species_reporter = None
@@ -50,7 +47,7 @@ class MountainCarOptimizer(NeatOptimizerCallback):
 
         # Config
         config = NeatConfig(allow_recurrent_connections=True,
-                            population_size=300,
+                            population_size=50,
                             compatibility_threshold=3,
                             weight_mutation_type="normal",
                             weight_mutation_normal_sigma=1.3,
@@ -78,11 +75,11 @@ class MountainCarOptimizer(NeatOptimizerCallback):
         logger.info("Used Seed: {}".format(seed))
 
         # Create the challenge
-        self.challenge = ChallengeMountainCar()
+        self.challenge = PoleBalancingChallenge()
 
         # Start evaluation
-        optimizer.evaluate(amount_input_nodes=2,
-                           amount_output_nodes=3,
+        optimizer.evaluate(amount_input_nodes=4,
+                           amount_output_nodes=2,
                            activation_function=modified_sigmoid_activation,
                            challenge=self.challenge,
                            config=config,
@@ -136,7 +133,7 @@ class MountainCarOptimizer(NeatOptimizerCallback):
         nn = BasicNeuralNetwork()
         nn.build(agent.genome)
 
-        challenge = ChallengeMountainCar()
+        challenge = PoleBalancingChallenge()
         challenge.initialization(show=True)
 
         # for i in range(100):
@@ -150,7 +147,4 @@ class MountainCarOptimizer(NeatOptimizerCallback):
 
     def finish_evaluation(self, generation: Generation) -> bool:
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
-        # return generation.number >= 2
-        return best_agent.fitness >= 90 ** 2
-        # return best_agent.additional_info["solved"]
-        # return generation.number >= 40
+        return best_agent.fitness >= (500 * 10) ** 2

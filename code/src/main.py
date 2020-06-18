@@ -5,6 +5,7 @@ import numpy as np
 from loguru import logger
 
 from examples.mountain_car.mountain_car import MountainCarOptimizer
+from examples.pole_balancing.pole_balancing import PoleBalancingOptimizer
 from examples.xor.xor_evaluation import XOROptimizer
 from neat_single_core.neat_optimizer_single_core import NeatOptimizerSingleCore
 
@@ -38,9 +39,15 @@ def mountain_car_single():
     mountain_optimizer.evaluate(NeatOptimizerSingleCore())
 
 
+def pole_balancing_single():
+    pole_balancing_optimizer = PoleBalancingOptimizer()
+    pole_balancing_optimizer.evaluate(NeatOptimizerSingleCore())
+
+
 challenge_dict = {
     "xor": xor_single,
-    "mountain_car": mountain_car_single
+    "mountain_car": mountain_car_single,
+    "pole_balancing": pole_balancing_single
 }
 
 if len(sys.argv) <= 1:
