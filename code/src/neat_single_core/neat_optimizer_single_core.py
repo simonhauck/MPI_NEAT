@@ -29,7 +29,7 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         agent_id_generator = AgentIDGeneratorSingleCore()
 
         # Notify callback about starting evaluation
-        self.callback.on_initialization()
+        self._notify_reporters_callback(lambda r: r.on_initialization())
         # Prepare challenge
         challenge.initialization()
 
@@ -42,7 +42,7 @@ class NeatOptimizerSingleCore(NeatOptimizer):
 
         # Finish the evaluation and notify the callback
         self._cleanup(challenge)
-        self.callback.on_finish(finished_generation)
+        self._notify_reporters_callback(lambda r: r.on_finish(finished_generation))
 
     def evaluate_genome_structure(self, genome_structure: Genome, challenge: Challenge, config: NeatConfig, seed: int):
         assert self.callback is not None
@@ -53,7 +53,7 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         agent_id_generator = AgentIDGeneratorSingleCore()
 
         # Notify callback about starting evaluation
-        self.callback.on_initialization()
+        self._notify_reporters_callback(lambda r: r.on_initialization())
         # Prepare challenge
         challenge.initialization()
 
@@ -65,7 +65,7 @@ class NeatOptimizerSingleCore(NeatOptimizer):
 
         # Finish the evaluation and notify the callback
         self._cleanup(challenge)
-        self.callback.on_finish(finished_generation)
+        self._notify_reporters_callback(lambda r: r.on_finish(finished_generation))
 
     def _evaluation_loop(self, generation: Generation, challenge: Challenge,
                          innovation_number_generator: InnovationNumberGeneratorInterface,
@@ -88,11 +88,11 @@ class NeatOptimizerSingleCore(NeatOptimizer):
 
     def _evaluate_generation(self, generation: Generation, challenge: Challenge):
         # Notify callback
-        self.callback.on_generation_evaluation_start(generation)
+        self._notify_reporters_callback(lambda r: r.on_generation_evaluation_start(generation))
 
         for i, agent in zip(range(len(generation.agents)), generation.agents):
             # Prepare challenge and notify callback
-            self.callback.on_agent_evaluation_start(i, agent)
+            self._notify_reporters_callback(lambda r: r.on_agent_evaluation_start(i, agent))
             challenge.before_evaluation()
 
             # Create and build neural network
@@ -106,10 +106,10 @@ class NeatOptimizerSingleCore(NeatOptimizer):
 
             # Postprocess challenge and notify callback
             challenge.after_evaluation()
-            self.callback.on_agent_evaluation_end(i, agent)
+            self._notify_reporters_callback(lambda r: r.on_agent_evaluation_end(i, agent))
 
         # Notify callback
-        self.callback.on_generation_evaluation_end(generation)
+        self._notify_reporters_callback(lambda r: r.on_generation_evaluation_end(generation))
         return generation
 
     def _build_new_generation(self, generation: Generation,
@@ -117,18 +117,21 @@ class NeatOptimizerSingleCore(NeatOptimizer):
                               species_id_generator: SpeciesIDGeneratorSingleCore,
                               agent_id_generator: AgentIDGeneratorSingleCore,
                               config: NeatConfig) -> Generation:
+        # Notify callback
+        self._notify_reporters_callback(lambda r: r.on_reproduction_start(generation))
 
         # Get the random generator for the new generation
         new_generation_seed = np.random.RandomState(generation.seed).randint(2 ** 24)
         rnd = np.random.RandomState(new_generation_seed)
 
         # Get the best agents, which will be copied later
-        best_agents_genomes = gs.get_best_genomes_from_species(generation.species_list, 5)
+        best_agents_genomes = gs.get_best_genomes_from_species(generation.species_list,
+                                                               config.species_size_copy_best_genome)
 
         # Get allowed species for reproduction
         generation = ss.update_fitness_species(generation)
-        # TODO config value!!!
-        species_list = ss.get_allowed_species_for_reproduction(generation, 15)
+        species_list = ss.get_allowed_species_for_reproduction(generation,
+                                                               config.species_stagnant_after_generations)
 
         # TODO handle error no species
         if len(species_list) <= 5:
@@ -140,9 +143,8 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         max_fitness = max([a.fitness for a in generation.agents])
         species_list = ss.calculate_adjusted_fitness(species_list, min_fitness, max_fitness)
 
-        # TODO config value!
         # Remove the low performing genomes
-        species_list = ss.remove_low_genomes(species_list, 0.5)
+        species_list = ss.remove_low_genomes(species_list, config.percentage_remove_low_genomes)
 
         # Calculate offspring for species
         off_spring_list = ss.calculate_amount_offspring(species_list, config.population_size - len(best_agents_genomes))
@@ -163,6 +165,7 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         new_agents = [Agent(agent_id_generator.get_agent_id(), genome) for genome in best_agents_genomes]
 
         # Create agents with crossover
+        self._notify_reporters_callback(lambda r: r.on_compose_offsprings_start())
         for parent1_id, parent2_id, child_id in off_spring_pairs:
             parent1 = agent_dict[parent1_id]
             parent2 = agent_dict[parent2_id]
@@ -187,6 +190,9 @@ class NeatOptimizerSingleCore(NeatOptimizer):
             child_agent = Agent(child_id, child_genome)
             new_agents.append(child_agent)
 
+        # Notify callback end
+        self._notify_reporters_callback(lambda r: r.on_compose_offsprings_end())
+
         # Select new representative
         existing_species = [ss.select_new_representative(species, rnd) for species in generation.species_list]
         # Reset members and fitness
@@ -198,9 +204,12 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         # Filter out empty species
         new_species_list = ss.get_species_with_members(new_species_list)
 
-        return Generation(generation.number + 1, new_generation_seed, new_agents, new_species_list)
+        # Create new generation, notify callback and return new generation
+        new_generation = Generation(generation.number + 1, new_generation_seed, new_agents, new_species_list)
+        self._notify_reporters_callback(lambda r: r.on_reproduction_end(new_generation))
+        return new_generation
 
     def _cleanup(self, challenge: Challenge) -> None:
         # Notify callback and challenge
         challenge.clean_up()
-        self.callback.on_cleanup()
+        self._notify_reporters_callback(lambda r: r.on_cleanup())

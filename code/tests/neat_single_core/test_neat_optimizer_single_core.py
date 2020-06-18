@@ -10,18 +10,25 @@ from neat_core.models.node import Node, NodeType
 from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
+from neat_core.optimizer.neat_reporter import NeatReporter
 from neat_core.service import generation_service as gs
 from neat_single_core.agent_id_generator_single_core import AgentIDGeneratorSingleCore
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
 from neat_single_core.neat_optimizer_single_core import NeatOptimizerSingleCore
 from neat_single_core.species_id_generator_single_core import SpeciesIDGeneratorSingleCore
 from neural_network.neural_network_interface import NeuralNetworkInterface
+from utils.reporter.species_reporter import SpeciesReporter
+from utils.reporter.time_reporter import TimeReporter
 
 
 class MockCallback(NeatOptimizerCallback):
 
     def __init__(self) -> None:
         self.on_initialization_count = 0
+        self.on_reproduction_start_count = 0
+        self.on_reproduction_end_count = 0
+        self.on_compose_offsprings_start_count = 0
+        self.on_compose_offsprings_end_count = 0
         self.on_generation_evaluation_start_count = 0
         self.on_agent_evaluation_start_count = 0
         self.on_agent_evaluation_end_count = 0
@@ -33,6 +40,18 @@ class MockCallback(NeatOptimizerCallback):
 
     def on_initialization(self) -> None:
         self.on_initialization_count += 1
+
+    def on_reproduction_start(self, generation: Generation) -> None:
+        self.on_reproduction_start_count += 1
+
+    def on_compose_offsprings_start(self) -> None:
+        self.on_compose_offsprings_start_count += 1
+
+    def on_compose_offsprings_end(self) -> None:
+        self.on_compose_offsprings_end_count += 1
+
+    def on_reproduction_end(self, generation: Generation) -> None:
+        self.on_reproduction_end_count += 1
 
     def on_generation_evaluation_start(self, generation: Generation) -> None:
         self.on_generation_evaluation_start_count += 1
@@ -75,7 +94,7 @@ class MockChallenge(Challenge):
     def before_evaluation(self) -> None:
         self.before_evaluation_count += 1
 
-    def evaluate(self, neural_network: NeuralNetworkInterface) -> (float, Dict[str, object]):
+    def evaluate(self, neural_network: NeuralNetworkInterface, **kwargs) -> (float, Dict[str, object]):
         fitness = self.evaluate_count
         self.evaluate_count += 1
         return fitness, {}
@@ -85,6 +104,15 @@ class MockChallenge(Challenge):
 
     def clean_up(self):
         self.clean_up_count += 1
+
+
+class MockReporter(NeatReporter):
+
+    def __init__(self) -> None:
+        self.on_finish_count = 0
+
+    def on_finish(self, generation: Generation) -> None:
+        self.on_finish_count += 1
 
 
 class NeatOptimizerSingleCoreTest(TestCase):
@@ -109,6 +137,35 @@ class NeatOptimizerSingleCoreTest(TestCase):
         self.optimizer_single.unregister_callback()
         self.assertIsNone(self.optimizer_single.callback)
 
+    def test_register_reporters(self):
+        reporter1 = SpeciesReporter()
+        reporter2 = TimeReporter()
+
+        self.assertEqual([], self.optimizer_single.reporters)
+        self.optimizer_single.register_reporters(reporter1, reporter2)
+        self.assertEqual([reporter1, reporter2], self.optimizer_single.reporters)
+
+    def test_unregister_reporter(self):
+        reporter1 = MockReporter()
+        reporter2 = MockReporter()
+
+        self.optimizer_single.register_reporters(reporter1, reporter2)
+        self.assertEqual([reporter1, reporter2], self.optimizer_single.reporters)
+
+        self.optimizer_single.unregister_reporter(reporter2)
+        self.assertEqual([reporter1], self.optimizer_single.reporters)
+
+    def test_notify_reporters_callback(self):
+        reporter1 = MockReporter()
+        reporter2 = MockReporter()
+
+        self.optimizer_single.register_reporters(reporter1, reporter2)
+        self.optimizer_single._notify_reporters_callback(lambda r: r.on_finish(None))
+
+        self.assertEqual(1, self.callback.on_finish_count)
+        self.assertEqual(1, reporter1.on_finish_count)
+        self.assertEqual(1, reporter2.on_finish_count)
+
     def test_evaluate(self):
         self.optimizer_single.evaluate(3, 2, step_activation, self.challenge, self.config, 1)
 
@@ -116,6 +173,14 @@ class NeatOptimizerSingleCoreTest(TestCase):
 
         # Test callback functions
         self.assertEqual(1, self.challenge.initialization_count)
+
+        # Reproduction functions
+        self.assertEqual(expected_generation_number, self.callback.on_reproduction_start_count)
+        self.assertEqual(expected_generation_number, self.callback.on_compose_offsprings_start_count)
+        self.assertEqual(expected_generation_number, self.callback.on_compose_offsprings_end_count)
+        self.assertEqual(expected_generation_number, self.callback.on_reproduction_start_count)
+
+        # Evaluation functions
         self.assertEqual(expected_generation_number + 1, self.callback.on_generation_evaluation_start_count)
         self.assertEqual((1 + expected_generation_number) * self.config.population_size,
                          self.callback.on_agent_evaluation_start_count)
@@ -123,6 +188,7 @@ class NeatOptimizerSingleCoreTest(TestCase):
                          self.callback.on_agent_evaluation_end_count)
         self.assertEqual(expected_generation_number + 1, self.callback.on_generation_evaluation_end_count)
         self.assertEqual(expected_generation_number, self.callback.finish_evaluation_count)
+
         self.assertEqual(1, self.callback.on_finish_count)
         self.assertEqual(1, self.callback.on_cleanup_count)
 
@@ -150,6 +216,14 @@ class NeatOptimizerSingleCoreTest(TestCase):
 
         # Test callback functions
         self.assertEqual(1, self.challenge.initialization_count)
+
+        # Reproduction functions
+        self.assertEqual(expected_generation_number, self.callback.on_reproduction_start_count)
+        self.assertEqual(expected_generation_number, self.callback.on_compose_offsprings_start_count)
+        self.assertEqual(expected_generation_number, self.callback.on_compose_offsprings_end_count)
+        self.assertEqual(expected_generation_number, self.callback.on_reproduction_start_count)
+
+        # Evaluation loop
         self.assertEqual(expected_generation_number + 1, self.callback.on_generation_evaluation_start_count)
         self.assertEqual((1 + expected_generation_number) * self.config.population_size,
                          self.callback.on_agent_evaluation_start_count)
@@ -157,6 +231,8 @@ class NeatOptimizerSingleCoreTest(TestCase):
                          self.callback.on_agent_evaluation_end_count)
         self.assertEqual(expected_generation_number + 1, self.callback.on_generation_evaluation_end_count)
         self.assertEqual(expected_generation_number, self.callback.finish_evaluation_count)
+
+        # Finish evaluation
         self.assertEqual(1, self.callback.on_finish_count)
         self.assertEqual(1, self.callback.on_cleanup_count)
 

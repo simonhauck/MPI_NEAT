@@ -1,15 +1,18 @@
 from abc import ABC
+from typing import List, Callable
 
 from neat_core.models.genome import Genome
 from neat_core.optimizer.challenge import Challenge
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
+from neat_core.optimizer.neat_reporter import NeatReporter
 
 
 class NeatOptimizer(ABC):
 
     def __init__(self):
         self.callback: NeatOptimizerCallback = None
+        self.reporters: List[NeatReporter] = []
 
     def register_callback(self, callback: NeatOptimizerCallback) -> None:
         """
@@ -25,6 +28,24 @@ class NeatOptimizer(ABC):
         :return: None
         """
         self.callback = None
+
+    def register_reporters(self, *neat_reporters: NeatReporter) -> None:
+        """
+        Register one ore multiple reporters, that should be notified for changes
+        :param neat_reporters: one or more neat reporter
+        :return: None
+        """
+        for reporter in neat_reporters:
+            self.reporters.append(reporter)
+
+    def unregister_reporter(self, *neat_reporters: NeatReporter) -> None:
+        """
+        Remove one or more reporters from the registered reporters
+        :param neat_reporters: the reporters that should be removed
+        :return: None
+        """
+        for reporter in neat_reporters:
+            self.reporters.remove(reporter)
 
     def evaluate(self,
                  amount_input_nodes: int,
@@ -55,3 +76,17 @@ class NeatOptimizer(ABC):
         :return:
         """
         pass
+
+    def _notify_reporters_callback(self, func: Callable[[NeatReporter], None]) -> None:
+        """
+        Call the given function with every reporter and the callback.
+        This can be used to call the callback functions
+        :param func: a function with a reporter as parameter
+        :return: None
+        """
+        # Notify reporters
+        for reporter in self.reporters:
+            func(reporter)
+
+        # Notify callback
+        func(self.callback)

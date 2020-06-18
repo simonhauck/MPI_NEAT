@@ -26,6 +26,7 @@ class ChallengeMountainCar(Challenge):
             self.env = gym.wrappers.Monitor(self.env, "/tmp/mountain_car", video_callable=lambda episode_id: True)
 
     def before_evaluation(self, **kwargs) -> None:
+        self.env.seed(0)
         self.observation = self.env.reset()
 
     def evaluate(self, neural_network: NeuralNetworkInterface, **kwargs) -> (float, Dict[str, object]):
