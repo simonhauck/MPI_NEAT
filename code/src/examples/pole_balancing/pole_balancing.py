@@ -34,7 +34,7 @@ class PoleBalancingOptimizer(NeatOptimizerCallback):
             ', ', progressbar.ETA()
         ]
 
-    def evaluate(self, optimizer: NeatOptimizer):
+    def evaluate(self, optimizer: NeatOptimizer, seed: int = None):
         # Reporter for fitness values
         self.fitness_reporter = FitnessReporter()
         self.species_reporter = SpeciesReporter()
@@ -70,8 +70,9 @@ class PoleBalancingOptimizer(NeatOptimizerCallback):
         # Progressbar size
         self.progressbar_max = config.population_size
 
-        # Set seed
-        seed = np.random.RandomState().randint(2 ** 24)
+        # Create random seed, if none is specified
+        if seed is None:
+            seed = np.random.RandomState().randint(2 ** 24)
         logger.info("Used Seed: {}".format(seed))
 
         # Create the challenge

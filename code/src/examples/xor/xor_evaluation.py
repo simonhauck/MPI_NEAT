@@ -30,7 +30,7 @@ class XOROptimizer(NeatOptimizerCallback):
         self.time_reporter: TimeReporter = None
         self.solved_generation_number = None
 
-    def evaluate(self, optimizer: NeatOptimizer):
+    def evaluate(self, optimizer: NeatOptimizer, seed: int = None):
         # Create reporter
         self.fitness_reporter = FitnessReporter()
         self.species_reporter = SpeciesReporter()
@@ -86,7 +86,9 @@ class XOROptimizer(NeatOptimizerCallback):
                             probability_mutate_add_node=0.2,
                             compatibility_genome_size_threshold=0)
 
-        seed = np.random.RandomState().randint(2 ** 24)
+        # Create random seed, if none is specified
+        if seed is None:
+            seed = np.random.RandomState().randint(2 ** 24)
         logger.info("Used Seed: {}".format(seed))
 
         optimizer.evaluate(amount_input_nodes=2,
@@ -97,7 +99,7 @@ class XOROptimizer(NeatOptimizerCallback):
                            seed=seed)
 
     # TODO remove at the end
-    def evaluate_fix_structure(self, optimizer: NeatOptimizer):
+    def evaluate_fix_structure(self, optimizer: NeatOptimizer, seed: int = None):
         optimizer.register_callback(self)
         config = NeatConfig(allow_recurrent_connections=False,
                             population_size=150,
@@ -109,7 +111,9 @@ class XOROptimizer(NeatOptimizerCallback):
                             probability_mutate_add_node=0,
                             probability_mutate_add_connection=0)
 
-        seed = np.random.RandomState().randint(2 ** 24)
+        # Create random seed, if none is specified
+        if seed is None:
+            seed = np.random.RandomState().randint(2 ** 24)
         logger.info("Used Seed: {}".format(seed))
 
         genome = Genome(

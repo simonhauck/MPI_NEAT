@@ -36,12 +36,12 @@ def xor_single():
 
 def mountain_car_single():
     mountain_optimizer = MountainCarOptimizer()
-    mountain_optimizer.evaluate(NeatOptimizerSingleCore())
+    mountain_optimizer.evaluate(NeatOptimizerSingleCore(), 1)
 
 
 def pole_balancing_single():
     pole_balancing_optimizer = PoleBalancingOptimizer()
-    pole_balancing_optimizer.evaluate(NeatOptimizerSingleCore())
+    pole_balancing_optimizer.evaluate(NeatOptimizerSingleCore(), 1)
 
 
 challenge_dict = {
