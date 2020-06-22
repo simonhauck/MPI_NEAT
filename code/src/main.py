@@ -1,3 +1,4 @@
+import argparse
 import sys
 import time
 
@@ -14,34 +15,22 @@ logger.add(sys.stdout, colorize=True, format="<green>{time}</green> | {level}   
            level="INFO")
 
 
-def xor_single():
-    amount_runs = 1
-    solved_generations = []
-
-    for i in range(amount_runs):
-        start_time = time.time()
-        xor_optimizer = XOROptimizer()
-        xor_optimizer.evaluate(NeatOptimizerSingleCore())
-        solved_generations.append(xor_optimizer.solved_generation_number)
-        end_time = time.time()
-
-        logger.info("Run finished with time {}s".format(end_time - start_time))
-
-    logger.info("Finished running XOR {} times".format(len(solved_generations)))
-    logger.info(
-        "Best generation: {}, Worst generation: {}, Mean: {}".format(np.min(solved_generations),
-                                                                     np.max(solved_generations),
-                                                                     np.mean(solved_generations)))
+def xor_single(p_seed) -> int:
+    xor_optimizer = XOROptimizer()
+    xor_optimizer.evaluate(NeatOptimizerSingleCore(), p_seed)
+    return xor_optimizer.solved_generation_number
 
 
-def mountain_car_single():
+def mountain_car_single(p_seed) -> int:
     mountain_optimizer = MountainCarOptimizer()
-    mountain_optimizer.evaluate(NeatOptimizerSingleCore(), 1)
+    mountain_optimizer.evaluate(NeatOptimizerSingleCore(), p_seed)
+    return 0
 
 
-def pole_balancing_single():
+def pole_balancing_single(p_seed) -> int:
     pole_balancing_optimizer = PoleBalancingOptimizer()
-    pole_balancing_optimizer.evaluate(NeatOptimizerSingleCore(), 1)
+    pole_balancing_optimizer.evaluate(NeatOptimizerSingleCore(), p_seed)
+    return 0
 
 
 challenge_dict = {
@@ -50,17 +39,41 @@ challenge_dict = {
     "pole_balancing": pole_balancing_single
 }
 
-if len(sys.argv) <= 1:
-    logger.info("No arguments given -> Select a challenge to start the training process")
-    logger.info("Possible Arguments:")
-    for key in challenge_dict.keys():
-        logger.info("Key: {}".format(key))
-    exit(0)
+parser = argparse.ArgumentParser(description="Run the given NEAT examples")
+parser.add_argument('challenge', type=str, help="Select one example challenge, that should be run",
+                    choices=challenge_dict.keys())
+parser.add_argument("-s", metavar="--seed", type=int, help="Seed for the evaluation")
+parser.add_argument("-r", metavar="--repeat", type=int, default=1, help="Run the same challenge multiple times")
+args = parser.parse_args()
 
-param = sys.argv[1]
-if param not in challenge_dict:
-    logger.info("Argument not found")
-    exit(-1)
+challenge = args.challenge
+seed = args.s
+amount_runs = args.r
 
-run = challenge_dict[param]
-run()
+logger.info("Selected challenge: {}, Seed: {}, Amount Runs: {}".format(challenge, seed, amount_runs))
+
+# Create random generator only if multiple runs should be done
+rnd_generator = np.random.RandomState(seed) if amount_runs > 1 else None
+
+statistics = {"evaluation_times": [], "generations": []}
+for _ in range(amount_runs):
+    evaluation_seed = seed if rnd_generator is None else rnd_generator.randint(2 ** 24)
+    start_time = time.time()
+
+    # Run challenge
+    func = challenge_dict[challenge]
+    generations = func(evaluation_seed)
+
+    # Add statistics
+    required_time = time.time() - start_time
+    statistics["evaluation_times"].append(required_time)
+    statistics["generations"].append(generations)
+
+# Show final results
+logger.info("-------- Program finished --------")
+logger.info(
+    "Min generations: {}, Max generations: {}, Mean: {}".
+        format(min(statistics["generations"]), max(statistics["generations"]), np.mean(statistics["generations"])))
+logger.info("Min Time: {}, Max Time: {}, Mean: {}".format(min(statistics["evaluation_times"]),
+                                                          max(statistics["evaluation_times"]),
+                                                          np.mean(statistics["evaluation_times"])))
