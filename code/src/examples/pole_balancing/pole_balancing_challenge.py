@@ -31,31 +31,35 @@ class PoleBalancingChallenge(Challenge):
         self.observation = self.env.reset()
 
     def evaluate(self, neural_network: NeuralNetworkInterface, **kwargs) -> (float, Dict[str, object]):
-        max_episodes = 500
-        runs = 10
-        fitness = 0
+        solved_rounds = []
+        fitness_values = []
 
-        for _ in range(runs):
+        max_episodes = 500
+        amount_runs = 10
+
+        for _ in range(amount_runs):
             self.before_evaluation()
             done = False
+            fitness = 0
             while not done:
                 action = neural_network.activate(self.observation)
                 index = np.argmax(action)
 
-                # old_observation = self.observation
-
+                # Take action
                 self.observation, reward, done, info = self.env.step(index)
 
                 # Render environment only if it is specifically requested
                 if kwargs.get("record", False) or kwargs.get("show", False):
                     self.env.render()
 
-                # if kwargs.get("show", False):
-                #     logger.info("Observation {}, Action {}".format(old_observation, index))
-
                 fitness += reward
 
-        return fitness ** 2, {"solved": fitness >= max_episodes * runs, "steps": fitness}
+            solved = fitness >= max_episodes
+            fitness_values.append(fitness)
+            solved_rounds.append(solved)
+
+        return sum(fitness_values) ** 2, {"solved": all(solved_rounds), "steps": fitness_values,
+                                          "solved_rounds": solved_rounds}
 
     def clean_up(self, **kwargs):
         self.env.close()

@@ -30,36 +30,58 @@ class ChallengeMountainCar(Challenge):
         self.observation = self.env.reset()
 
     def evaluate(self, neural_network: NeuralNetworkInterface, **kwargs) -> (float, Dict[str, object]):
-        # Max episodes of environment, after which it terminates
-        max_episodes = 200
+        solved_rounds = []
+        fitness_values = []
+        max_x_values = []
 
-        # Mix x position is -1.2, so that is never negative
-        fitness = 1.3 + max_episodes
-        max_x_progress = self.observation[0]
+        amount_runs = 1
 
-        for _ in range(max_episodes):
-            # Get action from neural network
-            action = neural_network.activate(self.observation)
-            index = np.argmax(action)
+        for _ in range(amount_runs):
+            # Max episodes of environment, after which it terminates
+            max_episodes = 200
 
-            self.observation, reward, done, info = self.env.step(index)
+            # Mix x position is -1.2, so that is never negative
+            fitness = 1.3 + max_episodes
 
-            # Render environment only if it is specifically requested
-            if kwargs.get("record", False) or kwargs.get("show", False):
-                self.env.render()
+            # Reset environment
+            self.before_evaluation()
+            max_x_progress = self.observation[0]
 
-            # Used for fitness
-            fitness += reward
-            if self.observation[0] > max_x_progress:
-                max_x_progress = self.observation[0]
+            for _ in range(max_episodes):
+                # Get action from neural network
+                action = neural_network.activate(self.observation)
+                index = np.argmax(action)
 
-            if done:
-                break
-        else:
-            logger.error("Environment finished without done! Something is wrong..")
+                self.observation, reward, done, info = self.env.step(index)
 
-        solved = max_x_progress >= 0.5
-        return (fitness + max_x_progress) ** 2, {"solved": solved, "max_x": max_x_progress}
+                # Render environment only if it is specifically requested
+                if kwargs.get("record", False) or kwargs.get("show", False):
+                    self.env.render()
+
+                # Used for fitness
+                fitness += reward
+                if self.observation[0] > max_x_progress:
+                    max_x_progress = self.observation[0]
+
+                if done:
+                    fitness += max_x_progress
+                    break
+            else:
+                logger.error("Environment finished without done! Something is wrong..")
+
+            if kwargs.get("show", False):
+                logger.info("Finished run with Fitness: {}, Max X: {}".format(fitness, max_x_progress))
+
+            # Add tracker information
+            solved = fitness >= 90
+            fitness_values.append(fitness)
+            max_x_values.append(max_x_progress)
+            solved_rounds.append(solved)
+
+        return sum(fitness_values) ** 2, {"solved": all(solved_rounds),
+                                          "max_x": max_x_values,
+                                          "fitness_values": fitness_values,
+                                          "solved_rounds": solved_rounds}
 
     def clean_up(self, **kwargs):
         self.env.close()

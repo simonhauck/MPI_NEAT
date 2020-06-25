@@ -1,7 +1,10 @@
+from datetime import datetime
+
 import matplotlib.pyplot as plt
 import numpy as np
 from loguru import logger
 
+from examples.BaseExample import BaseExample
 from examples.xor.xor_challenge import ChallengeXOR
 from neat_core.activation_function import modified_sigmoid_activation
 from neat_core.models.agent import Agent
@@ -11,9 +14,9 @@ from neat_core.models.genome import Genome
 from neat_core.models.node import Node, NodeType
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer import NeatOptimizer
-from neat_core.optimizer.neat_optimizer_callback import NeatOptimizerCallback
 from neural_network.basic_neural_network import BasicNeuralNetwork
 from utils.fitness_evaluation import fitness_evaluation_utils
+from utils.reporter.checkpoint_reporter import CheckPointReporter
 from utils.reporter.fitness_reporter import FitnessReporter
 from utils.reporter.species_reporter import SpeciesReporter
 from utils.reporter.time_reporter import TimeReporter
@@ -22,23 +25,30 @@ from utils.visualization import reporter_visualization
 from utils.visualization import text_visualization
 
 
-class XOROptimizer(NeatOptimizerCallback):
+class XOROptimizer(BaseExample):
 
     def __init__(self) -> None:
         self.fitness_reporter: FitnessReporter = None
         self.species_reporter: SpeciesReporter = None
         self.time_reporter: TimeReporter = None
+        self.check_point_reporter: CheckPointReporter = None
         self.solved_generation_number = None
 
-    def evaluate(self, optimizer: NeatOptimizer, seed: int = None):
+    def evaluate(self, optimizer: NeatOptimizer, seed: int = None, **kwargs):
+        time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         # Create reporter
         self.fitness_reporter = FitnessReporter()
         self.species_reporter = SpeciesReporter()
         self.time_reporter = TimeReporter()
+        self.check_point_reporter = CheckPointReporter("/tmp/xor/{}/".format(time), "xor_genome_",
+                                                       lambda _: False)
 
         # Register this class as callback and reporter
         optimizer.register_callback(self)
-        optimizer.register_reporters(self.time_reporter, self.fitness_reporter, self.species_reporter)
+        optimizer.register_reporters(self.time_reporter,
+                                     self.fitness_reporter,
+                                     self.species_reporter,
+                                     self.check_point_reporter)
 
         # config = NeatConfig(allow_recurrent_connections=False,
         #                     population_size=150,
@@ -182,14 +192,20 @@ class XOROptimizer(NeatOptimizerCallback):
         genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)
         plt.show()
 
-        # Print actual results
-        challenge = ChallengeXOR()
-        nn = BasicNeuralNetwork()
-        nn.build(agent.genome)
-        fitness, additional_info = challenge.evaluate(nn, show=True)
-        logger.info(
-            "Finished Evaluation - Fitness: {}, Challenge solved = {}".format(fitness, additional_info["solved"]))
+        # Visualize results
+        self.visualize_genome(agent.genome)
 
     def finish_evaluation(self, generation: Generation) -> bool:
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
         return best_agent.additional_info["solved"] or generation.number >= 500
+
+    def visualize_genome(self, genome: Genome, **kwargs) -> None:
+        nn = BasicNeuralNetwork()
+        nn.build(genome)
+
+        challenge = ChallengeXOR()
+
+        fitness, additional_info = challenge.evaluate(nn, show=True)
+
+        logger.info(
+            "Finished Evaluation - Fitness: {}, Challenge solved = {}".format(fitness, additional_info["solved"]))

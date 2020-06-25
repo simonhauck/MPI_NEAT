@@ -43,17 +43,21 @@ class FileSaveTest(TestCase):
         file_save.save_genome_file(filename, self.genome)
 
         loaded_genome = file_save.load_genome_file(filename)
-        self.assertEqual(self.genome.seed, loaded_genome.seed)
-        for node, loaded_node in zip(self.genome.nodes, loaded_genome.nodes):
-            self.assertEqual(node.innovation_number, loaded_node.innovation_number)
-            self.assertEqual(node.node_type, loaded_node.node_type)
-            self.assertEqual(node.bias, loaded_node.bias)
-            self.assertEqual(node.activation_function, loaded_node.activation_function)
-            self.assertEqual(node.x_position, loaded_node.x_position)
 
-        for connection, loaded_connection in zip(self.genome.connections, loaded_genome.connections):
-            self.assertEqual(connection.innovation_number, loaded_connection.innovation_number)
-            self.assertEqual(connection.input_node, loaded_connection.input_node)
-            self.assertEqual(connection.output_node, loaded_connection.output_node)
-            self.assertEqual(connection.weight, loaded_connection.weight)
-            self.assertEqual(connection.enabled, loaded_connection.enabled)
+        self.compare_genomes(self.genome, loaded_genome)
+
+    def compare_genomes(self, g1: Genome, g2: Genome):
+        self.assertEqual(g1.seed, g2.seed)
+        for g1_node, g2_node in zip(g1.nodes, g2.nodes):
+            self.assertEqual(g1_node.innovation_number, g2_node.innovation_number)
+            self.assertEqual(g1_node.node_type, g2_node.node_type)
+            self.assertEqual(g1_node.bias, g2_node.bias)
+            self.assertEqual(g1_node.activation_function, g2_node.activation_function)
+            self.assertEqual(g1_node.x_position, g2_node.x_position)
+
+        for g1_connection, g2_connection in zip(g1.connections, g2.connections):
+            self.assertEqual(g1_connection.innovation_number, g2_connection.innovation_number)
+            self.assertEqual(g1_connection.input_node, g2_connection.input_node)
+            self.assertEqual(g1_connection.output_node, g2_connection.output_node)
+            self.assertEqual(g1_connection.weight, g2_connection.weight)
+            self.assertEqual(g1_connection.enabled, g2_connection.enabled)

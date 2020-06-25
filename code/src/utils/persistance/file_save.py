@@ -1,3 +1,5 @@
+import errno
+import os
 import pickle
 
 from neat_core.models.genome import Genome
@@ -10,6 +12,15 @@ def save_genome_file(path: str, genome: Genome) -> None:
     :param genome: the genome that should be stored
     :return: None
     """
+
+    # Create directory
+    if not os.path.exists(os.path.dirname(path)):
+        try:
+            os.makedirs(os.path.dirname(path))
+        except OSError as exc:  # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+
     with open(path, 'wb') as output:
         pickle.dump(genome, output, pickle.HIGHEST_PROTOCOL)
 
