@@ -6,7 +6,7 @@ import progressbar
 from loguru import logger
 
 from examples.BaseExample import BaseExample
-from examples.pole_balancing.pole_balancing_challenge import PoleBalancingChallenge
+from examples.pendulum.pendulum_challenge import PendulumChallenge
 from neat_core.activation_function import modified_sigmoid_activation
 from neat_core.models.agent import Agent
 from neat_core.models.generation import Generation
@@ -22,7 +22,7 @@ from utils.reporter.time_reporter import TimeReporter
 from utils.visualization import text_visualization, reporter_visualization, genome_visualization
 
 
-class PoleBalancingOptimizer(BaseExample):
+class PendulumOptimizer(BaseExample):
 
     def __init__(self) -> None:
         self.fitness_reporter = None
@@ -47,7 +47,7 @@ class PoleBalancingOptimizer(BaseExample):
         self.fitness_reporter = FitnessReporter()
         self.species_reporter = SpeciesReporter()
         self.time_reporter = TimeReporter()
-        self.check_point_reporter = CheckPointReporter("/tmp/pole_balancing/{}/".format(time), "pole_balancing_",
+        self.check_point_reporter = CheckPointReporter("/tmp/pendulum/{}/".format(time), "pendulum",
                                                        lambda _: True)
 
         # Register this class as callback
@@ -60,20 +60,20 @@ class PoleBalancingOptimizer(BaseExample):
 
         # Config
         config = NeatConfig(allow_recurrent_connections=False,
-                            population_size=50,
+                            population_size=400,
                             compatibility_threshold=3,
                             weight_mutation_type="normal",
                             weight_mutation_normal_sigma=1.3,
                             connection_initial_min_weight=-5,
                             connection_initial_max_weight=5,
-                            connection_min_weight=-5,
-                            connection_max_weight=5,
+                            connection_min_weight=-15,
+                            connection_max_weight=15,
                             bias_mutation_type="normal",
                             bias_mutation_normal_sigma=1.3,
                             bias_initial_min=-1,
                             bias_initial_max=1,
-                            bias_min=-5,
-                            bias_max=5,
+                            bias_min=-15,
+                            bias_max=15,
                             compatibility_factor_disjoint_genes=1.0,
                             compatibility_factor_matching_genes=0.5,
                             probability_mutate_add_connection=0.5,
@@ -89,11 +89,11 @@ class PoleBalancingOptimizer(BaseExample):
         logger.info("Used Seed: {}".format(seed))
 
         # Create the challenge
-        self.challenge = PoleBalancingChallenge()
+        self.challenge = PendulumChallenge()
 
         # Start evaluation
-        optimizer.evaluate(amount_input_nodes=4,
-                           amount_output_nodes=2,
+        optimizer.evaluate(amount_input_nodes=3,
+                           amount_output_nodes=1,
                            activation_function=modified_sigmoid_activation,
                            challenge=self.challenge,
                            config=config,
@@ -145,13 +145,13 @@ class PoleBalancingOptimizer(BaseExample):
 
     def finish_evaluation(self, generation: Generation) -> bool:
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
-        return best_agent.fitness >= (500 * 10) ** 2
+        return best_agent.additional_info["solved"]
 
     def visualize_genome(self, genome: Genome, **kwargs) -> None:
         nn = BasicNeuralNetwork()
         nn.build(genome)
 
-        challenge = PoleBalancingChallenge()
+        challenge = PendulumChallenge()
         challenge.initialization(show=True)
 
         challenge.before_evaluation(show=True)

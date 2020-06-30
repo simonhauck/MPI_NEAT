@@ -7,7 +7,12 @@ def modified_sigmoid_activation(x: float) -> float:
     :param x: the input value
     :return: the result of the activation function, Is between 0, 1
     """
-    return 1 / (1 + math.exp(-4.9 * x))
+    if x >= 100:
+        return 1
+    elif x <= -100:
+        return 0
+    else:
+        return 1 / (1 + math.exp(-4.9 * x))
 
 
 def step_activation(x: float) -> float:
@@ -25,7 +30,12 @@ def sigmoid_activation(x: float) -> float:
     :param x: the input value
     :return: the result of the activation function. Is between 0, 1
     """
-    return 1.0 / (1.0 + math.exp(-x))
+    if x >= 100:
+        return 1
+    elif x <= -100:
+        return 0
+    else:
+        return 1.0 / (1.0 + math.exp(-x))
 
 
 def tanh_activation(x: float) -> float:

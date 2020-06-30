@@ -5,7 +5,9 @@ import time
 import numpy as np
 from loguru import logger
 
+from examples.lunar_lander.lunar_lander import LunarLanderOptimizer
 from examples.mountain_car.mountain_car import MountainCarOptimizer
+from examples.pendulum.pendulum import PendulumOptimizer
 from examples.pole_balancing.pole_balancing import PoleBalancingOptimizer
 from examples.xor.xor_evaluation import XOROptimizer
 from neat_single_core.neat_optimizer_single_core import NeatOptimizerSingleCore
@@ -33,10 +35,24 @@ def pole_balancing_single_evaluation(p_seed) -> int:
     return 0
 
 
+def pendulum_single_evaluation(p_seed) -> int:
+    pendulum_optimizer = PendulumOptimizer()
+    pendulum_optimizer.evaluate(NeatOptimizerSingleCore(), p_seed)
+    return 0
+
+
+def lunar_lander_single_evaluation(p_seed) -> int:
+    lunar_lander_optimizer = LunarLanderOptimizer()
+    lunar_lander_optimizer.evaluate(NeatOptimizerSingleCore(), p_seed)
+    return 0
+
+
 challenge_dict = {
     "xor": xor_single_evaluation,
     "mountain_car": mountain_car_single_evaluation,
-    "pole_balancing": pole_balancing_single_evaluation
+    "pole_balancing": pole_balancing_single_evaluation,
+    "pendulum": pendulum_single_evaluation,
+    "lunar_lander": lunar_lander_single_evaluation
 }
 
 parser = argparse.ArgumentParser(description="Run the given NEAT examples")
