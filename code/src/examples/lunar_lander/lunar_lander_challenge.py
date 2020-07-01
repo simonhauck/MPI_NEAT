@@ -23,7 +23,7 @@ class LunarLanderChallenge(Challenge):
     def evaluate(self, neural_network: NeuralNetworkInterface, **kwargs) -> (float, Dict[str, object]):
         solved_rounds = []
         fitness_values = []
-        amount_runs = 3
+        amount_runs = 10
 
         for _ in range(amount_runs):
             self.before_evaluation()
@@ -45,7 +45,9 @@ class LunarLanderChallenge(Challenge):
             fitness_values.append(fitness)
             solved_rounds.append(fitness >= 200)
 
-        return sum(fitness_values), {"solved": all(solved_rounds), "fitness_values": fitness_values,
+        count = sum([1 if s else 0 for s in solved_rounds])
+
+        return sum(fitness_values), {"solved": count >= 10, "fitness_values": fitness_values,
                                      "solved_rounds": solved_rounds}
 
     def clean_up(self, **kwargs):

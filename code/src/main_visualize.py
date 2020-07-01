@@ -3,6 +3,7 @@ import sys
 
 from loguru import logger
 
+from examples.breakout.breakout import BreakoutOptimizer
 from examples.lunar_lander.lunar_lander import LunarLanderOptimizer
 from examples.mountain_car.mountain_car import MountainCarOptimizer
 from examples.pendulum.pendulum import PendulumOptimizer
@@ -43,12 +44,18 @@ def lunar_lander_single_visualization(genome_path: str):
     lunar_lander_optimizer.visualize(genome_path)
 
 
+def breakout_single_visualization(genome_path: str):
+    breakout_optimizer = BreakoutOptimizer()
+    breakout_optimizer.visualize(genome_path)
+
+
 challenge_dict = {
     "xor": xor_visualization,
     "mountain_car": mountain_car_single_visualization,
     "pole_balancing": pole_balancing_single_visualization,
     "pendulum": pendulum_single_visualization,
-    "lunar_lander": lunar_lander_single_visualization
+    "lunar_lander": lunar_lander_single_visualization,
+    "breakout": breakout_single_visualization
 }
 
 parser = argparse.ArgumentParser(description="Visualize stored NEAT genomes in the challenges")

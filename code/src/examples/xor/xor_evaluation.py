@@ -76,7 +76,7 @@ class XOROptimizer(BaseExample):
 
         # Specify the config
         config = NeatConfig(allow_recurrent_connections=False,
-                            population_size=150,
+                            population_size=400,
                             compatibility_threshold=3,
                             weight_mutation_type="normal",
                             weight_mutation_normal_sigma=1.3,
@@ -91,10 +91,10 @@ class XOROptimizer(BaseExample):
                             bias_min=-5,
                             bias_max=5,
                             compatibility_factor_disjoint_genes=1.0,
-                            compatibility_factor_matching_genes=0.5,
-                            probability_mutate_add_connection=0.5,
-                            probability_mutate_add_node=0.2,
-                            compatibility_genome_size_threshold=0)
+                            compatibility_factor_matching_genes=0.4,
+                            probability_mutate_add_connection=0.05,
+                            probability_mutate_add_node=0.03,
+                            compatibility_genome_size_threshold=10)
 
         # Create random seed, if none is specified
         if seed is None:
