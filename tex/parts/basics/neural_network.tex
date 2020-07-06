@@ -49,7 +49,7 @@ Betrachtet man die Struktur der \ac{KNN} sind einige Ähnlichkeiten zum biologis
 	Ähnlich zu den biologischen neuronalen Netzen, besteht auch das \ac{KNN} aus vielen Neuronen \cite{zell2003simulation}. Dies sind einfache Recheneinheiten, die primitive Funktionen bestimmen können \cite{scherer2013neuronale} und deren genaue Funktionsweise in Kapitel \ref{subsec:neuron} erläutert wird. Vorweggenommen sei, dass ein Neuron mehrere Eingabewerte besitzt, welche gewichtet sind und akkumuliert werden. Hierbei entsteht ein skalarer Ausgabewert, der den Aktivierungsgrad des Neurons repräsentiert und von anderen Neuronen als Eingabe verwendet werden kann \cite{kriesel2008kleiner}. 
 	 
 	\item \textbf{Gerichtete gewichtete Verbindungen}\\
-	Wie im vorherigen Punkt angedeutet, sind Neuronen über gerichtete Verbindungen miteinander vernetzt. Der Aktivierungszustand eines Neurons wird entsprechend der Verbindungen an die Zielneuronen weitergegeben, welche diesen Wert als Eingabe verarbeiten. Wie bei den biologischen neuronalen Netzen auch, können Eingaben unterschiedlich stark anregend und hemmend wirken. Dies wird bei den \ac{KNN} über Gewichtete in den Verbindungen realisiert \cite{zell2003simulation}.
+	Wie im vorherigen Punkt angedeutet, sind Neuronen über gerichtete Verbindungen miteinander vernetzt. Der Aktivierungszustand eines Neurons wird entsprechend der Verbindungen an die Zielneuronen weitergegeben, welche diesen Wert als Eingabe verarbeiten. Wie bei den biologischen neuronalen Netzen auch, können Eingaben unterschiedlich stark anregend und hemmend wirken. Dies wird bei den \ac{KNN} über Gewichte in den Verbindungen realisiert \cite{zell2003simulation}.
 	
 	\item \textbf{Struktur und Gewichte}\\
 	Der Ausgabevektor eines \ac{KNN} ist abhängig von der Struktur des Netzwerkes und der Gewichte in den einzelnen Verbindungen.
@@ -65,16 +65,45 @@ In diesem Kapitel wird die genaue Funktionsweise der einzelnen Neuronen betracht
 \subsubsection{Propagierungsfunktion} 
 Die Ausgabewerte $o_{i_1}, o_{i_2}, ..., o_{i_n}$ der Neuronen $i_1, i_2, ..., i_n$ werden als Eingabewerte für das Neuron $j$ verwendet. Für jeden Eingabewert existiert ein entsprechendes Gewicht $w_1, w_2, ..., w_n$ \cite{kriesel2008kleiner}. Somit repräsentiert $w_{ij}$ das Gewicht für die Verbindung von Neuron $i$ zu Neuron $j$ \cite{zell2003simulation}. Die Propagierungsfunktion $f_{prop}$ berechnet die Netzeingabe $net_j$, welche in der nächsten Phase weiterverwendet wird \cite{kriesel2008kleiner}. 
 $$net_j=f_{prop}(o_1, o_2, ..., o_n, i_1, i_2, ..., i_n)$$
-Die meist verwendete Propagierungsfunktion ist die gewichtete Summe. Hierbei werden, entsprechend der Formel, die Werte $o_i$ mit dem entsprechenden Gewicht $w_i$ multipliziert und aufsummiert \cite{kriesel2008kleiner}:
+Die meist verwendete Propagierungsfunktion, welche auch in den späteren Beispielen genutzt wird, ist die gewichtete Summe. Hierbei werden, entsprechend der Formel, die Werte $o_i$ mit dem entsprechenden Gewicht $w_i$ multipliziert und aufsummiert \cite{kriesel2008kleiner}:
 $$net_j=\sum_{i}(o_{i} \cdot w_{i, j})$$
+% TODO eventuell produkt einfügen?
 
-\subsubsection{Aktivierungszustand}
-Der Aktivierungszustand $a_j(t)$ gibt den Grad der Aktivierung von Neuron $j$ zum Zeitpunkt $t$ an \cite{zell2003simulation}. Ein neuer Aktivierungszustand zum Zeitpunkt $t+1$ wird mit der Aktivierungsfunktion $f_{act}$ berechnet. Diese berücksichtigt nicht nur die Netzeingabe $net_j(t)$ sondern auch den vorherigen Aktivierungszustand $a_j(t)$ und den Schwellwert $\Theta$ der Aktivierungsfunktion \cite{zell2003simulation}. Ein Schwellwert $\Theta_j$ ist einem Neuron $j$ zugeordnet und gibt die Stelle an, an welcher die Aktivierungsfunktion die größte Steigung hat \cite{kriesel2008kleiner}. Somit kann die Berechnung der Aktivierung $a_j(t+1)$ durch folgende Formel ausgedrückt werden:
-$$ TOlle formel$$
+\subsubsection{Aktivierungsfunktion}
+Der Aktivierungszustand $a_j(t)$ gibt den Grad der Aktivierung von Neuron $j$ zum Zeitpunkt $t$ an \cite{zell2003simulation}. Ein neuer Aktivierungszustand zum Zeitpunkt $t+1$ wird mit der Aktivierungsfunktion $f_{act}$ berechnet. Diese berücksichtigt nicht nur die Netzeingabe $net_j(t)$ sondern auch den vorherigen Aktivierungszustand $a_j(t)$ und den Schwellwert $\Theta$ der Aktivierungsfunktion \cite{zell2003simulation}. Ein Schwellwert $\Theta_j$, auch Bias genannt, ist dem Neuron $j$ zugeordnet und gibt die Stelle an, an welcher die Aktivierungsfunktion die größte Steigung hat \cite{kriesel2008kleiner}. Somit kann die Berechnung der Aktivierung $a_j(t+1)$ durch folgende Formel ausgedrückt werden \cite{zell2003simulation}:
+$$a_j(t+1)=f_{act}(a_j(t), net_j, \Theta_j)$$
+Bei der Berechnung ist der Schwellwert $\Theta$ besonders wichtig. Oftmals verwenden einige oder alle Neuronen eines \ac{KNN} dieselbe Aktivierungsfunktion, die Schwellwerte hingegen unterscheiden sich je nach Neuron. Des weiteren sei angemerkt, dass  die vorherige Aktivierung $a_j(t)$ je nach Netzstruktur oft nicht bei der Berechnung berücksichtigt wird \cite{kriesel2008kleiner}. Zudem wird in der Praxis bei Verwendung der gewichteten Summe als Propagierungsfunktion der Schwellwert eines Neurons oft schon in der ersten Phase miteinbezogen. Hierdurch ändert sich die Berechnung der Netzeingabe zu $net_j=\sum_{i}(o_{i} \cdot w_{i, j}) - \Theta_j$. Bei der Berechnung der Aktivierungsfunktion gilt dann $\Theta_j = 0$.
+\\\\
+% TODO Abbildung
+Je nach Anwendungsgebiet können verschiedene Aktivierungsfunktionen mit unterschiedlichen Eingenschaften eingesetzt werden, von denen vier in Abbildung (TODO ABBILDUNG) dargestellt sind. Im folgenden wird angenommen, dass gilt $\Theta_j=0$.\\
+Das einfachste Beispiel für eine Aktivierungsfunktion ist die sogenannte binäre Schwellwertfunktion, welche abhängig vom Schwellwert $\Theta$ nur die Werte $0$ und $1$ zurückgeben kann \cite{kriesel2008kleiner}. Die Formel hierfür ist: 
+$$
+f_{act}(net_j)=\left\{\begin{array}{ll}
+1 & \text { wenn } net_j \geq 0 \\
+0 & \text { wenn } net_j < 0
+\end{array}\right.
+$$
+Allerdings ist diese Funktion an ihrem Schwellwert nicht differenzierbar und ansonsten ist der Wert der Ableitung immer 0 \cite{kriesel2008kleiner}. Diese Eigenschaften machen sie ungeeignet für bestimmte Lernverfahren, wie zum Beispiel den Backpropagation Algorithmus auf welchen kurz in Kapitel \ref{subsec:optimization_strategies} eingegangen wird \cite{kriesel2008kleiner}.
+Dieses Problem kann durch die Verwendung einer Sigmoidfunktion gelöst werden. Zwei bekannte Beispiele für Sigmoidfunktionen sind die logistische Funktion und der \ac{tanh} \cite{lecun2012efficient}. Die logistische Funktion kann Werte von 0 bis 1 annehmen und durch einen entsprechenden Parameter $T$ bezüglich der x-Achse gestreckt und gestaucht werden \cite{kriesel2008kleiner}. Berechnet wird sie mit:
+% TODO check if correct T position
+$$f_{act}(net_j)=\frac{1}{1+e^{-T\cdot net_j}}$$
+Allerdings können neuronale Netze je nach Verfahren schneller optimiert werden, wenn das durchschnittliche Gewicht aller Verbindungen nahe 0 ist. In diesem Fall ist die \ac{tanh} Funktion besser geeignet, da sie Werte zwischen -1 und 1 annehmen kann  \cite{lecun2012efficient}. Das letzte hier vorgestellte Beispiel ist die sogenannte \emph{Rectifier} Funktion. Diese wird oft in Zusammenhand mit dem Backpropagation Algorithmus erfolgreich eingesetzt und erzielt mit diesem schneller bessere Optimierungsergebnisse \cite{glorot2011deep}. Berechnet wird sie mit:
+$$f_{act}(net_j)= max(0, net_j)$$
 
+\subsubsection{Ausgabefunktion}
+Die Ausgabefunktion $f_{out}$ berechnet die Ausgabe $o_j$ von Neuron $j$. Als Eingabewert wird die Aktivierung $a_j$ verwendet \cite{zell2003simulation}. Somit ist die Funktion definiert mit:
+$$o_j = f_{out}(a_j)$$
+In der Praxis ist die Ausgabefunktion, ähnlich wie die Aktivierungsfunktion, meistens global für alle Neuronen definiert. Zudem wird oft die Identitätsfunktion verwendet. In diesem Fall gilt $o_j = a_j$ \cite{kriesel2008kleiner}. Dies gilt auch für die später vorgestellten Beispiele. Ist die Ausgabe $o_j$ berechnet, kann sie als Eingabewert für andere verbundene Neuronen dienen.
 
 \subsection{Netzstrukturen}
 \label{subsec:network_structures}
+Aus dem vorherigen Kapitel ist ersichtlich, dass die Gewichte einen großen Einfluss auf das Ergebnis eines einzelnen Neuron haben. Das Ergebnis von einem \ac{KNN} wird neben den Gewichten auch von der Anzahl an Neuronen sowie deren Verbindungsstruktur beeinflusst. Je nach Optimierungsproblem können unterschiedliche Varianten eingesetzt werden, welche in diesem Kapitel genauer vorgestellt werden. 
+\\\\ % TODO ABBILDUNG
+Unabhängig von der Struktur, besitzt jedes \ac{KNN} Eingabe- und Ausgabeneuronen. Optional kann ein \ac{KNN} beliebig viele verdeckte Neuronen enthalten. Diese werden auch als \emph{Input}-, \emph{Output}- und \emph{Hidden}-Neuronen bezeichnet \cite{zell2003simulation}. Die Anzahl der Eingabe- bzw. Ausgabeneuronen ist abhängig von der Größe des Eingabe- bzw. Ausgabevektors. Für jedes Element in den Vektoren gibt es ein entsprechendes Neuron (TODO ABBILDUNG). Bei der Berechnung eines \ac{KNN} werden die Werte des Eingabevektors in die entsprechenden Eingabeneuronen gesetzt. Nachdem alle Neuronen berechnet wurden, bilden die Werte der Ausgabeneuronen den Ausgabevektor. Die verstecken Neuronen befinden sich zwischen den Eingabe- und Ausgabeneuronen und werden so genannt, da ihr Ausgabewert ist vor dem Anwender verborgen. \\
+Je nach Art der Verbindung können \ac{KNN} einer von zwei Gruppen zugeordnet werden. Die erste Gruppe enthält \ac{KNN} ohne Rückkopplung, welche auch \emph{feedforward}-Netze genannt werden. Die zweite Gruppe umfasst Netze mit Rückkopplung \cite{zell2003simulation}.
+\subsubsection{Netze ohne Rückkopplung}
+\subsubsection{Netze mit Rückkopplung}
+
 \subsection{Optimierungsverfahren}
 \label{subsec:optimization_strategies}
 
