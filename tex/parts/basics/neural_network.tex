@@ -8,6 +8,7 @@ In vielen dieser Aufgabenfelder werden \ac{KNN} eingesetzt, welche von den biolo
 
 In diesem Kapitel wird zuerst ...
 \subsection{Biologische neuronale Netze}
+\label{subsec:biological_neuraL_networks}
 Wie bereits beschrieben orientiert sich das Fachgebiet der \ac{KNN} an den erfolgreichen biologischen neuronalen Netzen, wie zum Beispiel dem menschlichen Gehirn \cite{kriesel2008kleiner}. In diesem Abschnitt werden die Eigenschaften betrachtet, die das Vorbild erfolgreich machen und für die \ac{KNN} übernommen werden sollen. Im Zuge dessen wird ein grober Überblick über die Struktur und Funktionsweise des menschlichen Gehirns gegeben. 
 \\\\
 Jede Sekunde erfassen die Rezeptoren des menschlichen Körpers unzählige Reize, wie zum Beispiel Licht, Druck, Temperatur und Töne. Die Reize werden anschließend elektrisch oder chemisch kodiert und über Nervenbahnen an das Gehirn geleitet, welches die Aufgabe hat diese zu filtern, zu verarbeiten und entsprechend zu reagieren. Als Reaktion können zum Beispiel Signale an entsprechende Muskeln oder Drüsen gesendet werden \cite{kinnebrock2018neuronale}. 
@@ -99,12 +100,32 @@ In der Praxis ist die Ausgabefunktion, ähnlich wie die Aktivierungsfunktion, me
 \label{subsec:network_structures}
 Aus dem vorherigen Kapitel ist ersichtlich, dass die Gewichte einen großen Einfluss auf das Ergebnis eines einzelnen Neuron haben. Das Ergebnis von einem \ac{KNN} wird neben den Gewichten auch von der Anzahl an Neuronen sowie deren Verbindungsstruktur beeinflusst. Je nach Optimierungsproblem können unterschiedliche Varianten eingesetzt werden, welche in diesem Kapitel genauer vorgestellt werden. 
 \\\\ % TODO ABBILDUNG
-Unabhängig von der Struktur, besitzt jedes \ac{KNN} Eingabe- und Ausgabeneuronen. Optional kann ein \ac{KNN} beliebig viele verdeckte Neuronen enthalten. Diese werden auch als \emph{Input}-, \emph{Output}- und \emph{Hidden}-Neuronen bezeichnet \cite{zell2003simulation}. Die Anzahl der Eingabe- bzw. Ausgabeneuronen ist abhängig von der Größe des Eingabe- bzw. Ausgabevektors. Für jedes Element in den Vektoren gibt es ein entsprechendes Neuron (TODO ABBILDUNG). Bei der Berechnung eines \ac{KNN} werden die Werte des Eingabevektors in die entsprechenden Eingabeneuronen gesetzt. Nachdem alle Neuronen berechnet wurden, bilden die Werte der Ausgabeneuronen den Ausgabevektor. Die verstecken Neuronen befinden sich zwischen den Eingabe- und Ausgabeneuronen und werden so genannt, da ihr Ausgabewert ist vor dem Anwender verborgen. \\
-Je nach Art der Verbindung können \ac{KNN} einer von zwei Gruppen zugeordnet werden. Die erste Gruppe enthält \ac{KNN} ohne Rückkopplung, welche auch \emph{feedforward}-Netze genannt werden. Die zweite Gruppe umfasst Netze mit Rückkopplung \cite{zell2003simulation}.
-\subsubsection{Netze ohne Rückkopplung}
+Unabhängig von der Struktur, besitzt jedes \ac{KNN} Eingabe- und Ausgabeneuronen. Optional kann ein \ac{KNN} beliebig viele verdeckte Neuronen enthalten. Diese werden auch als \emph{Input}-, \emph{Output}- und \emph{Hidden}-Neuronen bezeichnet \cite{zell2003simulation}. Die Anzahl der Eingabe- bzw. Ausgabeneuronen ist abhängig von der Größe des Eingabe- bzw. Ausgabevektors. Für jedes Element in den Vektoren gibt es ein entsprechendes Neuron (TODO ABBILDUNG).
+Bei vielen Netzstrukturen werden die Neuronen des \ac{KNN} verschiedenen Schichten zugeordnet. In der ersten Schicht befinden sich die Eingabeneuronen und in der letzten die Ausgabeneuronen. Dazwischen befinden sich $n$ Schichten mit verdecken Neuronen \cite{zell2003simulation}.
+\\\\
+Bei der Berechnung eines \ac{KNN} werden die Werte des Eingabevektors in die entsprechenden Eingabeneuronen gesetzt. Nachdem alle Neuronen berechnet wurden, bilden die Werte der Ausgabeneuronen den Ausgabevektor. Die verstecken Neuronen befinden sich zwischen den Eingabe- und Ausgabeneuronen und werden so genannt, da ihr Ausgabewert vor dem Anwender verborgen ist. Je nach Art des Verbindungsmuster können \ac{KNN} einer von zwei Gruppen zugeordnet werden. Die erste Gruppe enthält \ac{KNN} ohne Rückkopplung, welche auch \emph{feedforward}-Netze genannt werden. Die zweite Gruppe umfasst Netze mit Rückkopplung, welche auch als \emph{recurrent}-Netzwerke bezeichnet werden \cite{zell2003simulation}.
+\subsubsection{Netze ohne Rückkopplung} % TODO Abbildung
+Die Definition der \emph{feedforward}-Netze ist einfach: Es darf keine Verbindung von einem Neuron $j$ ausgehen, welche wieder zu sich selbst führt. Dabei ist es irrelevant ob eine direkte oder indirekte Verbindungen über Zwischenneuronen besteht. Somit entsteht ein azyklischer Graph \cite{zell2003simulation} und das \ac{KNN} kann infolgedessen keinen keinen internen Zustand besitzen. Für die gleiche Eingabe immer dasselbe Ergebnis berechnet. Innerhalb dieser Kategorie gibt es zwei Untergruppen, die ebenenweise verbundenen \ac{KNN} und die \ac{KNN} welche über sogenannte \emph{shortcut} Verbindungen verfügen.\\
+Bei den rein ebenenweise verbundenen \ac{KNN} sind die Eingabewerte eines Neurons immer aus der vorherigen Schicht. Der berechnete Ausgabewert eines Neurons wird nur an die Neuronen der nächsten Schicht weitergeleitet \cite{zell2003simulation}. Ein Beispiel hierfür ist in Abbildung (TODO ABBILDUNG) dargestellt.\\ %TODO REF Chapter
+Im Gegensatz dazu stehen die \ac{KNN} mit \emph{shortcut} Verbindungen können. Eine \emph{shortcut} Verbindung kann eine oder mehrere Schichten überspringen. Für gewisse Optimierungsprobleme, unter anderem für das Beispiel in Kapitel (TODO CHAPTER), können so kleiner \ac{KNN} erzeugt werden \cite{zell2003simulation}. 
+
 \subsubsection{Netze mit Rückkopplung}
+Netze mit Rückkopplung werden oft auch in Schichten dargestellt, allerdings kann ein \ac{KNN} sich je nach Art selbst beeinflussen indem Zyklen in der Berechnung entstehen, wodurch das Zwischenspeichern von Werten ermöglicht wird \cite{zell2003simulation}. Somit wird das Ergebnis sowohl durch die Eingabewerte des \ac{KNN} als auchd durch die vorherigen Berechnungen beeinflusst \cite{lin1998embedded}. Auch die Netze mit Rückkopplung können vier verschiedenen Untergruppen zugeordnet werden \cite{zell2003simulation}.\\
+\begin{enumerate} % TODO ABBILDUNG
+	\item Bei \ac{KNN} mit direkter Rückkopplung können Neuronen Verbindungen zu sich selbst haben (TODO ABBILDUNG). Dadurch können sie ihre Aktivierung verstärken oder abschwächen \cite{zell2003simulation}.
+	\item Netze mit einer indirekten Rückkopplung erlauben im Gegensatz zu den \emph{feedforward}-Netzen auch Verbindungen in die vorherige Schicht (TODO ABBILDUNG) \cite{zell2003simulation}. Wie bei der direkten Rückkopplung kann sich ein Neuron $j$ selbst beeinflussen, wenn es seinen Ausgabewert an ein Neuron $i$ der nächsten Schicht weiterleitet, welches eine Rückkopplung zu $j$ hat \cite{kriesel2008kleiner}.
+	\item \ac{KNN} mit lateralen Rückkopplungen erlauben Verbindungen von Neuronen innerhalb einer Schicht (TODO ABBILDUNG), welche hemmend oder aktivierend wirken können. Oft entsteht dabei ein \emph{Winner-Takes-All}-Schema, da das beste Neuron alle anderen hemmt und sich selbst aktiviert \cite{kriesel2008kleiner}.
+	\item Bei den vollständig verbundenen Netze darf ein Neuron zu jedem anderen verbunden sein, außer sich selbst (direkte Rückkopplung). Ein \ac{KNN}, in welchem jedes Neuron zu jedem anderen eine Verbindung hat, wird auch Hopfield-Netz genannt. Ein Beispiel hierfür ist in Abbildung (TODO ABBILDUNG) dargestellt \cite{kriesel2008kleiner}.  
+\end{enumerate}
 
-\subsection{Optimierungsverfahren}
+\subsection{Lernverfahren}
 \label{subsec:optimization_strategies}
-
-Das Gebiet der Künstlichen Neuronalen Netze wird bereits seit 1943 erforscht
+Nachdem die Funktionsweise der Komponenten in einem \ac{KNN} in den vorherigen Kapitel erläutert wurde, ist erkennbar, dass das erfolgreiche lösen eines Optimierungsproblems von vielen Faktoren abhängt. In der Praxis ist es für komplexere Aufgaben nicht möglich, diese manuell zu bestimmen. Aus diesem Grund muss ein Optimierungsverfahren, auch als Lernverfahren bezeichnet, verwendet werden, mit dem Ziel einen Teil oder alle Parameter des \ac{KNN} durch einen Algorithmus zu bestimmen. Typischerweise ist das Lernverfahren unabhängig von dem eigentlichen Optimierungsproblem und kann daher in verschiedenen Bereichen ohne großen zusätzlichen Aufwand eingesetzt werden.\\\\
+Bevor im weiteren verschiedene Arten des Lernens näher betrachtet werden, stellt die Liste im Folgenden die theoretischen Möglichkeiten vor, wie ein \ac{KNN} lernen bzw. optimiert werden kann \cite{zell2003simulation}:
+\begin{enumerate}
+	\item Modifizieren der Gewichte von Verbindungen
+	\item Modifizieren des Schwellwertes von Neuronen
+	\item Hinzufügen von neuen Verbindungen oder Neuronen
+	\item Entfernen von Verbindungen oder Neuronen
+	\item Ändern der Propagierungs, Aktivierungs-, und Ausgabefunktion
+\end{enumerate}
