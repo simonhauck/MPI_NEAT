@@ -17,7 +17,7 @@ class PendulumChallenge(Challenge):
         self.env = gym.make("Pendulum-v0")
 
     def before_evaluation(self, **kwargs) -> None:
-        self.env.seed(1)
+        # self.env.seed(1)
         self.observation = self.env.reset()
 
     def evaluate(self, neural_network: NeuralNetworkInterface, **kwargs) -> (float, Dict[str, object]):
@@ -25,7 +25,7 @@ class PendulumChallenge(Challenge):
 
         solved_rounds = []
         fitness_values = []
-        amount_runs = 1
+        amount_runs = 10
 
         for _ in range(amount_runs):
 
@@ -45,11 +45,11 @@ class PendulumChallenge(Challenge):
 
                 fitness += reward
 
-            solved_rounds.append(fitness >= -300)
+            solved_rounds.append(fitness >= -200)
             fitness_values.append(fitness)
 
-        return np.sum(fitness_values), {"solved": all(solved_rounds), "fitness_values: ": fitness_values,
-                                        "solved_rounds": solved_rounds}
+        return -(np.sum(fitness_values) ** 2), {"solved": all(solved_rounds), "fitness_values: ": fitness_values,
+                                                "solved_rounds": solved_rounds}
 
     def clean_up(self, **kwargs):
         self.env.close()
