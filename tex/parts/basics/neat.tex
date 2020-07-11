@@ -1,0 +1,22 @@
+% !TeX spellcheck = de_DE
+\section{NeuroEvolution of Augmenting Topologies}
+Der in dieser Arbeit verwendete Algorithmus heißt \ac{NEAT}, welcher im Jahr 2002 von \citeauthor{stanley2002evolving} vorgestellt wurde. Bei der Veröffentlichung hat \ac{NEAT} für die meisten Optimierungsprobleme im Vergleich zu anderen Verfahren schneller Lösungen gefunden obwohl es neben den Gewichten des \ac{KNN} auch die Struktur optimiert \cite{stanley2002evolving}. Somit gehört der Algorithmus zur Gruppe der \ac{TWEANN} Algorithmen. Heute gilt \ac{NEAT} immer noch als einer der bekanntesten Vertretern der neuroevolutionären Algorithmen und dient als Basis für viele Erweiterungen wie zum Beispiel HyperNEAT, cgNEAT, ... \\
+% TODO Add NEAT Sources
+Für den Erfolg nennen die Autoren drei besonders relevante Faktoren \cite{stanley2002evolving}:
+\begin{enumerate}
+	\item Eine erfolgreiche Reproduktion trotz verschiedener Strukturen
+	\item Schützen von neuen Innovationen durch verschiedene Spezies
+	\item Wachsen von einer minimalen Struktur
+\end{enumerate}
+In diesem Kapitel wird die grundsätzliche Funktionsweise von \ac{NEAT} erläutert, wie sie in der originalen Publikation vorgestellt ist. Wenn nicht anderweitig gekennzeichnet, beziehen sich alle Informationen aus diesem Kapitel auf Quelle \cite{stanley2002evolving}. Für eine bessere Lesbarkeit wird in diesem Kapitel auf weitere Zitierungen verzichtet.
+\subsection{Kodierung}
+\label{subsec:neat_encoding} % TODO ABBILDUNG
+\ac{NEAT} verwendet ein direktes Kodierungsverfahren. Ein Genom enthält, wie in Abbildung (TODO ABBILDUNG) beispielhaft dargestellt, je eine Liste für Neuronen und Verbindungen. Ein Neuron wird durch eine ID identifiziert und enthält den Typ (\emph{Input}, \emph{Output}, \emph{Hidden}). Eine Verbindung enthält das Start- und Zielneuron, das dazugehörige Gewicht, ein Aktivierungsbit sowie eine Innovationsnummer. Das Aktivierungsbit gibt an, ob die Verbindung im Phenotyp, als dem neuronalen Netz enthalten ist. Auf die Funktionsweise und Bedeutung der Innnovationsnummer wird später genauer eingegangen.
+\subsection{Mutation}
+\label{subsec:neat_mutation}
+Ein Genom kann auf verschiedene Arten mutieren, welche entweder die Struktur des \ac{KNN} beeinflussen oder die Gewichte der Verbindungen. Die Mutation der Gewichte ist ähnlich zu anderen neuroevolutionären Algorithmen. Für jedes Gewicht besteht eine Wahrscheinlichkeit, dass es mutiert. In diesem Fall wird das Gewicht entweder leicht abgeändert oder ein neuer zufälliger Wert gewählt.\\ % TODO ABBILDUNG
+Strukturelle Mutationen können in zwei verschiedenen Arten auftreten. Bei der ersten wird eine einzelne neue Verbindung dem Genom hinzugefügt. Bei der Auswahl des Start- und Zielneurons ist zu beachten, dass diese nicht bereits über eine solche Verbindung verfügen. Das Gewicht für die neue Verbindung wird zufällig gewählt und das Aktivierungsbit auf \emph{True} gesetzt. Ein Beispiel für diese Mutation ist in Abbildung (TODO ABBILDUNG) dargestellt. Bei der zweiten Art der strukturellen Mutation wird ein neues Neuron das \ac{KNN} eingefügt. Hierzu wird zu Beginn eine aktive Verbindung $con_{ij} $ zufällig ausgewählt, welche von Neuron $i$ zu Neuron $j$ führt. Anschließend wird ein neues Neuron $x$ zwischen den Neuronen $i$ und $j$ platziert und zwei weitere Verbindungen hinzugefügt. Die erste Verbindung $con_{ix}$ führt vom alten Startneuron $i$ zu dem neu Hinzugefügtem und erhält das Gewicht $1$. Die zweite Verbindung $con_{xj}$ beginnt bei dem neuen Neuron und endet im dem alten Zielneuron $j$ und erhält dasselbe Gewicht wie die Verbindung $con_{ij}$. Zuletzt wird die ausgewählte Verbindung $con_{ij}$ deaktiviert, indem das Aktivierungsbit auf $False$ gesetzt wird. Diese Art der Mutation reduziert den initialen Effekt des neuen Neurons. So kann es direkt vom \ac{KNN} verwendet werden, ohne dass es die Verbindungsgewichte stark optimiert werden müssen.
+\subsection{Reproduktion}
+\label{subsec:neat_reproduction}
+\subsection{Spezies}
+
