@@ -11,6 +11,7 @@ from examples.mountain_car.mountain_car import MountainCarOptimizer
 from examples.pendulum.pendulum import PendulumOptimizer
 from examples.pole_balancing.pole_balancing import PoleBalancingOptimizer
 from examples.xor.xor_evaluation import XOROptimizer
+from neat_mpi.neat_optimizer_mpi import NeatOptimizerMPI
 from neat_single_core.neat_optimizer_single_core import NeatOptimizerSingleCore
 
 logger.remove()
@@ -18,63 +19,73 @@ logger.add(sys.stdout, colorize=True, format="<green>{time}</green> | {level}   
            level="INFO")
 
 
-def xor_single_evaluation(p_seed) -> int:
+def xor_evaluation(p_seed, p_optimizer) -> int:
     xor_optimizer = XOROptimizer()
-    xor_optimizer.evaluate(NeatOptimizerSingleCore(), p_seed)
-    return xor_optimizer.solved_generation_number
+    xor_optimizer.evaluate(p_optimizer, p_seed)
+    return 0 if xor_optimizer.solved_generation_number is None else xor_optimizer.solved_generation_number
+    # return xor_optimizer.solved_generation_number
 
 
-def mountain_car_single_evaluation(p_seed) -> int:
+def mountain_car_evaluation(p_seed, p_optimizer) -> int:
     mountain_optimizer = MountainCarOptimizer()
-    mountain_optimizer.evaluate(NeatOptimizerSingleCore(), p_seed)
+    mountain_optimizer.evaluate(p_optimizer, p_seed)
     return 0
 
 
-def pole_balancing_single_evaluation(p_seed) -> int:
+def pole_balancing_evaluation(p_seed, p_optimizer) -> int:
     pole_balancing_optimizer = PoleBalancingOptimizer()
-    pole_balancing_optimizer.evaluate(NeatOptimizerSingleCore(), p_seed)
+    pole_balancing_optimizer.evaluate(p_optimizer, p_seed)
     return 0
 
 
-def pendulum_single_evaluation(p_seed) -> int:
+def pendulum_evaluation(p_seed, p_optimizer) -> int:
     pendulum_optimizer = PendulumOptimizer()
-    pendulum_optimizer.evaluate(NeatOptimizerSingleCore(), p_seed)
+    pendulum_optimizer.evaluate(p_optimizer, p_seed)
     return 0
 
 
-def lunar_lander_single_evaluation(p_seed) -> int:
+def lunar_lander_evaluation(p_seed, p_optimizer) -> int:
     lunar_lander_optimizer = LunarLanderOptimizer()
-    lunar_lander_optimizer.evaluate(NeatOptimizerSingleCore(), p_seed)
+    lunar_lander_optimizer.evaluate(p_optimizer, p_seed)
     return 0
 
 
-def breakout_single_evaluation(p_seed) -> int:
+def breakout_evaluation(p_seed, p_optimizer) -> int:
     breakout_optimizer = BreakoutOptimizer()
-    breakout_optimizer.evaluate(NeatOptimizerSingleCore(), p_seed)
+    breakout_optimizer.evaluate(p_optimizer, p_seed)
     return 0
 
 
 challenge_dict = {
-    "xor": xor_single_evaluation,
-    "mountain_car": mountain_car_single_evaluation,
-    "pole_balancing": pole_balancing_single_evaluation,
-    "pendulum": pendulum_single_evaluation,
-    "lunar_lander": lunar_lander_single_evaluation,
-    "breakout": breakout_single_evaluation
+    "xor": xor_evaluation,
+    "mountain_car": mountain_car_evaluation,
+    "pole_balancing": pole_balancing_evaluation,
+    "pendulum": pendulum_evaluation,
+    "lunar_lander": lunar_lander_evaluation,
+    "breakout": breakout_evaluation
 }
 
+# TODO BUG
+# Main.py is included twice with mpi worker process...
+if sys.argv[0] == sys.argv[1]:
+    del sys.argv[0]
+
+# Add arguments
 parser = argparse.ArgumentParser(description="Run the given NEAT examples")
 parser.add_argument('challenge', type=str, help="Select one example challenge, that should be run",
                     choices=challenge_dict.keys())
 parser.add_argument("-s", metavar="--seed", type=int, help="Seed for the evaluation")
 parser.add_argument("-r", metavar="--repeat", type=int, default=1, help="Run the same challenge multiple times")
+parser.add_argument("-o", metavar="--optimizer", type=str, default="single", choices=["single", "mpi"])
 
 args = parser.parse_args()
 
 challenge = args.challenge
 seed = args.s
 amount_runs = args.r
+optimizer_type = args.o
 
+# Run specified challenge
 logger.info("Selected challenge: {}, Seed: {}, Amount Runs: {}".format(challenge, seed, amount_runs))
 
 # Create random generator only if multiple runs should be done
@@ -82,12 +93,19 @@ rnd_generator = np.random.RandomState(seed) if amount_runs > 1 else None
 
 statistics = {"evaluation_times": [], "generations": []}
 for _ in range(amount_runs):
+
     evaluation_seed = seed if rnd_generator is None else rnd_generator.randint(2 ** 24)
     start_time = time.time()
 
+    # Get the selected optimizer
+    if optimizer_type == "single":
+        optimizer = NeatOptimizerSingleCore()
+    elif optimizer_type == "mpi":
+        optimizer = NeatOptimizerMPI()
+
     # Run challenge
     func = challenge_dict[challenge]
-    generations = func(evaluation_seed)
+    generations = func(evaluation_seed, optimizer)
 
     # Add statistics
     required_time = time.time() - start_time

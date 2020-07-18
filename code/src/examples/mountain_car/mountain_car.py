@@ -107,14 +107,15 @@ class MountainCarOptimizer(BaseExample):
     def on_generation_evaluation_start(self, generation: Generation) -> None:
         logger.info(
             "Starting evaluation of generation {} with {} agents".format(generation.number, len(generation.agents)))
-        self.progressbar = progressbar.ProgressBar(widgets=self.progressbar_widgets, max_value=self.progressbar_max)
-        self.progressbar.start()
+        # self.progressbar = progressbar.ProgressBar(widgets=self.progressbar_widgets, max_value=self.progressbar_max)
+        # self.progressbar.start()
 
     def on_agent_evaluation_end(self, i: int, agent: Agent) -> None:
-        self.progressbar.update(i + 1)
+        # self.progressbar.update(i + 1)
+        pass
 
     def on_generation_evaluation_end(self, generation: Generation) -> None:
-        self.progressbar.finish()
+        # self.progressbar.finish()
 
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
 
