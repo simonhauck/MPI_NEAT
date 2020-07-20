@@ -71,7 +71,7 @@ class NeatOptimizerMPI(NeatOptimizer):
 
         # Finish the evaluation and notify the callback
         self._cleanup(challenge)
-        self._notify_reporters_callback(lambda r: r.on_finish(finished_generation))
+        self._notify_reporters_callback(lambda r: r.on_finish(finished_generation, self.reporters))
 
     def evaluate_genome_structure(self, genome_structure: Genome, challenge: Challenge, config: NeatConfig, seed: int):
         assert self.callback is not None
@@ -94,7 +94,7 @@ class NeatOptimizerMPI(NeatOptimizer):
 
         # Finish the evaluation and notify the callback
         self._cleanup(challenge)
-        self._notify_reporters_callback(lambda r: r.on_finish(finished_generation))
+        self._notify_reporters_callback(lambda r: r.on_finish(finished_generation, self.reporters))
 
     def _evaluation_loop(self, generation: Generation, challenge: Challenge,
                          innovation_number_generator: InnovationNumberGeneratorInterface,
@@ -151,7 +151,7 @@ class NeatOptimizerMPI(NeatOptimizer):
         #     self._notify_reporters_callback(lambda r: r.on_agent_evaluation_end(i, agent))
         #
         # # Notify callback
-        self._notify_reporters_callback(lambda r: r.on_generation_evaluation_end(generation))
+        self._notify_reporters_callback(lambda r: r.on_generation_evaluation_end(generation, self.reporters))
         return generation
 
     def _build_new_generation(self, generation: Generation,

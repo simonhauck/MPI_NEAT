@@ -1,17 +1,19 @@
 from typing import Dict, List
 
+import matplotlib.pyplot as plt
 import networkx as nx
 
 from neat_core.models.genome import Genome
 from neat_core.models.node import NodeType, Node
 
 
-def draw_genome_graph(genome: Genome, draw_labels=True) -> None:
+def draw_genome_graph(genome: Genome, draw_labels=True, plot: bool = False) -> None:
     """
     Parse the genome into a networkx graph, which can be plotted with matplotlib, if the command plt.show()
     is invoked after this method
     :param genome: the genome that should be displayed
     :param draw_labels: True if the labels of the connections should be printed
+    :param plot: draw the genome directly
     :return: None
     """
     graph = nx.DiGraph()
@@ -66,6 +68,9 @@ def draw_genome_graph(genome: Genome, draw_labels=True) -> None:
     # Draw graph nodes
     # nx.draw_net(graph, pos=node_positions, node_color=node_colors, connectionstyle='arc3, rad=0.1', with_labels=True)
     nx.draw_networkx_nodes(graph, pos=node_positions, node_color=node_colors, with_labels=True)
+
+    if plot:
+        plt.show()
 
 
 def _get_color_for_node_type(node_type: NodeType) -> str:

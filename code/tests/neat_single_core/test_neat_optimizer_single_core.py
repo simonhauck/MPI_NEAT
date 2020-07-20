@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 from unittest import TestCase
 
 from neat_core.activation_function import step_activation, modified_sigmoid_activation
@@ -62,13 +62,13 @@ class MockCallback(NeatOptimizerCallback):
     def on_agent_evaluation_end(self, i: int, agent: Agent) -> None:
         self.on_agent_evaluation_end_count += 1
 
-    def on_generation_evaluation_end(self, generation: Generation) -> None:
+    def on_generation_evaluation_end(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         self.on_generation_evaluation_end_count += 1
 
     def on_cleanup(self) -> None:
         self.on_cleanup_count += 1
 
-    def on_finish(self, generation: Generation) -> None:
+    def on_finish(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         self.on_finish_count += 1
         self.finish_generation = generation
 
@@ -111,7 +111,7 @@ class MockReporter(NeatReporter):
     def __init__(self) -> None:
         self.on_finish_count = 0
 
-    def on_finish(self, generation: Generation) -> None:
+    def on_finish(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         self.on_finish_count += 1
 
 
@@ -160,7 +160,7 @@ class NeatOptimizerSingleCoreTest(TestCase):
         reporter2 = MockReporter()
 
         self.optimizer_single.register_reporters(reporter1, reporter2)
-        self.optimizer_single._notify_reporters_callback(lambda r: r.on_finish(None))
+        self.optimizer_single._notify_reporters_callback(lambda r: r.on_finish(None, []))
 
         self.assertEqual(1, self.callback.on_finish_count)
         self.assertEqual(1, reporter1.on_finish_count)

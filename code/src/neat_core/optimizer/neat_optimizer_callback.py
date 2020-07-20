@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import List
 
 from neat_core.models.generation import Generation
 from neat_core.optimizer.neat_reporter import NeatReporter
@@ -7,10 +8,11 @@ from neat_core.optimizer.neat_reporter import NeatReporter
 class NeatOptimizerCallback(NeatReporter):
 
     @abstractmethod
-    def on_finish(self, generation: Generation) -> None:
+    def on_finish(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         """
         Called at the end of the evaluation process after cleanup.
         :param generation: the last generation evaluated
+        :param reporters: a list with all reporters
         :return: None
         """
         pass

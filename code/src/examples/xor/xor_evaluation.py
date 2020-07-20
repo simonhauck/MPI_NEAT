@@ -1,6 +1,6 @@
 from datetime import datetime
+from typing import List
 
-import matplotlib.pyplot as plt
 import numpy as np
 from loguru import logger
 
@@ -14,14 +14,13 @@ from neat_core.models.genome import Genome
 from neat_core.models.node import Node, NodeType
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer import NeatOptimizer
+from neat_core.optimizer.neat_reporter import NeatReporter
 from neural_network.basic_neural_network import BasicNeuralNetwork
 from utils.fitness_evaluation import fitness_evaluation_utils
 from utils.reporter.checkpoint_reporter import CheckPointReporter
 from utils.reporter.fitness_reporter import FitnessReporter
 from utils.reporter.species_reporter import SpeciesReporter
 from utils.reporter.time_reporter import TimeReporter
-from utils.visualization import genome_visualization
-from utils.visualization import reporter_visualization
 from utils.visualization import text_visualization
 
 
@@ -159,7 +158,7 @@ class XOROptimizer(BaseExample):
     def on_agent_evaluation_end(self, i: int, agent: Agent) -> None:
         logger.debug("Finished evaluation of agent {} with fitness {}".format(i, agent.fitness))
 
-    def on_generation_evaluation_end(self, generation: Generation) -> None:
+    def on_generation_evaluation_end(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
 
         logger.info("Finished evaluation of generation {}".format(generation.number))
@@ -169,7 +168,7 @@ class XOROptimizer(BaseExample):
     def on_cleanup(self) -> None:
         logger.info("Cleanup called...")
 
-    def on_finish(self, generation: Generation) -> None:
+    def on_finish(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         logger.info("OnFinish called with generation {}".format(generation.number))
         self.solved_generation_number = generation.number
 
@@ -179,18 +178,18 @@ class XOROptimizer(BaseExample):
         # Print genome
         text_visualization.print_agent(agent)
 
-        # Plot fitness curve
-        reporter_visualization.plot_fitness_reporter(self.fitness_reporter.data, plot=True)
-
-        # Plot species sizes
-        reporter_visualization.plot_species_reporter(self.species_reporter.data, plot=True)
-
-        # Plot required time
-        reporter_visualization.plot_time_reporter(self.time_reporter.data, plot=True)
-
-        # Draw genome
-        genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)
-        plt.show()
+        # # Plot fitness curve
+        # reporter_visualization.plot_fitness_reporter(self.fitness_reporter.data, plot=True)
+        #
+        # # Plot species sizes
+        # reporter_visualization.plot_species_reporter(self.species_reporter.data, plot=True)
+        #
+        # # Plot required time
+        # reporter_visualization.plot_time_reporter(self.time_reporter.data, plot=True)
+        #
+        # # Draw genome
+        # genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)
+        # plt.show()
 
         # Visualize results
         self.visualize_genome(agent.genome)

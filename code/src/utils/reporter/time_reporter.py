@@ -42,11 +42,12 @@ class TimeReporter(NeatReporter):
         assert self._tmp_entry is None
         self._tmp_on_generation_evaluation_start = time.time()
 
-    def on_generation_evaluation_end(self, generation: Generation) -> None:
+    def on_generation_evaluation_end(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         """
         Calculate the required time for evaluating all agents, create a new entry with the required times and store
         it in a list. Additionally the values are stored in a temporary variable
         :param generation: the current generation
+        :param reporters: a list with all reporters
         :return: None
         """
         assert self._tmp_on_generation_evaluation_start is not None
@@ -101,3 +102,6 @@ class TimeReporter(NeatReporter):
         self._tmp_reproduction_start = None
         self._tmp_on_generation_evaluation_start = None
         self._tmp_compose_offspring_start = None
+
+    def store_data(self) -> (bool, str, object):
+        return True, "time_reporter", self.data

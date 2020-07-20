@@ -22,7 +22,7 @@ class FitnessEvaluationUtilsTest(TestCase):
 
         self.reporter.on_generation_evaluation_start(self.generation)
         time.sleep(0.5)
-        self.reporter.on_generation_evaluation_end(self.generation)
+        self.reporter.on_generation_evaluation_end(self.generation, [])
 
         # Check entry
         self.assertEqual(1, len(self.reporter.data))
@@ -37,7 +37,7 @@ class FitnessEvaluationUtilsTest(TestCase):
     def test_on_reproduction_start(self):
         # To create the temporary entry
         self.reporter.on_generation_evaluation_start(self.generation)
-        self.reporter.on_generation_evaluation_end(self.generation)
+        self.reporter.on_generation_evaluation_end(self.generation, [])
 
         current_time = time.time()
         self.reporter.on_reproduction_start(self.generation)
@@ -47,7 +47,7 @@ class FitnessEvaluationUtilsTest(TestCase):
     def test_on_compose_offsprings_start(self):
         # To create the temporary entry
         self.reporter.on_generation_evaluation_start(self.generation)
-        self.reporter.on_generation_evaluation_end(self.generation)
+        self.reporter.on_generation_evaluation_end(self.generation, [])
 
         current_time = time.time()
         self.reporter.on_compose_offsprings_start()
@@ -57,7 +57,7 @@ class FitnessEvaluationUtilsTest(TestCase):
     def test_on_compose_offsprings_end(self):
         # To create the temporary entry
         self.reporter.on_generation_evaluation_start(self.generation)
-        self.reporter.on_generation_evaluation_end(self.generation)
+        self.reporter.on_generation_evaluation_end(self.generation, [])
 
         self.reporter.on_compose_offsprings_start()
         time.sleep(0.5)
@@ -68,7 +68,7 @@ class FitnessEvaluationUtilsTest(TestCase):
     def test_on_reproduction_end(self):
         # To create the temporary entry
         self.reporter.on_generation_evaluation_start(self.generation)
-        self.reporter.on_generation_evaluation_end(self.generation)
+        self.reporter.on_generation_evaluation_end(self.generation, [])
 
         self.reporter.on_reproduction_start(self.generation)
         self.reporter.on_compose_offsprings_start()

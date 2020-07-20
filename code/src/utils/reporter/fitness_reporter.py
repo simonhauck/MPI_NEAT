@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 
 from neat_core.models.generation import Generation
@@ -19,11 +21,12 @@ class FitnessReporter(NeatReporter):
     def __init__(self) -> None:
         self.data = FitnessReporterData()
 
-    def on_generation_evaluation_end(self, generation: Generation) -> None:
+    def on_generation_evaluation_end(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         """
         Add a generation to the fitness reporter. The reporter extracts the min, max and mean fitness values and calculates
         the standard deviation
         :param generation: the generation that will be added
+        :param reporters: a list with all reporters
         :return: None
         """
         self.data.generations = np.append(self.data.generations, generation.number)
@@ -38,3 +41,6 @@ class FitnessReporter(NeatReporter):
         self.data.max_values = np.append(self.data.max_values, max)
         self.data.mean_values = np.append(self.data.mean_values, mean)
         self.data.std_values = np.append(self.data.std_values, std)
+
+    def store_data(self) -> (bool, str, object):
+        return True, "fitness_reporter", self.data

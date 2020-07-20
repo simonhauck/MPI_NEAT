@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC
+from typing import List
 
 from neat_core.models.agent import Agent
 from neat_core.models.generation import Generation
@@ -40,10 +43,11 @@ class NeatReporter(ABC):
         """
         pass
 
-    def on_generation_evaluation_end(self, generation: Generation) -> None:
+    def on_generation_evaluation_end(self, generation: Generation, reporters: NeatReporter) -> None:
         """
         Called with the end of the evaluation of each generation
         :param generation the generation that was evaluated
+        :param reporters list with all reporters
         :return: None
         """
         pass
@@ -55,10 +59,11 @@ class NeatReporter(ABC):
         """
         pass
 
-    def on_finish(self, generation: Generation) -> None:
+    def on_finish(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         """
         Called at the end of the evaluation process after cleanup.
         :param generation: the last generation evaluated
+        :param reporters list with all reporters
         :return: None
         """
         pass
@@ -95,3 +100,10 @@ class NeatReporter(ABC):
         :return:
         """
         pass
+
+    def store_data(self) -> (bool, str, object):
+        """
+        Return if the object should be stored, the key of a dictionary value and a data object
+        :return: true if the object should be stored, a key for the dictionary and a data object
+        """
+        return False, None, None

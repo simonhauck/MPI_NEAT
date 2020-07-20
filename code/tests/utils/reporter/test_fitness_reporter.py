@@ -29,7 +29,7 @@ class FitnessEvaluationUtilsTest(TestCase):
         self.assertEqual(0, len(reporter.data.max_values))
         self.assertEqual(0, len(reporter.data.std_values))
 
-        reporter.on_generation_evaluation_end(self.generation)
+        reporter.on_generation_evaluation_end(self.generation, [])
         self.assertEqual(1, len(reporter.data.generations))
         self.assertEqual(1, len(reporter.data.mean_values))
         self.assertEqual(1, len(reporter.data.min_values))

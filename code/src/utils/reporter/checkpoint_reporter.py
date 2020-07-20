@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List
 
 from loguru import logger
 
@@ -21,25 +21,52 @@ class CheckPointReporter(NeatReporter):
         self.name_prefix: str = name_prefix
         self.store_func: Callable[[int], bool] = store_func
 
-    def on_generation_evaluation_end(self, generation: Generation) -> None:
+    def on_generation_evaluation_end(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         """
         Check if the generation should be saved and create a file with the best genome
         :param generation: the generation evaluated
+        :param reporters: a list with all reporters
         :return: None
         """
         if self.store_func(generation.number):
             best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
-            file_name = self.storage_path + self.name_prefix + str(generation.number) + ".genome"
-            file_save.save_genome_file(file_name, best_agent.genome)
-            logger.info("Saved best genome of generation {} into file: {}".format(generation.number, file_name))
+            file_name = self.storage_path + self.name_prefix + str(generation.number) + ".data"
 
-    def on_finish(self, generation: Generation) -> None:
+            # Create dictionary for reporters
+            reporter_dict = {}
+            for reporter in reporters:
+                should_save, key, val = reporter.store_data()
+
+                if should_save:
+                    reporter_dict[key] = val
+
+            file_save.save_genome_and_reporter(file_name, best_agent.genome, reporter_dict)
+            logger.info(
+                "Saved best genome and reporter of generation {} into file {}".format(generation.number, file_name))
+            # file_save.save_genome_file(file_name, best_agent.genome)
+            # logger.info("Saved best genome of generation {} into file: {}".format(generation.number, file_name))
+
+    def on_finish(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         """
         Store the best genome every time
         :param generation: the last generation evaluated
+        :param reporters: a list with all reporters
         :return: None
         """
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
-        file_name = self.storage_path + self.name_prefix + "finish" + str(generation.number) + ".genome"
-        file_save.save_genome_file(file_name, best_agent.genome)
-        logger.info("Saved final best genome of generation {} into file: {}".format(generation.number, file_name))
+        file_name = self.storage_path + self.name_prefix + "finish" + str(generation.number) + ".data"
+
+        # Create dictionary for reporters
+        reporter_dict = {}
+        for reporter in reporters:
+            should_save, key, val = reporter.store_data()
+
+            if should_save:
+                reporter_dict[key] = val
+
+        file_save.save_genome_and_reporter(file_name, best_agent.genome, reporter_dict)
+        logger.info(
+            "Saved best genome and reporter of generation {} into file {}".format(generation.number, file_name))
+
+        # file_save.save_genome_file(file_name, best_agent.genome)
+        # logger.info("Saved final best genome of generation {} into file: {}".format(generation.number, file_name))

@@ -1,6 +1,6 @@
 from datetime import datetime
+from typing import List
 
-import matplotlib.pyplot as plt
 import numpy as np
 import progressbar
 from loguru import logger
@@ -13,14 +13,13 @@ from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
 from neat_core.optimizer.neat_config import NeatConfig
 from neat_core.optimizer.neat_optimizer import NeatOptimizer
+from neat_core.optimizer.neat_reporter import NeatReporter
 from neural_network.basic_neural_network import BasicNeuralNetwork
 from utils.fitness_evaluation import fitness_evaluation_utils
 from utils.reporter.checkpoint_reporter import CheckPointReporter
 from utils.reporter.fitness_reporter import FitnessReporter
 from utils.reporter.species_reporter import SpeciesReporter
 from utils.reporter.time_reporter import TimeReporter
-from utils.visualization import genome_visualization
-from utils.visualization import reporter_visualization
 from utils.visualization import text_visualization
 
 
@@ -114,7 +113,7 @@ class MountainCarOptimizer(BaseExample):
         # self.progressbar.update(i + 1)
         pass
 
-    def on_generation_evaluation_end(self, generation: Generation) -> None:
+    def on_generation_evaluation_end(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         # self.progressbar.finish()
 
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
@@ -124,7 +123,7 @@ class MountainCarOptimizer(BaseExample):
                                                                               best_agent.additional_info))
         logger.info("Amount species: {}".format(len(generation.species_list)))
 
-    def on_finish(self, generation: Generation) -> None:
+    def on_finish(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         logger.info("OnFinish called with generation {}".format(generation.number))
 
         # Get the best agent
@@ -134,18 +133,18 @@ class MountainCarOptimizer(BaseExample):
         # Print genome
         text_visualization.print_agent(agent)
 
-        # Plot fitness values
-        reporter_visualization.plot_fitness_reporter(self.fitness_reporter.data, plot=True)
-
-        # Plot species sizes
-        reporter_visualization.plot_species_reporter(self.species_reporter.data, plot=True)
-
-        # Plot required time values
-        reporter_visualization.plot_time_reporter(self.time_reporter.data, plot=True)
-
-        # Plot genome
-        genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)
-        plt.show()
+        # # Plot fitness values
+        # reporter_visualization.plot_fitness_reporter(self.fitness_reporter.data, plot=True)
+        #
+        # # Plot species sizes
+        # reporter_visualization.plot_species_reporter(self.species_reporter.data, plot=True)
+        #
+        # # Plot required time values
+        # reporter_visualization.plot_time_reporter(self.time_reporter.data, plot=True)
+        #
+        # # Plot genome
+        # genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)
+        # plt.show()
 
     def finish_evaluation(self, generation: Generation) -> bool:
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)

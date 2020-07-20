@@ -18,11 +18,12 @@ class SpeciesReporter(NeatReporter):
     def __init__(self) -> None:
         self.data = SpeciesReporterData()
 
-    def on_generation_evaluation_end(self, generation: Generation) -> None:
+    def on_generation_evaluation_end(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         """
         Add the given generation to the species reporter. The species reporter data tracks, how many species exist in
         every generation and how many members each species has
         :param generation: the generation that is added
+        :param reporters: a list with all reporters
         :return:
         """
         self.data.min_generation = min(self.data.min_generation,
@@ -41,3 +42,6 @@ class SpeciesReporter(NeatReporter):
                 generation_numbers = [generation.number]
                 member_size = [len(species.members)]
                 self.data.species_size_dict[species.id_] = (generation_numbers, member_size)
+
+    def store_data(self) -> (bool, str, object):
+        return True, "species_reporter", self.data

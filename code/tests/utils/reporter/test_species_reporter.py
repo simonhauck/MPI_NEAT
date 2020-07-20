@@ -30,7 +30,7 @@ class FitnessEvaluationUtilsTest(TestCase):
 
         # Add first generation
         generation1 = Generation(3, 1, [], [species1])
-        self.species_reporter.on_generation_evaluation_end(generation1)
+        self.species_reporter.on_generation_evaluation_end(generation1, [])
 
         # Check after first generation
         self.assertEqual(3, self.species_reporter.data.min_generation)
@@ -42,7 +42,7 @@ class FitnessEvaluationUtilsTest(TestCase):
         species2 = Species(2, None, [self.agent4, self.agent5, self.agent6])
         species3 = Species(3, None, [self.agent7])
         generation2 = Generation(4, 1, [], [species1, species2, species3])
-        self.species_reporter.on_generation_evaluation_end(generation2)
+        self.species_reporter.on_generation_evaluation_end(generation2, [])
 
         # Check after second generation
         self.assertEqual(3, self.species_reporter.data.min_generation)
@@ -55,7 +55,7 @@ class FitnessEvaluationUtilsTest(TestCase):
         # Add third generation with two species
         species3.members = [self.agent4, self.agent5, self.agent6, self.agent7]
         generation3 = Generation(5, 1, [], [species1, species3])
-        self.species_reporter.on_generation_evaluation_end(generation3)
+        self.species_reporter.on_generation_evaluation_end(generation3, [])
 
         # Check after third generation
         self.assertEqual(3, self.species_reporter.data.min_generation)
