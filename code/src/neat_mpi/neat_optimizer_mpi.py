@@ -1,5 +1,3 @@
-from typing import Dict
-
 import numpy as np
 from loguru import logger
 from mpi4py import MPI
@@ -15,10 +13,10 @@ from neat_core.optimizer.neat_optimizer import NeatOptimizer
 from neat_core.service import generation_service as gs
 from neat_core.service import reproduction_service as rp
 from neat_core.service import species_service as ss
+from neat_mpi import neat_worker_mpi
 from neat_single_core.agent_id_generator_single_core import AgentIDGeneratorSingleCore
 from neat_single_core.inno_number_generator_single_core import InnovationNumberGeneratorSingleCore
 from neat_single_core.species_id_generator_single_core import SpeciesIDGeneratorSingleCore
-from neural_network.basic_neural_network import BasicNeuralNetwork
 
 challenge_tmp = None
 
@@ -28,50 +26,52 @@ class NeatOptimizerMPI(NeatOptimizer):
     def __init__(self):
         super().__init__()
         self.comm = MPI.COMM_WORLD
+        self.name = MPI.Get_processor_name()
         self.rank = self.comm.Get_rank()
         self.size = self.comm.Get_size()
-        self.name = MPI.Get_processor_name()
-        logger.info("Name: {}, Size: {}, Rank {}/{}", self.name, self.size, self.rank, self.size - 1)
-
-        if self.rank == 0:
-            self.executor = MPIPoolExecutor()
-            self.executor.bootup()
-        else:
-            self.executor = None
 
     def evaluate(self, amount_input_nodes: int, amount_output_nodes,
                  activation_function, challenge: Challenge, config: NeatConfig,
                  seed: int) -> None:
         assert self.callback is not None
 
-        # Initialize Parameters
-        innovation_number_generator = InnovationNumberGeneratorSingleCore()
-        species_id_generator = SpeciesIDGeneratorSingleCore()
-        agent_id_generator = AgentIDGeneratorSingleCore()
-
-        # Notify callback about starting evaluation
-        self._notify_reporters_callback(lambda r: r.on_initialization())
-        # Prepare challenge
-        challenge.initialization()
-
-        global challenge_tmp
-        challenge_tmp = challenge
-        challenge_tmp.initialization()
-
-        # Only master will run initialization
+        # Setup worker, run remaining code on master. If not workers are selected, setup master
         if self.rank != 0:
-            return
+            neat_worker_mpi.setup(challenge)
+        elif self.size <= 1:
+            neat_worker_mpi.setup(challenge)
+            self._run_master(amount_input_nodes, amount_output_nodes, activation_function, challenge, config, seed)
+        else:
+            self._run_master(amount_input_nodes, amount_output_nodes, activation_function, challenge, config, seed)
 
-        initial_generation = gs.create_initial_generation(amount_input_nodes, amount_output_nodes, activation_function,
-                                                          innovation_number_generator, species_id_generator,
-                                                          agent_id_generator, config, seed)
-
-        finished_generation = self._evaluation_loop(initial_generation, challenge, innovation_number_generator,
-                                                    species_id_generator, agent_id_generator, config)
-
-        # Finish the evaluation and notify the callback
-        self._cleanup(challenge)
-        self._notify_reporters_callback(lambda r: r.on_finish(finished_generation, self.reporters))
+        # # Initialize Parameters
+        # innovation_number_generator = InnovationNumberGeneratorSingleCore()
+        # species_id_generator = SpeciesIDGeneratorSingleCore()
+        # agent_id_generator = AgentIDGeneratorSingleCore()
+        #
+        # # Notify callback about starting evaluation
+        # self._notify_reporters_callback(lambda r: r.on_initialization())
+        # # Prepare challenge
+        # challenge.initialization()
+        #
+        # global challenge_tmp
+        # challenge_tmp = challenge
+        # challenge_tmp.initialization()
+        #
+        # # Only master will run initialization
+        # if self.rank != 0:
+        #     return
+        #
+        # initial_generation = gs.create_initial_generation(amount_input_nodes, amount_output_nodes, activation_function,
+        #                                                   innovation_number_generator, species_id_generator,
+        #                                                   agent_id_generator, config, seed)
+        #
+        # finished_generation = self._evaluation_loop(initial_generation, challenge, innovation_number_generator,
+        #                                             species_id_generator, agent_id_generator, config)
+        #
+        # # Finish the evaluation and notify the callback
+        # self._cleanup(challenge)
+        # self._notify_reporters_callback(lambda r: r.on_finish(finished_generation, self.reporters))
 
     def evaluate_genome_structure(self, genome_structure: Genome, challenge: Challenge, config: NeatConfig, seed: int):
         assert self.callback is not None
@@ -96,6 +96,33 @@ class NeatOptimizerMPI(NeatOptimizer):
         self._cleanup(challenge)
         self._notify_reporters_callback(lambda r: r.on_finish(finished_generation, self.reporters))
 
+    def _run_master(self, amount_input_nodes: int, amount_output_nodes, activation_function, challenge: Challenge,
+                    config: NeatConfig, seed: int):
+
+        logger.info("Maser - Name: {}, Size: {}, Rank {}/{}", self.name, self.size, self.rank, self.size - 1)
+        logger.info("Waiting for workers to start...")
+        with MPIPoolExecutor() as self.executor:
+            self.executor.bootup(wait=True)
+            logger.info("All Workers should have started")
+
+            # Initialize Parameters
+            innovation_number_generator = InnovationNumberGeneratorSingleCore()
+            species_id_generator = SpeciesIDGeneratorSingleCore()
+            agent_id_generator = AgentIDGeneratorSingleCore()
+
+            # Notify callback about starting evaluation
+            self._notify_reporters_callback(lambda r: r.on_initialization())
+
+            initial_generation = gs.create_initial_generation(amount_input_nodes, amount_output_nodes,
+                                                              activation_function,
+                                                              innovation_number_generator, species_id_generator,
+                                                              agent_id_generator, config, seed)
+
+            finished_generation = self._evaluation_loop(initial_generation, challenge, innovation_number_generator,
+                                                        species_id_generator, agent_id_generator, config)
+
+            self._notify_reporters_callback(lambda r: r.on_finish(finished_generation, self.reporters))
+
     def _evaluation_loop(self, generation: Generation, challenge: Challenge,
                          innovation_number_generator: InnovationNumberGeneratorInterface,
                          species_id_generator: SpeciesIDGeneratorSingleCore,
@@ -119,7 +146,7 @@ class NeatOptimizerMPI(NeatOptimizer):
         # Notify callback
         self._notify_reporters_callback(lambda r: r.on_generation_evaluation_start(generation))
 
-        result_list = self.executor.map(run_agent, generation.agents, chunksize=1)
+        result_list = self.executor.map(neat_worker_mpi.evaluate_agent, generation.agents, chunksize=1)
 
         for i, result in enumerate(result_list):
             generation.agents[i].fitness = result[0]
@@ -257,25 +284,24 @@ class NeatOptimizerMPI(NeatOptimizer):
         return new_generation
 
     def _cleanup(self, challenge: Challenge) -> None:
-        if self.executor is not None:
-            self.executor.shutdown(wait=True)
+        # if self.executor is not None:
+        #     self.executor.shutdown(wait=True)
 
         # Notify callback and challenge
-        challenge.clean_up()
+        # challenge.clean_up()
         self._notify_reporters_callback(lambda r: r.on_cleanup())
 
-
-def run_agent(agent: Agent) -> (float, Dict[str, object]):
-    challenge = challenge_tmp
-    challenge.before_evaluation()
-
-    # Create and build neural network
-    neural_network = BasicNeuralNetwork()
-    neural_network.build(agent.genome)
-
-    fitness, additional_info = challenge.evaluate(neural_network)
-
-    challenge.after_evaluation()
-    # challenge.clean_up()
-
-    return fitness, additional_info
+# def run_agent(agent: Agent) -> (float, Dict[str, object]):
+#     challenge = challenge_tmp
+#     challenge.before_evaluation()
+#
+#     # Create and build neural network
+#     neural_network = BasicNeuralNetwork()
+#     neural_network.build(agent.genome)
+#
+#     fitness, additional_info = challenge.evaluate(neural_network)
+#
+#     challenge.after_evaluation()
+#     # challenge.clean_up()
+#
+#     return fitness, additional_info

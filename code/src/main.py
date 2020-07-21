@@ -4,6 +4,7 @@ import time
 
 import numpy as np
 from loguru import logger
+from mpi4py import MPI
 
 from examples.breakout.breakout import BreakoutOptimizer
 from examples.lunar_lander.lunar_lander import LunarLanderOptimizer
@@ -56,6 +57,13 @@ def breakout_evaluation(p_seed, p_optimizer) -> int:
     return 0
 
 
+def main_worker():
+    global challenge, challenge_dict
+
+    worker_func = challenge_dict[challenge]
+    worker_func(None, NeatOptimizerMPI())
+
+
 challenge_dict = {
     "xor": xor_evaluation,
     "mountain_car": mountain_car_evaluation,
@@ -85,38 +93,47 @@ seed = args.s
 amount_runs = args.r
 optimizer_type = args.o
 
-# Run specified challenge
-logger.info("Selected challenge: {}, Seed: {}, Amount Runs: {}".format(challenge, seed, amount_runs))
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
 
-# Create random generator only if multiple runs should be done
-rnd_generator = np.random.RandomState(seed) if amount_runs > 1 else None
+if rank != 0:
+    main_worker()
+    logger.info("Worker with rank {} completed main", rank)
 
-statistics = {"evaluation_times": [], "generations": []}
-for _ in range(amount_runs):
+if __name__ == '__main__':
+    # Run specified challenge
+    logger.info("Selected challenge: {}, Seed: {}, Amount Runs: {}".format(challenge, seed, amount_runs))
 
-    evaluation_seed = seed if rnd_generator is None else rnd_generator.randint(2 ** 24)
-    start_time = time.time()
+    # Create random generator only if multiple runs should be done
+    rnd_generator = np.random.RandomState(seed) if amount_runs > 1 else None
 
-    # Get the selected optimizer
-    if optimizer_type == "single":
-        optimizer = NeatOptimizerSingleCore()
-    elif optimizer_type == "mpi":
-        optimizer = NeatOptimizerMPI()
+    statistics = {"evaluation_times": [], "generations": []}
+    for _ in range(amount_runs):
 
-    # Run challenge
-    func = challenge_dict[challenge]
-    generations = func(evaluation_seed, optimizer)
+        evaluation_seed = seed if rnd_generator is None else rnd_generator.randint(2 ** 24)
+        start_time = time.time()
 
-    # Add statistics
-    required_time = time.time() - start_time
-    statistics["evaluation_times"].append(required_time)
-    statistics["generations"].append(generations)
+        # Get the selected optimizer
+        if optimizer_type == "single":
+            optimizer = NeatOptimizerSingleCore()
+        elif optimizer_type == "mpi":
+            optimizer = NeatOptimizerMPI()
 
-# Show final results
-logger.info("-------- Program finished --------")
-logger.info(
-    "Min generations: {}, Max generations: {}, Mean: {}".
-        format(min(statistics["generations"]), max(statistics["generations"]), np.mean(statistics["generations"])))
-logger.info("Min Time: {}, Max Time: {}, Mean: {}".format(min(statistics["evaluation_times"]),
-                                                          max(statistics["evaluation_times"]),
-                                                          np.mean(statistics["evaluation_times"])))
+        # Run challenge
+        func = challenge_dict[challenge]
+        generations = func(evaluation_seed, optimizer)
+
+        # Add statistics
+        required_time = time.time() - start_time
+        statistics["evaluation_times"].append(required_time)
+        statistics["generations"].append(generations)
+
+    # Show final results
+    logger.info("-------- Program finished --------")
+    logger.info(
+        "Min generations: {}, Max generations: {}, Mean: {}".format(min(statistics["generations"]),
+                                                                    max(statistics["generations"]),
+                                                                    np.mean(statistics["generations"])))
+    logger.info("Min Time: {}, Max Time: {}, Mean: {}".format(min(statistics["evaluation_times"]),
+                                                              max(statistics["evaluation_times"]),
+                                                              np.mean(statistics["evaluation_times"])))
