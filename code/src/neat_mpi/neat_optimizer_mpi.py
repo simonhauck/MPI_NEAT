@@ -39,6 +39,7 @@ class NeatOptimizerMPI(NeatOptimizer):
         if self.rank != 0:
             neat_worker_mpi.setup(challenge)
         elif self.size <= 1:
+            # If only one core is selected, master is also worker
             neat_worker_mpi.setup(challenge)
             self._run_master(amount_input_nodes, amount_output_nodes, activation_function, challenge, config, seed)
         else:
@@ -146,7 +147,7 @@ class NeatOptimizerMPI(NeatOptimizer):
         # Notify callback
         self._notify_reporters_callback(lambda r: r.on_generation_evaluation_start(generation))
 
-        result_list = self.executor.map(neat_worker_mpi.evaluate_agent, generation.agents, chunksize=1)
+        result_list = self.executor.map(neat_worker_mpi.evaluate_agent, generation.agents, chunksize=5)
 
         for i, result in enumerate(result_list):
             generation.agents[i].fitness = result[0]

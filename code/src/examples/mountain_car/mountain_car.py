@@ -1,8 +1,8 @@
+import time
 from datetime import datetime
 from typing import List
 
 import numpy as np
-import progressbar
 from loguru import logger
 
 from examples.BaseExample import BaseExample
@@ -32,14 +32,16 @@ class MountainCarOptimizer(BaseExample):
         self.check_point_reporter = None
         self.challenge = None
 
-        self.progressbar = None
-        self.progressbar_max = None
-        self.progressbar_widgets = [
-            'Generation: ', progressbar.Percentage(),
-            ' ', progressbar.Bar(marker='#', left='[', right=']'),
-            ' ', progressbar.Counter('Evaluated Agents: %(value)03d'),
-            ', ', progressbar.ETA()
-        ]
+        self.start_time_generation = None
+
+        # self.progressbar = None
+        # self.progressbar_max = None
+        # self.progressbar_widgets = [
+        #     'Generation: ', progressbar.Percentage(),
+        #     ' ', progressbar.Bar(marker='#', left='[', right=']'),
+        #     ' ', progressbar.Counter('Evaluated Agents: %(value)03d'),
+        #     ', ', progressbar.ETA()
+        # ]
 
     def evaluate(self, optimizer: NeatOptimizer, seed: int = None, **kwargs):
         time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -82,7 +84,7 @@ class MountainCarOptimizer(BaseExample):
                             compatibility_genome_size_threshold=0)
 
         # Progressbar size
-        self.progressbar_max = config.population_size
+        # self.progressbar_max = config.population_size
 
         # Create random seed, if none is specified
         if seed is None:
@@ -106,19 +108,21 @@ class MountainCarOptimizer(BaseExample):
     def on_generation_evaluation_start(self, generation: Generation) -> None:
         logger.info(
             "Starting evaluation of generation {} with {} agents".format(generation.number, len(generation.agents)))
+        self.start_time_generation = time.time()
         # self.progressbar = progressbar.ProgressBar(widgets=self.progressbar_widgets, max_value=self.progressbar_max)
         # self.progressbar.start()
+        # self.progressbar = tqdm(total=self.progressbar_max)
 
     def on_agent_evaluation_end(self, i: int, agent: Agent) -> None:
-        # self.progressbar.update(i + 1)
+        # self.progressbar.update(1)
         pass
 
     def on_generation_evaluation_end(self, generation: Generation, reporters: List[NeatReporter]) -> None:
         # self.progressbar.finish()
+        required_time = round(time.time() - self.start_time_generation, 4)
+        logger.info("Finished evaluation of generation {}, Required Time: {}".format(generation.number, required_time))
 
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
-
-        logger.info("Finished evaluation of generation {}".format(generation.number))
         logger.info("Best Fitness in Agent {}: {}, AdditionalInfo: {}".format(best_agent.id, best_agent.fitness,
                                                                               best_agent.additional_info))
         logger.info("Amount species: {}".format(len(generation.species_list)))
@@ -132,19 +136,6 @@ class MountainCarOptimizer(BaseExample):
 
         # Print genome
         text_visualization.print_agent(agent)
-
-        # # Plot fitness values
-        # reporter_visualization.plot_fitness_reporter(self.fitness_reporter.data, plot=True)
-        #
-        # # Plot species sizes
-        # reporter_visualization.plot_species_reporter(self.species_reporter.data, plot=True)
-        #
-        # # Plot required time values
-        # reporter_visualization.plot_time_reporter(self.time_reporter.data, plot=True)
-        #
-        # # Plot genome
-        # genome_visualization.draw_genome_graph(agent.genome, draw_labels=False)
-        # plt.show()
 
     def finish_evaluation(self, generation: Generation) -> bool:
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)

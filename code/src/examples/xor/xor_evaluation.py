@@ -6,7 +6,7 @@ from loguru import logger
 
 from examples.BaseExample import BaseExample
 from examples.xor.xor_challenge import ChallengeXOR
-from neat_core.activation_function import modified_sigmoid_activation
+from neat_core.activation_function import modified_sigmoid_activation, tanh_activation
 from neat_core.models.agent import Agent
 from neat_core.models.connection import Connection
 from neat_core.models.generation import Generation
@@ -102,7 +102,7 @@ class XOROptimizer(BaseExample):
 
         optimizer.evaluate(amount_input_nodes=2,
                            amount_output_nodes=1,
-                           activation_function=modified_sigmoid_activation,
+                           activation_function=tanh_activation,
                            challenge=ChallengeXOR(),
                            config=config,
                            seed=seed)
