@@ -7,7 +7,7 @@ from loguru import logger
 
 from examples.BaseExample import BaseExample
 from examples.pendulum.pendulum_challenge import PendulumChallenge
-from neat_core.activation_function import modified_sigmoid_activation
+from neat_core.activation_function import sigmoid_activation
 from neat_core.models.agent import Agent
 from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
@@ -94,7 +94,7 @@ class PendulumOptimizer(BaseExample):
         # Start evaluation
         optimizer.evaluate(amount_input_nodes=3,
                            amount_output_nodes=1,
-                           activation_function=modified_sigmoid_activation,
+                           activation_function=sigmoid_activation,
                            challenge=self.challenge,
                            config=config,
                            seed=seed)

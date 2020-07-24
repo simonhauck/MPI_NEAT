@@ -25,6 +25,50 @@ def calculate_genetic_distance(genome1: Genome, genome2: Genome, config: NeatCon
     connection_distance = _calculate_genetic_distance_connections(genome1, genome2, config)
 
     return node_distance + connection_distance
+    # return second_calc_distance(genome1, genome2, config)
+
+
+def second_calc_distance(genome1: Genome, genome2: Genome, config: NeatConfig) -> float:
+    g1_connection_innovation_numbers = set(con.innovation_number for con in genome1.connections)
+    g2_connection_innovation_numbers = set(con.innovation_number for con in genome2.connections)
+
+    g1_nodes_innovation_numbers = set(node.innovation_number for node in genome1.nodes)
+    g2_nodes_innovation_numbers = set(node.innovation_number for node in genome2.nodes)
+
+    mconn, dconn = _innovation_numbers_matching_disjoint_genes(
+        g1_connection_innovation_numbers, g2_connection_innovation_numbers)
+
+    mnodes, dnodes = _innovation_numbers_matching_disjoint_genes(
+        g1_nodes_innovation_numbers, g2_nodes_innovation_numbers)
+
+    bigger_genome_size = max(len(genome1.nodes) + len(genome1.connections),
+                             len(genome2.nodes) + len(genome2.connections))
+
+    divider = bigger_genome_size if bigger_genome_size >= config.compatibility_genome_size_threshold else 1
+
+    # Cal matching genes
+    dict_g1_conn = {con.innovation_number: con for con in genome1.connections}
+    dict_g2_conn = {con.innovation_number: con for con in genome2.connections}
+    list_diffs = []
+    for mc in mconn:
+        weight1 = dict_g1_conn[mc].weight
+        weight2 = dict_g2_conn[mc].weight
+
+        list_diffs.append(abs(weight1 - weight2))
+
+    # dict_g1_nodes = {node.innovation_number: node for node in genome1.nodes}
+    # dict_g2_nodes = {node.innovation_number: node for node in genome2.nodes}
+    # for mn in mnodes:
+    #     bias1 = dict_g1_nodes[mn].bias
+    #     bias2 = dict_g2_nodes[mn].bias
+    #     list_diffs.append(abs(bias1 - bias2))
+
+    mean_matching_genes = np.mean(list_diffs)
+    # distjount_genes = len(dconn) + len(dnodes)
+    distjount_genes = len(dconn)
+
+    return (config.compatibility_factor_matching_genes * mean_matching_genes) + (
+            (config.compatibility_factor_disjoint_genes * distjount_genes) / divider)
 
 
 def _calculate_genetic_distance_nodes(genome1: Genome, genome2: Genome, config: NeatConfig) -> float:
