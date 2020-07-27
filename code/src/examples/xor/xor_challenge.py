@@ -24,7 +24,7 @@ class ChallengeXOR(Challenge):
             result_array = neural_network.activate(inputs)
             result = result_array[0]
 
-            result = (1 + result) / 2
+            # result = (1 + result) / 2
 
             # Print results, if flag is given
             if "show" in kwargs:

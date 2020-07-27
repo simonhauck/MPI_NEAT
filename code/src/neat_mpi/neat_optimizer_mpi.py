@@ -198,10 +198,16 @@ class NeatOptimizerMPI(NeatOptimizer):
         best_agents_genomes = gs.get_best_genomes_from_species(generation.species_list,
                                                                config.species_size_copy_best_genome)
 
+        # TODO REMOVE
+        logger.info("Species before: {}".format([s.id_ for s in generation.species_list]))
+
         # Get allowed species for reproduction
         generation = ss.update_fitness_species(generation)
         species_list = ss.get_allowed_species_for_reproduction(generation,
                                                                config.species_stagnant_after_generations)
+
+        # TODO REMOVE
+        logger.info("Species after: {}".format([s.id_ for s in species_list]))
 
         # TODO handle error no species
         if len(species_list) <= 5:
@@ -291,18 +297,3 @@ class NeatOptimizerMPI(NeatOptimizer):
         # Notify callback and challenge
         # challenge.clean_up()
         self._notify_reporters_callback(lambda r: r.on_cleanup())
-
-# def run_agent(agent: Agent) -> (float, Dict[str, object]):
-#     challenge = challenge_tmp
-#     challenge.before_evaluation()
-#
-#     # Create and build neural network
-#     neural_network = BasicNeuralNetwork()
-#     neural_network.build(agent.genome)
-#
-#     fitness, additional_info = challenge.evaluate(neural_network)
-#
-#     challenge.after_evaluation()
-#     # challenge.clean_up()
-#
-#     return fitness, additional_info

@@ -56,6 +56,10 @@ python code/src/main.py xor
 # The mountain car challenge from the open ai gym
 python code/src/main.py mountain_car
 ```
+Run with MPI
+```shell script
+mpiexec -n 8 python -m mpi4py.futures main.py xor -r 100 -s 14134905 -o mpi
+```
 
 ## Used Tools for the thesis:
 - Visual Paradigm Community Edition 16.1 for the UML-Diagrams

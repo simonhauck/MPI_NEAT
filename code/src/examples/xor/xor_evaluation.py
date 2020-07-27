@@ -6,7 +6,7 @@ from loguru import logger
 
 from examples.BaseExample import BaseExample
 from examples.xor.xor_challenge import ChallengeXOR
-from neat_core.activation_function import modified_sigmoid_activation, tanh_activation
+from neat_core.activation_function import modified_sigmoid_activation
 from neat_core.models.agent import Agent
 from neat_core.models.connection import Connection
 from neat_core.models.generation import Generation
@@ -49,18 +49,7 @@ class XOROptimizer(BaseExample):
                                      self.species_reporter,
                                      self.check_point_reporter)
 
-        config = NeatConfig(allow_recurrent_connections=False,
-                            population_size=150,
-                            compatibility_threshold=3,
-                            connection_min_weight=-15,
-                            connection_max_weight=15,
-                            bias_min=-15,
-                            bias_max=15,
-                            compatibility_factor_disjoint_genes=1.0,
-                            compatibility_factor_matching_genes=0.5,
-                            probability_mutate_add_connection=0.5,
-                            probability_mutate_add_node=0.2)
-
+        # Normal config
         # config = NeatConfig(allow_recurrent_connections=False,
         #                     population_size=150,
         #                     compatibility_threshold=3,
@@ -69,31 +58,46 @@ class XOROptimizer(BaseExample):
         #                     bias_min=-15,
         #                     bias_max=15,
         #                     compatibility_factor_disjoint_genes=1.0,
-        #                     compatibility_factor_matching_genes=0.4,
-        #                     probability_mutate_add_connection=0.05,
-        #                     probability_mutate_add_node=0.03)
+        #                     compatibility_factor_matching_genes=0.5,
+        #                     probability_mutate_add_connection=0.5,
+        #                     probability_mutate_add_node=0.2)
 
-        # Specify the config
+        config = NeatConfig(allow_recurrent_connections=False,
+                            population_size=150,
+                            compatibility_threshold=3,
+                            connection_initial_min_weight=-2,
+                            connection_initial_max_weight=2,
+                            bias_initial_min=-2,
+                            bias_initial_max=2,
+                            connection_min_weight=-6,
+                            connection_max_weight=6,
+                            weight_mutation_normal_sigma=3,
+                            bias_min=-6,
+                            bias_max=6,
+                            compatibility_genome_size_threshold=16,
+                            compatibility_factor_disjoint_genes=1.0,
+                            compatibility_factor_matching_genes=0.4,
+                            probability_mutate_add_connection=0.05,
+                            probability_mutate_add_node=0.03)
+
+        # Standard paper config
         # config = NeatConfig(allow_recurrent_connections=False,
-        #                     population_size=400,
+        #                     population_size=150,
         #                     compatibility_threshold=3,
-        #                     weight_mutation_type="normal",
-        #                     weight_mutation_normal_sigma=1.3,
-        #                     connection_initial_min_weight=-5,
-        #                     connection_initial_max_weight=5,
-        #                     connection_min_weight=-5,
-        #                     connection_max_weight=5,
-        #                     bias_mutation_type="normal",
-        #                     bias_mutation_normal_sigma=1.3,
-        #                     bias_initial_min=-1,
-        #                     bias_initial_max=1,
-        #                     bias_min=-5,
-        #                     bias_max=5,
+        #                     connection_min_weight=-15,
+        #                     connection_max_weight=15,
+        #                     connection_initial_min_weight=-1,
+        #                     connection_initial_max_weight=1,
+        #                     weight_mutation_normal_sigma=1.5,
+        #                     bias_min=0,
+        #                     bias_max=0,
+        #                     bias_initial_min=0,
+        #                     bias_initial_max=0,
         #                     compatibility_factor_disjoint_genes=1.0,
         #                     compatibility_factor_matching_genes=0.4,
-        #                     probability_mutate_add_connection=0.05,
-        #                     probability_mutate_add_node=0.03,
-        #                     compatibility_genome_size_threshold=10)
+        #                     probability_mutate_add_connection=0.5,
+        #                     probability_mutate_add_node=0.2,
+        #                     compatibility_genome_size_threshold=0)
 
         # Create random seed, if none is specified
         if seed is None:
@@ -102,7 +106,7 @@ class XOROptimizer(BaseExample):
 
         optimizer.evaluate(amount_input_nodes=2,
                            amount_output_nodes=1,
-                           activation_function=tanh_activation,
+                           activation_function=modified_sigmoid_activation,
                            challenge=ChallengeXOR(),
                            config=config,
                            seed=seed)
