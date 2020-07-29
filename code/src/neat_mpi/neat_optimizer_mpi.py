@@ -217,31 +217,15 @@ class NeatOptimizerMPI(NeatOptimizer):
         # Calculate the adjusted fitness values
         min_fitness = min([a.fitness for a in generation.agents])
         max_fitness = max([a.fitness for a in generation.agents])
-        # species_list = ss.calculate_adjusted_fitness(species_list, min_fitness, max_fitness)
-
-        all_adjusted_fitness_vals = []
-        for species in species_list:
-            species_adjusted_fitness_vals = []
-            amount_genomes = len(species.members)
-
-            for agent in species.members:
-                agent.adjusted_fitness = agent.fitness / amount_genomes
-                all_adjusted_fitness_vals.append(agent.adjusted_fitness)
-                species_adjusted_fitness_vals.append(agent.adjusted_fitness)
-
-            species.adjusted_fitness = np.sum(species_adjusted_fitness_vals)
-
-        mean_all_adjusted_fitness_vals = np.mean(all_adjusted_fitness_vals)
-
-        # calculate offspring alternative
-        off_spring_list = []
-
-        for species in species_list:
-            amount_off_spring = species.adjusted_fitness / mean_all_adjusted_fitness_vals
-            off_spring_list.append(int(round(amount_off_spring)))
+        species_list = ss.calculate_adjusted_fitness(species_list, min_fitness, max_fitness)
 
         # Calculate offspring for species
         # off_spring_list = ss.calculate_amount_offspring(species_list, config.population_size - len(best_agents_genomes))
+
+        previous_sizes_species = [len(s.members) for s in species_list]
+        adjusted_fitnesses_species = [s.adjusted_fitness for s in species_list]
+        off_spring_list = ss.compute_spawn(adjusted_fitnesses_species, previous_sizes_species,
+                                           config.population_size - len(best_agents_genomes), 5)
         logger.info("Offspring List: {}, Sum to be generated: {}".format(off_spring_list, sum(off_spring_list)))
 
         # Remove the low performing genomes

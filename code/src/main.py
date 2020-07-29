@@ -130,6 +130,7 @@ if __name__ == '__main__':
 
     # Show final results
     logger.info("-------- Program finished --------")
+    logger.info("Provided seed:")
     logger.info(
         "Min generations: {}, Max generations: {}, Mean: {}".format(min(statistics["generations"]),
                                                                     max(statistics["generations"]),
