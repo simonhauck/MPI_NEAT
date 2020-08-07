@@ -147,37 +147,13 @@ class NeatOptimizerMPI(NeatOptimizer):
         # Notify callback
         self._notify_reporters_callback(lambda r: r.on_generation_evaluation_start(generation))
 
-        result_list = self.executor.map(neat_worker_mpi.evaluate_agent, generation.agents, chunksize=5)
+        result_list = self.executor.map(neat_worker_mpi.evaluate_agent, generation.agents, chunksize=1)
 
         for i, result in enumerate(result_list):
             generation.agents[i].fitness = result[0]
             generation.agents[i].additional_info = result[1]
             self._notify_reporters_callback(lambda r: r.on_agent_evaluation_end(i, generation.agents[i]))
 
-        # for i, (result, agent) in enumerate(zip(result_list, generation.agents)):
-        #     agent.fitness = result[0]
-        #     agent.additional_info = result[1]
-        #
-        #     self._notify_reporters_callback(lambda r: r.on_agent_evaluation_end(i, agent))
-
-        # for i, agent in zip(range(len(generation.agents)), generation.agents):
-        #     # Prepare challenge and notify callback
-        #     self._notify_reporters_callback(lambda r: r.on_agent_evaluation_start(i, agent))
-        #     challenge.before_evaluation()
-        #
-        #     # Create and build neural network
-        #     neural_network = BasicNeuralNetwork()
-        #     neural_network.build(agent.genome)
-        #
-        #     # Evaluate agent, set values
-        #     fitness, additional_info = challenge.evaluate(neural_network)
-        #     agent.fitness = fitness
-        #     agent.additional_info = additional_info
-        #
-        #     # Postprocess challenge and notify callback
-        #     challenge.after_evaluation()
-        #     self._notify_reporters_callback(lambda r: r.on_agent_evaluation_end(i, agent))
-        #
         # # Notify callback
         self._notify_reporters_callback(lambda r: r.on_generation_evaluation_end(generation, self.reporters))
         return generation
@@ -218,7 +194,6 @@ class NeatOptimizerMPI(NeatOptimizer):
 
         # Calculate offspring for species
         off_spring_list = ss.calculate_amount_offspring(species_list, config.population_size - len(best_agents_genomes))
-        logger.info("Offspring List: {}".format(off_spring_list))
 
         # Calculate off spring combinations
         off_spring_pairs = []
@@ -264,17 +239,13 @@ class NeatOptimizerMPI(NeatOptimizer):
         # Notify callback end
         self._notify_reporters_callback(lambda r: r.on_compose_offsprings_end())
 
-        # TODO convert back
         # Select new representative
         existing_species = [ss.select_new_representative(species, rnd) for species in generation.species_list]
         # Reset members and fitness
         existing_species = [ss.reset_species(species) for species in existing_species]
-        # existing_species = [ss.reset_species(species) for species in generation.species_list]
 
         # Sort members into species
         new_species_list = ss.sort_agents_into_species(existing_species, new_agents, species_id_generator, config)
-        logger.info("Species IDs: {}".format([s.id_ for s in new_species_list]))
-        logger.info("Species Mem: {}".format([len(s.members) for s in new_species_list]))
 
         # Filter out empty species
         new_species_list = ss.get_species_with_members(new_species_list)
@@ -285,24 +256,5 @@ class NeatOptimizerMPI(NeatOptimizer):
         return new_generation
 
     def _cleanup(self, challenge: Challenge) -> None:
-        # if self.executor is not None:
-        #     self.executor.shutdown(wait=True)
-
-        # Notify callback and challenge
-        # challenge.clean_up()
         self._notify_reporters_callback(lambda r: r.on_cleanup())
 
-# def run_agent(agent: Agent) -> (float, Dict[str, object]):
-#     challenge = challenge_tmp
-#     challenge.before_evaluation()
-#
-#     # Create and build neural network
-#     neural_network = BasicNeuralNetwork()
-#     neural_network.build(agent.genome)
-#
-#     fitness, additional_info = challenge.evaluate(neural_network)
-#
-#     challenge.after_evaluation()
-#     # challenge.clean_up()
-#
-#     return fitness, additional_info

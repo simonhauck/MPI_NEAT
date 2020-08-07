@@ -2,9 +2,7 @@ from typing import Dict
 
 import gym
 import numpy as np
-from gym import wrappers
 from loguru import logger
-from pyvirtualdisplay import Display
 
 from neat_core.optimizer.challenge import Challenge
 from neural_network.neural_network_interface import NeuralNetworkInterface
@@ -15,18 +13,12 @@ class ChallengeMountainCar(Challenge):
     def __init__(self) -> None:
         self.env = None
         self.observation = None
-        self.virtual_display = None
 
     def initialization(self, **kwargs) -> None:
         self.env = gym.make("MountainCar-v0")
 
-        if kwargs.get("record", False):
-            self.virtual_display = Display(visible=0, size=(1400, 900))
-            self.virtual_display.start()
-            self.env = gym.wrappers.Monitor(self.env, "/tmp/mountain_car", video_callable=lambda episode_id: True)
-
     def before_evaluation(self, **kwargs) -> None:
-        self.env.seed(0)
+        self.env.seed(1111)
         self.observation = self.env.reset()
 
     def evaluate(self, neural_network: NeuralNetworkInterface, **kwargs) -> (float, Dict[str, object]):
@@ -34,7 +26,7 @@ class ChallengeMountainCar(Challenge):
         fitness_values = []
         max_x_values = []
 
-        amount_runs = 1
+        amount_runs = 10
 
         for _ in range(amount_runs):
             # Max episodes of environment, after which it terminates
@@ -45,6 +37,7 @@ class ChallengeMountainCar(Challenge):
 
             # Reset environment
             self.before_evaluation()
+            neural_network.reset()
             max_x_progress = self.observation[0]
 
             for _ in range(max_episodes):
@@ -55,7 +48,7 @@ class ChallengeMountainCar(Challenge):
                 self.observation, reward, done, info = self.env.step(index)
 
                 # Render environment only if it is specifically requested
-                if kwargs.get("record", False) or kwargs.get("show", False):
+                if kwargs.get("show", False):
                     self.env.render()
 
                 # Used for fitness
@@ -85,7 +78,3 @@ class ChallengeMountainCar(Challenge):
 
     def clean_up(self, **kwargs):
         self.env.close()
-
-        if kwargs.get("record", False):
-            logger.info("Closing virtual display")
-            self.virtual_display.stop()

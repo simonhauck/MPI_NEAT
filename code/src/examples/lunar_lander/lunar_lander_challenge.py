@@ -36,7 +36,7 @@ class LunarLanderChallenge(Challenge):
                 self.observation, reward, done, info = self.env.step(index)
 
                 # Render environment only if it is specifically requested
-                if kwargs.get("record", False) or kwargs.get("show", False):
+                if kwargs.get("show", False):
                     self.env.render()
 
                 # Used for fitness

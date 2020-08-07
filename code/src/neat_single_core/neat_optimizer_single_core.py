@@ -129,16 +129,10 @@ class NeatOptimizerSingleCore(NeatOptimizer):
         best_agents_genomes = gs.get_best_genomes_from_species(generation.species_list,
                                                                config.species_size_copy_best_genome)
 
-        # TODO REMOVE
-        logger.info("Species before: {}".format([s.id_ for s in generation.species_list]))
-
         # Get allowed species for reproduction
         generation = ss.update_fitness_species(generation)
         species_list = ss.get_allowed_species_for_reproduction(generation,
                                                                config.species_stagnant_after_generations)
-
-        # TODO REMOVE
-        logger.info("Species after: {}".format([s.id_ for s in species_list]))
 
         # TODO handle error no species
         if len(species_list) <= 5:
@@ -155,7 +149,6 @@ class NeatOptimizerSingleCore(NeatOptimizer):
 
         # Calculate offspring for species
         off_spring_list = ss.calculate_amount_offspring(species_list, config.population_size - len(best_agents_genomes))
-        logger.info("Offspring List: {}".format(off_spring_list))
 
         # Calculate off spring combinations
         off_spring_pairs = []

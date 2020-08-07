@@ -149,6 +149,14 @@ sudo apt-get install -y python-opengl ffmpeg xvfb
 pip install pyvirtualdisplay
 ```
 
+## Installation for Gym environments
+Some environments require the followign packages
+```shell script
+sudo apt-get install swig
+
+pip install gym[box2d]
+```
+
 ## Upload to Code to the Raspberry Pi and install the remaining dependencies
 Last, upload the code to the Raspberry Pi. Activate the created virtual environment and install the remaining 
 dependencies.
