@@ -1,9 +1,46 @@
+% !TeX spellcheck = de_DE
 \section{Evolutionäre Algorithmen}
+Für die Optimierung von \ac{KNN} können verschiedene Algorithmen eingesetzt werden. Der in Kapitel (TODO KApitel) vorstellte Backpropagation Algorithmus, ist hierbei nur ein einzelnes Beispiel. In dieser Arbeit wird ein Verfahren eingesetzt, welches in Kapitel \ref{sec:neat} vorgestellt wird und zur Gruppe der \ac{EA} gehört. Auch wenn \ac{EA} eine Vielzahl von unterschiedlichen Verfahren umfassen, haben diese einige gemeinsame Grundprinzipien. Ziel von diesen Algorithmen ist, eine möglichst gute Näherungslösung für ein Optimierungsproblem zu finden. Umgesetzt wird dies mit einer simulierten Evolution, welche durch das biolgische Pendant inspiriert ist \cite{weicker2015evolutionare}.
+\\\\
+Im Folgenden .. 
 
- % Use : Neural Networks - a Systematic Introduction P 437 and following
-\subsection{Genome und Phänotyp}
-\subsection{Phasen des Algos}
-\subsection{Kodierung}
+% Use : Neural Networks - a Systematic Introduction P 437 and following
+\subsection{Biologische Evolutionäre Konzepte}
+\label{subsec:biological_evolution}
+Einer der bedeutendsten Wissenschaftler im Bezug auf die Evolutionstheorie ist Charles Darwin, welcher 1859 mit seiner Arbeit \emph{On the Origin of Species by Means of Natural Selection} einen wichtigen Grundbaustein gelegt hat \cite{russell2013kunstliche}. Theoretisch wird bei Betrachtung der Evolution zwischen unbelebten Systemen, sowie lebenden Organismen unterschieden \cite{weicker2015evolutionare}. Da die \ac{EA} von Letzterem inspiriert sind, wird im Weiteren Verlauf dieser Arbeit nur auf diese Bezug genommen.
+\\\\
+Die später vorgestellten \ac{EA} übernehmen aus der Biologie verschiedene Begriffe wie zum Beispiel Population, Individuum, Genotyp, Phänotyp, Selektion, Rekombination und Mutation. Deshalb werden diese im Folgenden anhand des biologischen Vorbilds eingeführt. Die Erklärungen in dieser Arbeit sind stark vereinfacht und es werden auch nur die konzeptionellen Prinzipien betrachtet. Der genaue biologische Ablauf ist für diese Arbeit nicht interessant.\\
+Eine Population setzt sich aus vielen unterschiedlichen und unabhängigen Individuen zusammen, welche alle zur selben Art gehören. Eine Art ist hierbei so definiert, dass sich die einzelnen Individuen einen gemeinsamen Genpool teilen und sich miteinander paaren können. Jedes Individuum besitzt ein Genom, welches das genetische Erbgut enthält. Dieses besteht mehreren aus Chromosomen, die wiederum mehrere Gene besitzen \cite{weicker2015evolutionare}. Hierbei kann ein Gen, welches zum Beispiel für die Fell- bzw. Haarfarbe des Individuums verantwortlich ist, verschieden Werte annehmen. Jede dieser Ausprägungen, in diesem Fall schwarze und braune Haare, werden als Allel bezeichnet \cite{weicker2015evolutionare}. Somit ist das Genom der Bauplan für ein Individuum und bestimmt maßgeblich dessen Erscheinungsbild \cite{kirschbaum2008biopsychologie}. Der Phänotyp wird durch das Genom beeinflusst und beschreibt die tatsächlichen, äußerlich feststellbare Ausprägungen der einzelnen Gene \cite{weicker2015evolutionare}. Allerdings kann der Phänotyp auch durch die Umwelt beeinflusst werden \cite{kirschbaum2008biopsychologie}. Die Kombination aus Genom und Phänotyp bilden das bereits vorgestellte Individuum. 
+\\\\
+Nachdem im vorherigen Absatz die grundlegenden Begriffe bezüglich einzelner Individuen erläutert wurden, soll jetzt mit Bezug auf die Evolution die Population als ganzes betrachtet werden. Die heute existierende Vielfalt von verschiedenen Tier- und Pflanzenarten hat sich über viele Millionen Jahren entwickelt. Der genaue Ursprung, wie die ersten Lebewesen mit Stoffwechselprozessen entstanden sind, ist dennoch unbekannt. Bezüglich der Evolution ergibt sich die Frage, wie das genetische Material sich im Laufe der Zeit ändern kann. Hierfür sind fünf Faktoren zu nennen \cite{weicker2015evolutionare}.
+\begin{enumerate}
+	\item Der erste und wichtigste Faktor sind zufällige Mutationen. Hierbei werden beim Vervielfältigen des genetischen Erbguts, zum Beispiel bei der Fortpflanzung, Fehler gemacht die zu zufälligen Änderungen führen. Hierdurch kann beispielsweise ein neues Allel entstehen, welches zu einer neuen nicht vorhandene Haar- bzw. Fellfarbe führt \cite{weicker2015evolutionare}. 
+	
+	\item Der zweite Faktor betrifft die Selektion. Das verschiedene Allele langfristig ähnlich häufig in der Population vorkommen müssen mehrere Faktoren zutreffen. Dies betrifft unter anderem die Überlebenschance der unterschiedlichen Individuen in der Umwelt, bei der sogenannten Umweltselektion \cite{weicker2015evolutionare}. Zum Beispiel kann eine auffällige Fellfarbe einen Nachteil sein, da diese von den natürlichen Feinden leichter entdeckt wird. Da diese Individuen häufiger gefressen werden haben sie eine geringere Chance sich Fortzupflanzen und es ist möglich, dass das genetische Material verloren gehen. Doch nicht nur die Umweltselektion hat einen Einfluss auf die Anzahl der Nachkommen. Hierfür sind ebenfalls die erfolgreiche Partnersuche sowie Fortpflanzungsrate verantwortlich \cite{weicker2015evolutionare}.
+	
+	\item Besonders in kleinen Populationen kann der Tod einzelner Individuen große Auswirkungen auf das Verhältnis der unterschiedlichen Allele haben. Hierbei können durch Zufall einzelne Allele komplett verloren gehen und die nachfolgenden Generationen stark beeinflussen. In diesem Fall spricht man von Gendrift. Der Effekt hiervon ist bei größeren Populationen vernachlässigbar \cite{weicker2015evolutionare}.
+	
+	\item Wie bereits beschrieben, sollen sich Individuen einer Art fortpflanzen können. Doch es kommt auch vor, dass Individuen einer Art Abwandern und sich an zwei räumlich getrennten Orten weiterentwickeln. Kommt es zu einem späteren Zeitpunkt wieder zu einer Zuwanderung können die neu entwickelten Gene die Population maßgeblich verändern. Dieser Effekt wird auch Genfluss genannt \cite{weicker2015evolutionare}.
+	
+	\item Der letzte Faktor ist die Reproduktion. Bezüglich der biologischen Evolution beschreibt dies den Vorgang der sexuelle Paarung von zwei Individuen, sodass ein oder mehrere Nachkommen erzeugt werden. Dabei wird das Ergbut für diese aus einer Kombination der Elterngenome erstellt. Somit handelt es sich aus Sicht der klassischen Evolutionslehre nicht um einen Evaluationsfaktor, da nur bekanntes neu kombiniert wird und keine neuen Gene oder Allele entstehen. Trotzdem wird die Reproduktion heute meistens als Evaluationsfaktor genannt. Grund hierfür ist, dass die einzelnen Gene nicht, wie lange in der Populationsgenetik angenommen, komplett unabhängig voneinander sind sondern stattdessen stark vernetzt sind und viel Einfluss aufeinander haben. So können auch bei der Kombination von bekannten Genotypen neue phänotypischen Eigenschaften entstehen \cite{weicker2015evolutionare}.
+\end{enumerate}
+
+Durch die vorgestellten Arten der Evolution kann eine Population sich verschiedensten Umweltsituationen anzupassen und sich gegenüber konkurrierenden Arten behaupten. Beispiel hierfür sind Bakterien, welche Resistenzen gegen bestimmte Antibiotika entwickeln. Während so anfänglich nur wenige Individuen geschützt sind, wird die Resistenz durch die hohe Verbreitung von Bakterien schnell an Nachkommen weitergegeben und ist nach kurzer Zeit in der ganzen Population vorhanden.
+ 
+\subsection{Evolutionäre Algorithmen}
+\label{subsec:evolutionary_algorithm}
+Im Jahre 1950, viele verschiedne Ansätze,...
+
+\subsection{Komponenten}
+\label{subsec:evoltuionary_algorithm_components}
+\subsubsection{Genome und Phänotyp}
+\subsubsection{Fitnessfunktion}
+\subsubsection{Selektion}
+\subsubsection{Reproduktion}
+\subsubsection{Mutation}
+\subsection{Zyklus evolutionärer Algorithmen}
+\subsection{Neuroevolution}
+\subsection{Neuroevolution im Vergleich}
 \subsection{TWEANN?}
 \label{subsec:tweann}
 \subsection{Competing Convention Problem}
