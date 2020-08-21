@@ -16,31 +16,108 @@ Nachdem im vorherigen Absatz die grundlegenden Begriffe bezüglich einzelner Ind
 \begin{enumerate}
 	\item Der erste und wichtigste Faktor sind zufällige Mutationen. Hierbei werden beim Vervielfältigen des genetischen Erbguts, zum Beispiel bei der Fortpflanzung, Fehler gemacht die zu zufälligen Änderungen führen. Hierdurch kann beispielsweise ein neues Allel entstehen, welches zu einer neuen nicht vorhandene Haar- bzw. Fellfarbe führt \cite{weicker2015evolutionare}. 
 	
-	\item Der zweite Faktor betrifft die Selektion. Das verschiedene Allele langfristig ähnlich häufig in der Population vorkommen müssen mehrere Faktoren zutreffen. Dies betrifft unter anderem die Überlebenschance der unterschiedlichen Individuen in der Umwelt, bei der sogenannten Umweltselektion \cite{weicker2015evolutionare}. Zum Beispiel kann eine auffällige Fellfarbe einen Nachteil sein, da diese von den natürlichen Feinden leichter entdeckt wird. Da diese Individuen häufiger gefressen werden haben sie eine geringere Chance sich Fortzupflanzen und es ist möglich, dass das genetische Material verloren gehen. Doch nicht nur die Umweltselektion hat einen Einfluss auf die Anzahl der Nachkommen. Hierfür sind ebenfalls die erfolgreiche Partnersuche sowie Fortpflanzungsrate verantwortlich \cite{weicker2015evolutionare}.
+	\item Der zweite Faktor betrifft die Selektion. Das verschiedene Allele langfristig ähnlich häufig in der Population vorkommen müssen mehrere Faktoren zutreffen. Dies betrifft unter anderem die Überlebenschance der unterschiedlichen Individuen in der Umwelt, bei der sogenannten Umweltselektion \cite{weicker2015evolutionare}. Zum Beispiel kann eine auffällige Fellfarbe einen Nachteil sein, da diese von den natürlichen Feinden leichter entdeckt wird. Da diese Individuen häufiger gefressen werden haben sie eine geringere Chance sich Fortzupflanzen und es ist möglich, dass das genetische Material verloren geht. Doch nicht nur die Umweltselektion hat einen Einfluss auf die Anzahl der Nachkommen. Hierfür sind ebenfalls die erfolgreiche Partnersuche sowie Fortpflanzungsrate verantwortlich \cite{weicker2015evolutionare}.
 	
 	\item Besonders in kleinen Populationen kann der Tod einzelner Individuen große Auswirkungen auf das Verhältnis der unterschiedlichen Allele haben. Hierbei können durch Zufall einzelne Allele komplett verloren gehen und die nachfolgenden Generationen stark beeinflussen. In diesem Fall spricht man von Gendrift. Der Effekt hiervon ist bei größeren Populationen vernachlässigbar \cite{weicker2015evolutionare}.
 	
 	\item Wie bereits beschrieben, sollen sich Individuen einer Art fortpflanzen können. Doch es kommt auch vor, dass Individuen einer Art Abwandern und sich an zwei räumlich getrennten Orten weiterentwickeln. Kommt es zu einem späteren Zeitpunkt wieder zu einer Zuwanderung können die neu entwickelten Gene die Population maßgeblich verändern. Dieser Effekt wird auch Genfluss genannt \cite{weicker2015evolutionare}.
 	
-	\item Der letzte Faktor ist die Reproduktion. Bezüglich der biologischen Evolution beschreibt dies den Vorgang der sexuelle Paarung von zwei Individuen, sodass ein oder mehrere Nachkommen erzeugt werden. Dabei wird das Ergbut für diese aus einer Kombination der Elterngenome erstellt. Somit handelt es sich aus Sicht der klassischen Evolutionslehre nicht um einen Evaluationsfaktor, da nur bekanntes neu kombiniert wird und keine neuen Gene oder Allele entstehen. Trotzdem wird die Reproduktion heute meistens als Evaluationsfaktor genannt. Grund hierfür ist, dass die einzelnen Gene nicht, wie lange in der Populationsgenetik angenommen, komplett unabhängig voneinander sind sondern stattdessen stark vernetzt sind und viel Einfluss aufeinander haben. So können auch bei der Kombination von bekannten Genotypen neue phänotypischen Eigenschaften entstehen \cite{weicker2015evolutionare}.
+	\item Der letzte Faktor ist die Rekombination. Bezüglich der biologischen Evolution beschreibt dies den Vorgang der sexuelle Paarung von zwei Individuen, sodass ein oder mehrere Nachkommen erzeugt werden. Dabei wird das Ergbut für diese aus einer Kombination der Elterngenome erstellt. Somit handelt es sich aus Sicht der klassischen Evolutionslehre nicht um einen Evaluationsfaktor, da nur bekanntes neu kombiniert wird und keine neuen Gene oder Allele entstehen. Trotzdem wird die Rekombination heute meistens als Evaluationsfaktor genannt. Grund hierfür ist, dass die einzelnen Gene nicht, wie lange in der Populationsgenetik angenommen, komplett unabhängig voneinander sind sondern stattdessen stark vernetzt sind und viel Einfluss aufeinander haben. So können auch bei der Kombination von bekannten Genotypen neue phänotypischen Eigenschaften entstehen \cite{weicker2015evolutionare}.
 \end{enumerate}
 
 Durch die vorgestellten Arten der Evolution kann eine Population sich verschiedensten Umweltsituationen anzupassen und sich gegenüber konkurrierenden Arten behaupten. Beispiel hierfür sind Bakterien, welche Resistenzen gegen bestimmte Antibiotika entwickeln. Während so anfänglich nur wenige Individuen geschützt sind, wird die Resistenz durch die hohe Verbreitung von Bakterien schnell an Nachkommen weitergegeben und ist nach kurzer Zeit in der ganzen Population vorhanden.
  
 \subsection{Evolutionäre Algorithmen}
 \label{subsec:evolutionary_algorithm}
-Im Jahre 1950, viele verschiedne Ansätze,...
+Im vorherigen Kapitel ist die biologische Evolution vorgestellt, mit der eine Vielzahl von unterschiedlichen Lebensformen entstanden ist, die sich sehr gut an ihre jeweilige Umwelt angepasst haben. Da dieses Vorgehen in der Biologie sehr erfolgreich ist, wurden schon im Jahr 1950 erste Versuche durchgeführt, dieses Vorgehen auf Computersysteme zu übertragen. Hierbei wird eine bedeutend vereinfachte künstliche Evolution simuliert mit dem Ziel ein Optimierungsproblem zu lösen \cite{weicker2015evolutionare}. Heute gibt es ein Vielzahl von verschiedenen Algorithmen, die unterschiedliche Aspekte der Evolution imitieren. Im folgenden werden die Grundkomponenten eingeführt und verschiedene Umsetzungsmöglichkeiten für diese gegeben.
 
-\subsection{Komponenten}
-\label{subsec:evoltuionary_algorithm_components}
-\subsubsection{Genome und Phänotyp}
-\subsubsection{Fitnessfunktion}
+\subsubsection{Genotyp und Phänotyp}
+Wie bei der biologischen Evolution auch, gibt es bei den \ac{EA} Individuen, welche durch ein Genom und einen Phänotyp definiert sind \cite{weicker2015evolutionare}. Das Genom enthält alle Informationen die nötig sind, um den Phänotypen des Individuums zu erstellen. Die eigentliche Form des Phänotypen ist abhängig von dem gegebenen Optimierungsproblem und kann je nach Einsatzszenario unterschiedlich umgesetzt sein \cite{rothlauf2006representation}. Die Repräsentation des Genoms ist in vielen klassischen Algorithmen binär. In diesen Fällen wird das Genom durch einen Vektor $x$ von der Länge $l$ repräsentiert, welcher nur aus den Werten $0$ und $1$ besteht, somit gilt $x= (x_1, x_2, ..., x_l) \in \{0, 1\}^l$ \cite{rothlauf2006representation}. Allerdings kann diese Art der Kodierung nicht ausreichend sein. In diesen Fällen kann der Vektor auch natürliche, ganze oder rationale Zahlen enthalten \cite{rothlauf2006representation}. Grundsätzlich sind diese Arten der Repräsentationen nur als Beispiele zu verstehen. Jeder Algorithmus kann die Repräsentation der Genome anpassen, sodass es für das Verfahren zuträglich ist. In Kapitel \ref{subsec:neat_encoding} wird die in dieser Arbeit verwendete Art der Kodierung vorgestellt. 
+
+\subsubsection{Optimierungsproblem}
+Wie bereits beschrieben, ist es das Ziel von \ac{EA} Optimierungsprobleme zu lösen. Diese können aus vielen unterschiedlichen Bereichen wie Forschung, Wirtschaft sowie Industrie kommen \cite{weicker2015evolutionare} und unterschiedliche Anforderungen haben. Grundsätzlich muss jedes Optimierungsprobleme aus einem dreier Tupel $(\Omega, f, \succ)$ bestehen \cite{weicker2015evolutionare}. Die Variable $\Omega$ repräsentiert dabei den Suchraum, also jeden verschiedenen Lösungsansatz. Dieser wird typischerweise mit einem Individuum und dessen Genom bzw. Phänotyp getestet. Die Funktion $f$ ist definiert als $f: \Omega \rightarrow \mathbb{R}$ und bewertet jeden Lösungsansatz aus dem Suchraum und weißt diesem einen reellen Wert zu \cite{weicker2015evolutionare}. Dieser wird auch als Güte- bzw. Fitnesswert bezeichnet. Der letzte Teil des Optimierungsproblems ist eine Vergleichsrelation $\succ \in \{<, >\}$, welche angibt ob es das Ziel ist ein Minimum oder Maximum in der Fitnessfunktion zu finden \cite{weicker2015evolutionare}. Im Kontext von \ac{EA} wird meistens das Maximum gesucht, so auch in dieser Arbeit. Daher wird im weiteren immer angenommen, dass das Ziel ist, den erreichten Fitnesswert zu maximieren.\\
+Bei allen Optimierungsproblemen ist die Fitnessfunktion ein elementarer Bestandteil. Nur diese Funktion gibt dem Algorithmus ein Feedback wie gut oder schlecht eine Lösung ist. Mithilfe dieser Funktion muss jeder \ac{EA} ableiten, in welche Richtung eine Optimierung sich entwickeln soll um möglichst effizient eine Lösung zu finden \cite{weicker2015evolutionare}. Aus diesem Grund ist die erste Anforderungen an eine solche Funktion, dass sie keine absolute sondern eine graduelle Bewertung der verschiedenen Lösungsansätze bietet \cite{weicker2015evolutionare}. Beispiel für eine absolute Bewertung ist, wenn die Fitnessfunktion für eine Lösung den Wert $1$ liefert, wenn das Optimierungsproblem gelöst ist und andernfalls $0$. In diesem Fall kann nicht festgestellt werden welche Änderungen der Suchparameter Erfolgs versprechend sind und somit es auch nicht möglich, diese gezielt zu ändern. Infolgedessen müssen mehr Lösungsansätze aus dem Suchraums getestet werden, was den Rechenaufwand und die benötigte Zeit erhöht. Des weiteren muss die Fitnessfunktion möglichst vollständig die Ziele des Optimierungsproblems abbilden. Andernfalls kann zwar durch den Algorithmus das Ergebnis der Fitnessfunktion maximiert werden, aber die hierdurch gefundene Lösung enthält nicht die vom Anwender gewünschten Eigenschaften \cite{weicker2015evolutionare}.
+
+\subsubsection{Ablauf evolutionärer Algorithmen}
+Aus den vorherigen Kapiteln ist ersichtlich, dass Individuen aus einem Genotyp sowie Phänotyp bestehen und dass diese Versuchen ein Optimierungsproblem zu lösen. Die Aufgabe eines evolutionären Algorithmus ist es, die Individuen langfristig so anzupassen, dass sie bessere Fitnesswerte in dem Optimierungsproblem erzielen und dementsprechend eine gute Lösung finden. Hierzu werden die aus der Natur bekannten Verfahren Selektion, Rekombination und Mutation eingesetzt. Doch bevor in den weiteren Kapitel verschiedene Beispielumsetzungen vorgestellt werden, wird in diesem Abschnitt der grundlegende Ablauf von \ac{EA} eingeführt.
+\\\\
+Abbildung (TODO ABBILDUNG) zeigt den beispielhaften Ablauf, wobei die Phasen Evaluation, Selektion, Mutation und Rekombination die größte Bedeutung haben. Doch bevor der eigentliche Programmablauf startet kann, muss eine erste initiale Population erzeugt werden. Wie bereits in der biologischen Evolution, besteht diese auch in diesem Fall aus mehreren unabhängigen Individuen \cite{rothlauf2006representation}. Im Gegensatz zum biologischen Vorbild verwenden bei den meisten Algorithmen ein feste Populationsgröße, da ansonsten die später benötigte Evaluationszeit und der damit verbundene Rechenaufwand stark ansteigen würde \cite{rothlauf2006representation}. Die für die Individuen benötigten Genome werden zufällig erstellt \cite{weicker2015evolutionare}, wobei je nach Algorithmus verschiedene Zufallsverteilungen genutzt werden können.
+\\\\
+Danach beginnt die Evaluationsphase mit der initialen Population \cite{rothlauf2006representation}. Hierfür wird der Phänotyp für jedes Individuum mit dem entsprechendem Genom gebildet. Jeder von diesen stellt eine mögliche Lösung für das gegebene Optimierungsproblem dar. Wie im vorherigen Kapitel beschrieben, muss dieses eine Fitnessfunktion enthalten, mit welcher jeder Phänotyp bewertet wird. An dieser Stelle soll nochmals hervorgehoben werden, dass die Gesamtheit der aller Gene den Phänotyp bestimmen und daher keine Bewertung der einzelnen Gene möglich ist \cite{rothlauf2006representation}. Die Evaluationsphase endet, wenn für alle Phänotypen ein Fitnesswert ermittelt ist. Der nächste Schritt ist die Überprüfung einer Abbruchbedingung. Trifft diese zu, wird die Ausführung des Algorithmus abgebrochen und das Genome des besten Individuums als Ergebnis zurück gegeben \cite{weicker2015evolutionare}. Je nach Umsetzung der Abbruchbedingung kann zum Beispiel überprüft werden, ob ein gewisser Fitnesswert überschritten und somit eine Lösung mit der gewünschte Genauigkeit bzw. Korrektheit gefunden wurde oder ob eine vorher definierte maximale Ausführungszeit überschritten ist
+\\\\
+Die Abbruchbedingung wird zu Beginn mit sehr großer Wehrscheinlicht nicht erfüllt sein, da die Genome nur zufällig erstellt sind und bisher kein Lernprozess durchgeführt wurde. Daher werden im Folgenden die Phasen Selektion, Rekombination und Mutation durchgeführt \cite{rothlauf2006representation}. Diese werden in den Folgenden Kapiteln ausführlich erläutert daher wird im Zuge von diesem Abschnitt nur ein kurzer Überblick gegeben. In der ersten Phase, der Selektion, wird auf Basis des erhaltenes Fitnesswertes für jedes Individuum festgelegt ob und wenn ja wie viele Nachkommen dieses erzeugen darf \cite{weicker2015evolutionare}. Bei der Rekombination werden die tatsächlichen Nachkommen erzeugt. Typischerweise werden zwei, in machen Fällen auch mehr, Individuen als Elterngenome ausgewählt und gekreuzt. Bei diesem Vorgang wird das genetische Material, welches in den Genomen der Eltern-Individuen enthalten ist, gemischt und an das neu erstellte Kind-Individuum übertragen. Das Ziel von dieser Operation ist, dass das Kind immer einen Teil der Gene von beiden Eltern erhält und somit auch Eigenschaft von beeiden vereint. Langfristig sollen sich durch ein solches Verfahren nur die besten Gene durchsetzen \cite{weicker2015evolutionare}. 
+Die letzte Phase ist die Mutation. In diesem Schritt besteht für jedes neu erstellte Individuum die Wahrscheinlichkeit, dass ein kleiner Teil des Genoms zufällig abgeändert wird \cite{rojas1996neural}. Die Art der Mutation ist hierbei abhängig von der Umsetzung des Genotypen und dem Algorithmus. Bezüglich der drei Phasen muss verdeutlicht werden, dass die Selektion auf Basis des Phänotypen mit dem Fitnesswert geschieht, die Rekombination und Mutation hingegen auf Basis des Genotypen. Somit können keine Eigenschaften, die im Phänotyp gespeichert sind auf die Nachkommen übertragen werden \cite{rothlauf2006representation}.
+\\\\
+Sind diese drei Phasen abgeschlossen, sind die neuen Individuen fertig erstellt. Da, wie bereits in diesem Kapitel beschrieben, die Populationsgröße meistens begrenzt ist, wird an dieser Stelle typischerweise die Elterngeneration komplett entfernt und durch die dieselbe Anzahl an Nachkommen ersetzt \cite{weicker2015evolutionare}. Allerdings gibt es auch andere Ansätze, bei denen nicht so viele neue Individuen gleichzeitig erstellt werden und diese dann direkt in die bestehende Population integriert werden können \cite{stanley2005real}. Die neue Population mit den neuen Individuen durchläuft dieselben Schritte wie die vorherigen Population. Ein kompletter Durchlauf von dem vorgestellten Zyklus wird als Generation bezeichnet \cite{weicker2015evolutionare}. Häufig wird die neu erstellte Population daher auch als neue Generation bezeichnet. 
+
 \subsubsection{Selektion}
-\subsubsection{Reproduktion}
+Bei \ac{EA} werden viele Individuen eingesetzt um verschiedene Lösungsansätze gleichzeitig zu betrachten. In der Phase der Selektion wird bestimmt, welche Individuen als Elternteil für die nächste Generation ausgewählt werden und wie viele Nachkommen ihnen zustehen. Bei einem solchen Auswahlverfahren ist zwischen zwei Grundlegenden Umsetzungen zu unterscheiden. Einerseits kann allen Individuen einer Generation dieselbe Menge an Nachkommen zugewiesen werden oder die Anzahl ist abhängig von dem erreichten Fitnesswert. Typischerweise wird die zweite Variante in \ac{EA} verwendet. Die erste erzeugt keinen Selektionsdruck, da die Individuen unabhängig von ihrer Leistung Nachkommen zugewiesen bekommen. Bei der zweiten Variante werden Individuen mit höheren Fitnesswerten bevorzugt, mit dem Ziel, dass sich die positiven Eigenschaften der erfolgreichen Individuen durchsetzen und schlechte aussterben. Trotzdem ist es nicht das Ziel, nur die allerbesten Genome als Elternteile auszuwählen. Wäre dies der Fall, würde die Population sehr schnell konvergieren, ihre Vielfalt verlieren und nur noch ähnliche Lösungsansätze bieten. Somit wird es unwahrscheinlich, dass neue unbekannte aber eventuell bessere Lösungsstrategien gefunden werden \cite{weicker2015evolutionare}. 
+\\\\
+Der genaue Selektionsvorgang wie er in dem Algorithmus dieser Arbeit umgesetzt ist, wird in Kapitel \ref{subsec:neat_species} erläutert. Im Folgenden werden verschiedene bekannte Varianten probabilistische Verfahren vorgestellt die in anderen Algorithmen als Selektionsfunktion verwendet werden. Bei diesen wird die Anzahl an Nachkommen durch den jeweils erreichten Fitnesswert beeinflusst.
+
+
+%\begin{enumerate}
+%	\item \textbf{Fitnessproportionale Selektion:}
+%	\item  \textbf{Rangbasierte Selektion: }
+%\end{enumerate}
+
+
+\subsubsection{Rekombination}
+
 \subsubsection{Mutation}
-\subsection{Zyklus evolutionärer Algorithmen}
-\subsection{Neuroevolution}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%\subsection{Komponenten}
+%\label{subsec:evoltuionary_algorithm_components}
+%\subsubsection{Genome und Phänotyp}
+%\subsubsection{Fitnessfunktion}
+%Problem mit noiysy function
+%\subsubsection{Selektion}
+%\subsubsection{Reproduktion}
+%\subsubsection{Mutation}
+%\subsection{Zyklus evolutionärer Algorithmen}
+%\subsection{Neuroevolution}
+%Kann markov task lösen, Kategorie des RL Leanring
+
 \subsection{Neuroevolution im Vergleich}
+%Can achive better wall clock time, Can be used if gradients are hard to calculate, ) GAs explore the domain of definition of the %target function at many points and can thus escape from local minima or maxima, einfache bewertung mit fitness funktion, 
+%•	These properties of genetic algorithms have their price: unlike traditional random search, the function is not examined at a %single place, constructing a possible path to the local maximum or minimum, but many different places are considered %simultaneously. The function must be calculated for all elements of the population.
+%•	However, compared to other stochastic methods genetic algorithms have the advantage that they can be parallelized with little %effort. Since the calculations of the function on all points of a population are independent from each other, they can be carried %out in several processors
+%•	advantage that they do not necessarily remain trapped in a suboptimal local maximum or minimum of the target function
+%•	genetic algorithm can move away from a local maximum or minimum if the population finds better function values in other areas %of the definition domain
+% Probabilistische Strahlsuche ?
 \subsection{TWEANN?}
 \label{subsec:tweann}
 \subsection{Competing Convention Problem}
