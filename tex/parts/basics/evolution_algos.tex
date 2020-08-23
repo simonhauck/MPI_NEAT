@@ -51,21 +51,38 @@ Die letzte Phase ist die Mutation. In diesem Schritt besteht für jedes neu erst
 Sind diese drei Phasen abgeschlossen, sind die neuen Individuen fertig erstellt. Da, wie bereits in diesem Kapitel beschrieben, die Populationsgröße meistens begrenzt ist, wird an dieser Stelle typischerweise die Elterngeneration komplett entfernt und durch die dieselbe Anzahl an Nachkommen ersetzt \cite{weicker2015evolutionare}. Allerdings gibt es auch andere Ansätze, bei denen nicht so viele neue Individuen gleichzeitig erstellt werden und diese dann direkt in die bestehende Population integriert werden können \cite{stanley2005real}. Die neue Population mit den neuen Individuen durchläuft dieselben Schritte wie die vorherigen Population. Ein kompletter Durchlauf von dem vorgestellten Zyklus wird als Generation bezeichnet \cite{weicker2015evolutionare}. Häufig wird die neu erstellte Population daher auch als neue Generation bezeichnet. 
 
 \subsubsection{Selektion}
-Bei \ac{EA} werden viele Individuen eingesetzt um verschiedene Lösungsansätze gleichzeitig zu betrachten. In der Phase der Selektion wird bestimmt, welche Individuen als Elternteil für die nächste Generation ausgewählt werden und wie viele Nachkommen ihnen zustehen. Bei einem solchen Auswahlverfahren ist zwischen zwei Grundlegenden Umsetzungen zu unterscheiden. Einerseits kann allen Individuen einer Generation dieselbe Menge an Nachkommen zugewiesen werden oder die Anzahl ist abhängig von dem erreichten Fitnesswert. Typischerweise wird die zweite Variante in \ac{EA} verwendet. Die erste erzeugt keinen Selektionsdruck, da die Individuen unabhängig von ihrer Leistung Nachkommen zugewiesen bekommen. Bei der zweiten Variante werden Individuen mit höheren Fitnesswerten bevorzugt, mit dem Ziel, dass sich die positiven Eigenschaften der erfolgreichen Individuen durchsetzen und schlechte aussterben. Trotzdem ist es nicht das Ziel, nur die allerbesten Genome als Elternteile auszuwählen. Wäre dies der Fall, würde die Population sehr schnell konvergieren, ihre Vielfalt verlieren und nur noch ähnliche Lösungsansätze bieten. Somit wird es unwahrscheinlich, dass neue unbekannte aber eventuell bessere Lösungsstrategien gefunden werden \cite{weicker2015evolutionare}. 
+Bei \ac{EA} werden viele Individuen eingesetzt um verschiedene Lösungsansätze gleichzeitig zu betrachten. In der Phase der Selektion wird bestimmt, welche Individuen als Elternteil für die nächste Generation ausgewählt werden und wie viele Nachkommen ihnen zustehen. Bei einem solchen Auswahlverfahren ist zwischen zwei Grundlegenden Umsetzungen zu unterscheiden. Einerseits kann allen Individuen einer Generation dieselbe Menge an Nachkommen zugewiesen werden oder die Anzahl ist abhängig von dem erreichten Fitnesswert. Typischerweise wird die zweite Variante in \ac{EA} verwendet, welche auch als fitnessproportionale Selektion bezeichnet wird. Die erste erzeugt keinen Selektionsdruck, da die Individuen unabhängig von ihrer Leistung Nachkommen zugewiesen bekommen. Bei der zweiten Variante werden Individuen mit höheren Fitnesswerten bevorzugt, mit dem Ziel, dass sich die positiven Eigenschaften der erfolgreichen Individuen durchsetzen und schlechte aussterben. Trotzdem ist es nicht das Ziel, nur die allerbesten Genome als Elternteile auszuwählen. Wäre dies der Fall, würde die Population sehr schnell konvergieren, ihre Vielfalt verlieren und nur noch ähnliche Lösungsansätze bieten. Somit wird es unwahrscheinlich, dass neue unbekannte aber eventuell bessere Lösungsstrategien gefunden werden \cite{weicker2015evolutionare}. 
 \\\\
-Der genaue Selektionsvorgang wie er in dem Algorithmus dieser Arbeit umgesetzt ist, wird in Kapitel \ref{subsec:neat_species} erläutert. Im Folgenden werden verschiedene bekannte Varianten probabilistische Verfahren vorgestellt die in anderen Algorithmen als Selektionsfunktion verwendet werden. Bei diesen wird die Anzahl an Nachkommen durch den jeweils erreichten Fitnesswert beeinflusst.
+Der genaue Selektionsvorgang wie er in dem Algorithmus dieser Arbeit umgesetzt ist, wird in Kapitel \ref{subsec:neat_species} erläutert. Im Folgenden werden zwei verschiedene Varianten der fitnessproportionalen Verfahren vorgestellt die in anderen Algorithmen als Selektionsfunktion verwendet werden. Bei diesen wird die Anzahl an Nachkommen durch den jeweils erreichten Fitnesswert beeinflusst \cite{weicker2015evolutionare}.
 
-
-%\begin{enumerate}
-%	\item \textbf{Fitnessproportionale Selektion:}
-%	\item  \textbf{Rangbasierte Selektion: }
-%\end{enumerate}
-
+\begin{enumerate}
+	\item \textbf{Probabilistische Selektion}:\\
+	Einer der bekanntesten Umsetzungen ist die probabilistische Selektion, welche grundsätzlich einfach zu implementieren ist. In einem ersten Schritt werden die erreichten Fitnesswerte $f$ der einzelnen Individuen $i$ in der Population $P$ aufsummiert. Im zweiten Schritt wird für jedes Individuum $j$ die Wahrscheinlichkeit $Pr[j]$ berechnet, welche Angibt wie groß die Chance ist, dass dieses als Elternteil ausgewählt wird. Hierzu muss der erhaltene Fitnesswert durch die bereits berechnete Summe geteilt werden. Somit ergibt sich die Formel $Pr[j]=\frac{f_j}{\sum_{i \in P}f_i}$. Diese Art der Selektion ist in vielen Anwendungsfällen sehr erfolgreich. Allerdings kann es passieren, dass zum Beispiel bei sehr hohen Fitnesswerten, die prozentualen Unterschiede zwischen guten und schlechten Individuen sehr gering sind und in Folge dessen der Selektionsvorteil für gute Lösungen niedrig ist. Ein möglicher Lösungsansatz besteht in der Skalierung der Fitnesswerte, sodass auch bei hohen Durchschnittswerten kleine Steigerungen einen evolutionären Vorteil bieten \cite{weicker2015evolutionare}. Ein weiterer Lösung ist die Verwendung der rangbasierten Selektion, welche im Folgenden vorgestellt ist.
+	
+	\item  \textbf{Rangbasierte Selektion}:\\
+	Bei der rangbasierten Selektion ist der tatsächlich erhaltene Fitnesswert nicht von Bedeutung. Die Individuen werden bezüglich ihrer Fitness geordnet und das beste Individuum erhält die größte und das schlechteste die geringste Wahrscheinlichkeit als Elternteil ausgewählt zu werden \cite{weicker2015evolutionare}. 
+\end{enumerate}
+% TODO ABBILDUNG
+Sind die Wahrscheinlichkeiten für alle Individuen berechnet, ist im letzten Schritt festzulegen, welche Genome tatsächlich als Elternteile ausgewählt werden und wie viele Nachkommen diese erzeugen. Bei der fitnessproportionalen Selektion wird hierfür ein Zufallsgenerator benötigt, welcher basierend auf den Wahrscheinlichkeiten die Elterngenome auswählt. Dies wird häufig mit einem Roulette-Rad veranschaulicht. Die Felder am Rand ensprechend den verschiedenen Individuen und die Größe ist proportional zu der berechneten Wahrscheinlichkeit. Für jedes auszuwählende Elternindividuum wird der Zeiger zufällig gedreht und das Individuum  entsprechend zu dem gewählten Feld wird verwendet (TODO ABBILDUNG). Dieses Verfahren kann einen Nachteil haben: Obwohl das beste Individuum die höchste Wahrscheinlichkeit hat als Elternteil ausgewählt zu werden, kann es auf Basis des Zufalls dazu kommen, dass dieses nicht verwendet wird. Da typischerweise die Population am Ende des Evolutionszyklus ersetzt wird, würde das genetische Material dieses Individuums verloren gehen \cite{weicker2015evolutionare}. 
+\\\\
+Um einen solchen Verlust zu verhindern, kann bei der Selektion zusätzlich ein sogenannter Elitismus verwendet werden. Hierbei wird typischerweise der Genotyp den bestes Individuums ausgewählt, kopiert und unverändert wieder in die nächste Generation eingesetzt \cite{such2017deep}. Zu Beachten ist hierbei, dass im weiteren Verlauf ein Nachkomme weniger produziert wird um eine konstante Populationsgröße zu garantieren. 
 
 \subsubsection{Rekombination}
+Die Phase der Rekombination wird auch als \emph{Crossover} bezeichnet und findet nach der Selektion statt. Die Aufgabe von dieser ist, die ausgewählten Elternindividuen zu nutzen um neue Nachkommen zu erstellen. Typischerweise werden zwei, in einigen Fällen noch mehr, Elternteile kombiniert um mindestens ein Kind-Individuum zu erzeugen \cite{weicker2015evolutionare}. Die Rekombination gilt als eine der wichtigsten Phasen, da die Nachkommen tendenziell bessere Ergebnisse erzielen sollen als die Elternteile \cite{russell2013kunstliche}. Wie bereits bei anderen Phasen der \ac{EA} gibt es auch in diesem Fall verschiedene Umsetzungen, die als kombinierende, interpolierende und extrapolierende Selektion bezeichnet werden \cite{weicker2015evolutionare}. Der bekannteste Vertreter dieser drei Varianten ist die kombinierende Selektion, welche sowohl in dieser Arbeit als auch in vielen anderen Algorithmen verwendet wird. Die beiden Alternativen werden bedeutend seltener gewählt und sind auch in der Literatur oft nicht erwähnt. Trotzdem werden im Folgenden alle Varianten kurz vorgestellt.
+\\\\
+Die kombinierende Selektion ist stark von der Biologie inspiriert. Bei diesem Vorgang werden die Genome der Elternteile zuerst nebeneinander aufgereiht. In einem zweiten Schritt wird zufällig entschieden, welcher Abschnitt von welchem Elternteil für das Genom des Nachkommen verwendet werden sollen \cite{weicker2015evolutionare}. Der Vorteil dieses Verfahrens ist, dass große Informationsblöcke, welche unabhängig voneinander optimiert wurden und sinnvolle Funktionen realisieren, von den Elternteilen geerbt werden können \cite{russell2013kunstliche}. Der aus der Rekombination entstehenden Nachkomme kann hierdurch einen Vorteil bei der Evaluation besitzen und letztendlich eine bessere Lösung für das Optimierungsproblem bieten. Da diese Art der Rekombination keine neuen Gene erstellt bzw. bestehende modifiziert, ist der Erfolg abhängig davon, ob die Population eine gewisse Diversität bietet, sodass bei der Rekombination tatsächlich verschiedene Gene kombiniert werden können \cite{weicker2015evolutionare}. Bei einer praktischen Umsetzung muss zuletzt noch entschieden werden, an welchen Stellen eine Rekombination möglich ist \cite{rojas1996neural}. Bei der uniformen Rekombination wird  für jedes einzelne Gen unabhängig zufällig entschieden, von welchem Elternteil es übernommen wird \cite{weicker2015evolutionare}. Allerdings gibt es auch andere Umsetzungen, bei denen die Gene in Gruppen eingeteilt werden und dann zwischen diesen zufällig entschieden wird.
+\\\\
+Bei der interpolierenden Rekombination, werden die einzelnen Gene nicht direkt von einem Elternteil übernommen, stattdessen werden sie gemischt, sodass ein neuer Wert entsteht, der sich zwischen den Werten der Elternteile befindet. Im Gegensatz zur kombinierenden Selektion, welche versucht die Diversität zu erhalten, wird diese hierbei deutlich verringert. Aus diesem Grund ist es notwendig, dass zu Beginn eine Population mit einer großen Diversität vorhanden ist, sodass der Suchraum  des Optimierungsproblems ausgiebig überprüft wird. Ein Beispiel für eine solche technische Umsetzung ist die sogenannte Arithmetische-Rekombination, welche für reellwertig repräsentierte Genome verwendet werden kann. Angenommen die Werte $A_i$ und $B_i$ repräsentieren die Gene der Eltern $A$ und $B$, dann wird für jedes Gen $i$ eine Zufallszahl $u$ zwischen $0$ und $1$ gewürfelt. Das Gen $C_i$ des Nachkommen $C$ wird dann berechnet mit $C_i=u \cdot A_i + (1-u) \cdot B_i$ \cite{weicker2015evolutionare}.
+\\\\
+Die letzte Variante ist die extrapolierende Rekombination, welche mit mehreren Elternteilen versucht eine Prognose abzugeben, wo im Lösungsraum eine Steigerungen des Fitnesswertes möglich ist und dementsprechend versucht die Genome der Nachkommen zu ändern. Somit kann diese Art der Rekombination auch neue Gene erstellen. Ein solches Verfahren hat allerdings zwei Nachteile: Um eine Prognose abzugeben, ist es erstens nötig ein Grundwissen über den Lösungsraum zu haben und zweitens besteht die Gefahr, dass die vorgegeben Richtung nicht korrekt und die Funktion dann nicht fähig ist, eine systematische Suche durchzuführen \cite{weicker2015evolutionare}.   
 
 \subsubsection{Mutation}
 
+% Diversität für Rekombination ein weichtiger Faktor, aber durch Rekombination weniger Diversität, Mutation bringt neue Gene ein
+
+% Binäre Darstellung, Mutation is Bitflip
+% Recombination with 1 Crossover point, can produce a solution better to the parents
+% Wichtige Frage: An welchen Stellen darf ein Crossover gemacht werden?? 
 
 
 
@@ -99,19 +116,17 @@ Der genaue Selektionsvorgang wie er in dem Algorithmus dieser Arbeit umgesetzt i
 
 
 
-%\subsection{Komponenten}
-%\label{subsec:evoltuionary_algorithm_components}
-%\subsubsection{Genome und Phänotyp}
-%\subsubsection{Fitnessfunktion}
-%Problem mit noiysy function
-%\subsubsection{Selektion}
-%\subsubsection{Reproduktion}
-%\subsubsection{Mutation}
-%\subsection{Zyklus evolutionärer Algorithmen}
-%\subsection{Neuroevolution}
+\subsection{Neuroevolution}
 %Kann markov task lösen, Kategorie des RL Leanring
 
+
+
 \subsection{Neuroevolution im Vergleich}
+Evolutionäre ALgos mit Neuronalen Netzen, Prinzipien mit Phasne gleich
+
+% One Problem, slower then backpropagation with lager NN, One problem symmetric representations
+% Calculation of gradiant expensive in recurrent NM
+
 %Can achive better wall clock time, Can be used if gradients are hard to calculate, ) GAs explore the domain of definition of the %target function at many points and can thus escape from local minima or maxima, einfache bewertung mit fitness funktion, 
 %•	These properties of genetic algorithms have their price: unlike traditional random search, the function is not examined at a %single place, constructing a possible path to the local maximum or minimum, but many different places are considered %simultaneously. The function must be calculated for all elements of the population.
 %•	However, compared to other stochastic methods genetic algorithms have the advantage that they can be parallelized with little %effort. Since the calculations of the function on all points of a population are independent from each other, they can be carried %out in several processors
@@ -122,3 +137,5 @@ Der genaue Selektionsvorgang wie er in dem Algorithmus dieser Arbeit umgesetzt i
 \label{subsec:tweann}
 \subsection{Competing Convention Problem}
 \label{subsec:competing_convention_problem}
+
+% Obwol Diversität gut und wichtig für Entdecken des Suchrausm, oft Problem da Unvollstände NAchkommen erzeugt werden
