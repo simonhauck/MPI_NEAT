@@ -139,9 +139,64 @@ Eine weiterer Lösungsansatz ist das Starten mit einer minimalen Struktur, sodas
 % Population, Seleciton, Rekombinatino and Mutation the same, 
 
 \subsection{Neuroevolution im Vergleich}
-Evolutionäre ALgos mit Neuronalen Netzen, Prinzipien mit Phasne gleich
+Grundsätzlich wächst das Interesse an neuroevolutionäre Algorithmen und in vielen Anwendungsfällen sind bereits gute Ergebnisse, auch im Vergleich mit anderen Ansätzen, erzielt worden \cite{meisner2009neurostrategies}. Trotzdem werden Algorithmen dieser Art oft mit Skepsis betrachtet \cite{meisner2009neurostrategies} und weniger eingesetzt als gradientenbasierte Verfahren beispielsweise der Backpropagation Algorithmus. Daher wird in vielen Arbeiten, wie zum Beispiel in \cite{rojas1996neural, meisner2009neurostrategies, such2017deep, whitley1993genetic}, ein Vergleich zwischen auf Gradienten basierenden Verfahren und neuroevolutionären Algorithmen gemacht. In diesem Kapitel werden einige Vor- und Nachteile vorgestellt die häufig in diesem Zusammenhang genannt werden.
+\\\\
+Für einen aussagekräftigen Vergleich müssen neuroevolutionäre Algorithmen zuvor noch einer Art des Lernens zugeordnet werden, da sich die Aufgaben und Anwendungsfälle in diesen stark unterscheiden können. Die drei Arten, das überwachte, unüberwachte und bestärkende Lernen sind in Kapitel \ref{subsec:learning_in_neural_networks} vorgestellt. Neuroevolutionäre Algorithmen werden hierbei der letzten Art zugeordnet \cite{whitley1993genetic}. Häufig werden hierfür zwei Gründe genannt. Erstens ist es das Ziel von bestärkendem Lernen, den insgesamt erhaltenen \emph{reward} zu maximieren \cite{such2017deep}, was Vergleichbar mit dem Fitnesswert von neuroevolutionären Algorithmen ist. Zweitens haben \citeauthor{sutton2018reinforcement} bestärkendes Lernen in ihrer Arbeit als ein Methode beschrieben, welche \ac{MDP} Probleme lösen kann. Das \ac{MDP} Problem ist in Kapitel \ref{subsec:learning_in_neural_networks} vorgestellt und beschreibt die Interaktion zwischen einem Agenten und seiner Umgebung. Hierbei kann der Agent als ein Individuum von neuroevolutionären Algorithmen betrachtet werden und die Umgebung als Optimierungsproblem. 
+\\\\
+Ein grundsätzlicher Vorteil von neuroevolutionären Algorithmen ist, dass durch die vielen unterschiedlichen Individuen unterschiedliche Lösungsansätze überprüft werden können. Dies ermöglicht es den Algorithmen lokale Optima zu überwinden und die Suche nach dem globalen Optimum weiter fortzuführen \cite{rojas1996neural}. Dies kann für gradientenbasierten Verfahren schwierig sein. Ein weiterer Vorteil ist, dass bei neuroevolutionären Algorithmen gar keine Gradienten berechnet werde müssen \cite{rojas1996neural}. Dies kann sehr aufwändig sein, wenn zum Beispiel das \ac{KNN} viele Rückkopplungen enthält oder unmöglich wenn beispielsweise die binäre Schwellwertfunktion als Aktivierungsfunktion verwendet wird \cite{whitley1993genetic}. Für die neuroevolutionären Algorithmen wird die Fitnessfunktion benötigt. 
+\\\\
+Allerdings kann diese einfache Evaluation zu einem Nachteil werden, wenn beispielsweise das Optimierungsproblem bzw. die Umwelt verschiedene Startzustände hat. So kann ein Individuum mit einem schlechten Lösungsansatz durch Zufall einen einfachen Startzustand erhalten und so unter Umständen einen höheren Fitnesswert erzielen als ein besserer Lösungsansatz von einem anderen Individuum, welches einen ungünstigen Startzustand erhalten hat. Hierdurch werden einige gute Individuen verloren gehen, da diese durch den geringen Fitnesswert nicht von der Selektion ausgewählt werden. Die Fitnessfunktion wird in einem solchen Fall als verrauscht oder \emph{noisy} bezeichnet. Ein möglicher Lösungsansatz hier ist, dass alle Individuen immer denselben Startzustand erhalten. Dies verhindert das vorgestellte Problem, aber es entsteht ein neues. Die Individuen lernen nur eine Lösung für den ausgewählten Startzustand und sind im hoher Wahrscheinlichkeit in anderen, ungünstigeren Startzuständen unbrauchbar. Eine Alternative ist, dass jedes Individuum mehrmals mit verschiedene Startzuständen getestet wird und der Fitnesswert von allen akkumuliert wird \cite{whitley1993genetic}. Nachteil von diesem Ansatz ist, dass sich die Laufzeit linear erhöht je mehr verschiedene Startzustände getestet werden.
+\\\\
+Ein weiteres Problem von neuroevolutionären Algorithmen ist die Laufzeit. Das Entwickeln von unterschiedlichen Lösungen durch verschiedene Individuen benötigt viel Rechenzeit \cite{rojas1996neural}. Für eine Population mit beispielsweise $1000$ Mitgliedern werden pro Generation $1000$ \ac{KNN} erstellt, von denen mit jedem versucht wird das Optimierungsproblem zu lösen. Die hierfür benötigte Laufzeit ist oft höher als bei gradientenbasierten Verfahren, bei welchen nur ein \ac{KNN} evaluiert werden muss \cite{whitley1993genetic}. Gleichzeitig kann dies aber auch ein großer Vorteil für neuroevoltionäre Algorithmen sein, wie unter anderem in Quelle \cite{such2017deep} gezeigt ist. Da die einzelnen Individuen unabhängig voneinander sind, lässt sich die Evaluation von diesen gut parallelisieren \cite{rojas1996neural}. Der Vorteil hiervon ist, dass eine Reduzierung der Ausführungszeit unabhängig von Limitierungen einzelner Prozessoren möglich ist \cite{schleuter1991explicit}. Das bedeutet, dass im Gegensatz zu sequentiellen Programmen, bei denen die Ausführungszeit nur durch einen schnelleren Prozessor gesenkt werden kann, die Laufzeit von parallelisierbaren Algorithmen auch durch das Hinzufügen von weitere Prozessoren verringert werden kann. Dies ist es in vielen Fällen einfacher und kostengünstiger umzusetzen.
+\\\\
+Wie erfolgreich eine Parallelisierung sein kann, haben \citeauthor*{such2017deep} in ihrer Arbeit gezeigt. Hierbei wurde ein \ac{KNN} zum Lösen von Atari Spielen optimiert. Die hierfür benötigte Trainingszeit mit einem einfachen, parallelisierten neuroevolutionären Algorithmus hat ungefähr vier Stunden gedauert. Verglichen wurde das Ergebnis mit zwei gradientenbasierten Verfahren, welche für ein vergleichbares Ergebnis mehrere Tage Trainingszeit benötigt haben \cite{such2017deep}. Dies zeigt die Leistungsfähigkeit von parallelisierten neuroevolutionären Algorithmen.
 
-%
+% Struktur  
+% 0 Vortgeil: TWEANN Algorithmen entwicklen Struktur
+% 1 Vorteil, Suchen an vielen verschiedenen Punkten im Lösungsraum, Wahrscheinlich nicht stuck an lokalen Optimmum
+% 2. Vorteil: Es werden keine Gradienten benötigt, welche teilweise schwer zu berechnen sind sondern nr die Fitnessfunktion
+% 1. Nachtei: Verrasuchte Fitnessfunktino
+% 2. Nachteil: Viele KNN benötigten viel Rechenzeit, EA eher langsam
+% 3. Vorteil: Gut parallelisierbar
+
+
+% Neuro Networks A Systematic Introduction
+% •	Genetic algorithms can be used when no information is available about the gradient of the function at the evaluated points. The function itself does not need to be continuous or differentiable. Genetic algorithms can still achieve good results even in cases in which the function has several local minima or maxima
+% •	These properties of genetic algorithms have their price: unlike traditional random search, the function is not examined at a single place, constructing a possible path to the local maximum or minimum, but many different places are considered simultaneously. The function must be calculated for all elements of the population.
+% •	However, compared to other stochastic methods genetic algorithms have the advantage that they can be parallelized with little effort. Since the calculations of the function on all points of a population are independent from each other, they can be carried out in several processors
+% •	advantage that they do not necessarily remain trapped in a suboptimal local maximum or minimum of the target function
+% •	genetic algorithm can move away from a local maximum or minimum if the population finds better function values in other areas of the definition domain
+% o	Genetic algorithms offer some interesting properties to offset their high computational cost. We can mention at least three of them: a) GAs explore the domain of definition of the target function at many points and can thus escape from local minima or maxima
+% o	he function to be optimized does not need to be given in a closed analytic form – if the process being analyzed is too complex to describe in formulas, the elements of 
+% o	) since evaluation of the target function is independent for each element of the population, the parallelization of the GA is quite straightforward. A population can be distributed on several processors and the selection process carried out in parallel
+% •	The problem of symmetries (Competing Conventions Problem)
+% •	One field in which GAs seem to be a very appropriate search method is game theory
+% o	Mathematicians then ask what is the optimal strategy, that is, how can a player maximize his pay-off. In many cases the cumulative effect of the pay-off function cannot be expressed analytically and the only possibility is to actually play the game and compare the results using different strategies
+
+
+% Deep Neuroevolution: Genetic Algorithms are a Competitive Alternative for Training Deep Neural Networks for Reinforcement Learning
+% •	Evolution strategies (ES) can rival backprop-based algorithms such as Q-learning and policy 
+% •	At a high level, an RL problem challenges an agent to maximize some notion of cumulative reward (e.g. total, or discounted) without supervision as to how to accomplish that goal 
+% •	hey found that this algorithm, which we will refer to simply as evolution strategies (ES), is competitive with DQN and A3C on difficult RL benchmark problems, with much faster training times (i.e. faster wall-clock time when many CPUs are available) due to better parallelization (Salimans et al., 2017). 
+% •	One motivation for choosing ES versus Q-learning and policy gradient methods is its faster wall-clock time with distributed computation, owing to better parallelization 
+%o	A reason GA might outperform gradient-based methods is if local optima are present, as it can jump over them in the parameter space, whereas a gradient method cannot
+
+
+% Genetic Reinforcment Learning for Neurocontrol Problems
+% Genetic Algorithms can produce roughly competetive results as the standard back prop ago
+% Domains where EA can make uniqze contribution -> No Derivate function, Gradient not available or costly to obtain
+% EA sind eine ARt des RL Learnings
+% Resulting search time is signigicantly lower than back Prop
+% One Problem Noisy fitness function?
+
+% Neuroevolution strategies for episodic reinforcement learning
+% Growing INterest in NeuroEvolution -> sind Reinforcment Learning Technik, Gute Performance im Vergleich zu anderen Alternativen
+
+
+% -----------------------------------------------------------
+
+% Evolutionäre ALgos mit Neuronalen Netzen, Prinzipien mit Phasne gleich
+
 
 % ERgen immer mehr aufmerksam, Gute Ergebnisse
 % One Problem, slower then backpropagation with lager NN, One problem symmetric representations
