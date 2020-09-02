@@ -1,6 +1,33 @@
-\section{MPI}
+% !TeX spellcheck = de_DE
+\section{Parallelisierung}
+In den vorherigen Kapiteln ist der Ablauf und die Funktionsweise von neuroevolutionären Algorithmen erläutert. Die benötigte Ausführungszeit von diesen ist sehr von der Größe des \ac{KNN} und der Komplexität des Problems abhängig. Für große \ac{KNN} werden teilweise Trainingszeiten von mehreren Stunden oder Tagen benötigt und das trotz der Verwendung von aktueller Hardware \cite{such2017deep}. Natürlich kann diese Zeit durch Weiterentwicklungen von einzelnen Prozessoren zunehmend verringert werden. Allerdings ist der Leistungsanstieg von neuen Prozessorgenerationen nicht ausreichend um die benötigte Rechenzeit von solchen anspruchsvollen Anwendungen massiv zu senken und skaliert somit in diesem Anwendungskontext schlecht. Zusätzlich ist es auch finanziell aufwändig, immer die neuesten Prozessoren zu kaufen und diese nach kurzer Zeit wieder zu ersetzen \cite{swann2002maximum}. Ein anderer Ansatz um die benötigte Ausführungszeit zu verringern ist die Parallelisierung. Hierbei wird ein großes Problem in mehrere kleine und voneinander unabhängige Teilprobleme zerlegt. Diese können dann auf verschiedenen Prozessoren gleichzeitig berechnet werden \cite{swann2002maximum}. Hierbei wird hauptsächlich zwischen zwei verschiedenen Parallelisierungsarten unterschieden. Bei der ersten Art wird ein Gerät mit einer \emph{multi-core shared-memory} Architektur verwendet. Das bedeutet, dass sich auf einer \ac{CPU} mehrere Prozessoren befinden, die sich den verfügbaren \ac{RAM} Speicher teilen. Diese Parallelisierungsstrategie ist für viele Anwendungsfälle ausreichend, aber die maximale Leistung ist durch die physische Anzahl an Prozessoren in einer \ac{CPU} limitiert. Bei der zweiten Art werden sogenannte Cluster verwendet. Diese bestehen aus verschiedenen Geräten, welche jeweils ihren eigenen \ac{RAM} verwenden. Bei dieser Art der Parallelisierung ist eine einfache Skalierung der verfügbaren Prozessoren in Abhängigkeit der benötigten Rechenleistung möglich \cite{nielsen2016introduction}. 
+\\\\
+Für eine erfolgreiche Parallelisierung wird meistens ein Kommunikationsprotokoll benötigt, welches die Synchronisation und Kommunikation zwischen verschiedenen Prozessoren ermöglicht, wie beispielsweise \ac{MPI}. Dieses wird in dieser Arbeit verwendet und ist ein Standard im Bereich \ac{HPC} \cite{nielsen2016introduction}. Sowohl auf \ac{MPI} als auch \ac{HPC} wird in den folgenden Kapiteln eingegangen.
+
+\subsection{High Performance Computing}
+Der Bereich \ac{HPC} beschäftigt sich mit verschiedenen Bereichen der parallelen Programmierung. Hierzu gehören unter anderem die benötigte Software, Programmiersprachen aber auch die Hardware. Oft wird in diesem Zusammenhang auch der Begriff \ac{SC} genannt, welche Cluster aus mehreren Millionen Prozessoren sind und zum Lösen von verschiedenen parallelisierbaren Problemen verwendet werden können \cite{nielsen2016introduction}. Natürlich sind \ac{SC} durch ihre hohen Kosten, welche unter anderem durch den Stromverbrauch entstehen, für viele Probleme nicht rentable. Trotzdem gibt es einige Anwendungsszenerain für solche Systeme.
+\\\\
+Häufig werden \ac{SC} für verschiedene Simulationen eingesetzt, wenn es beispielsweise zu teuer oder gefährlich ist diese in der echten Welt durchzuführen. Mögliche Anwendungsszenarien wären hierfür die Simulation von Flugzeugabstürzen oder nuklearen Waffen. Ebenfalls können \ac{SC} eingesetzt werden, wenn es durch die Komplexität nicht möglich ist die Simulation auf normalen Geräten durchzuführen. Ein weiteres Einsatzszenario von Supercomputern ist, wenn das Ergebnis einer Berechnung schnell benötigt wird und nur für eine gewisse Zeit gültig ist. Ein Problem dieser Kategorie ist unter anderem die Wettervorhersage. Ist es nicht das Ergebnis rechtzeitig zu erhalten, ist die Vorhersage obsolet. Das letzte hier vorgestellte Szenario ist im Bezug zu großen Datenmengen. Mit einem \ac{SC} können hierbei zum Beispiel Analysen von biologischen Genomen durchgeführt werden \cite{nielsen2016introduction}.
+
+
+\subsection{Beowulf - Cluster}
+
 % MPI VS OpenMP
 
-\subsection{Kommunkationsarten in MPI}
-\subsection{Beowulf - Cluster}
+
+
+\subsection{MPI}
+% MPI Communicaor, splittet Processe in Auf, 
+% Aktuell Version 3
+% Ursprünglich 80 Personen und 30 Organisationen, Attraktiv because Protability and Scalability, Distributed and Shared Memory Multiprocesses
+\subsubsection{Point-to-Point}
+% Blocking Non Blocking
+
+\subsubsection{Gruppenkommunikation}
+
+% Load Balancing?
+
+
 \subsection{Ahmdals Law?}
+
+
