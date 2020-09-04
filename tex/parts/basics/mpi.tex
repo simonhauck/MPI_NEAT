@@ -1,33 +1,106 @@
 % !TeX spellcheck = de_DE
 \section{Parallelisierung}
-In den vorherigen Kapiteln ist der Ablauf und die Funktionsweise von neuroevolutionären Algorithmen erläutert. Die benötigte Ausführungszeit von diesen ist sehr von der Größe des \ac{KNN} und der Komplexität des Problems abhängig. Für große \ac{KNN} werden teilweise Trainingszeiten von mehreren Stunden oder Tagen benötigt und das trotz der Verwendung von aktueller Hardware \cite{such2017deep}. Natürlich kann diese Zeit durch Weiterentwicklungen von einzelnen Prozessoren zunehmend verringert werden. Allerdings ist der Leistungsanstieg von neuen Prozessorgenerationen nicht ausreichend um die benötigte Rechenzeit von solchen anspruchsvollen Anwendungen massiv zu senken und skaliert somit in diesem Anwendungskontext schlecht. Zusätzlich ist es auch finanziell aufwändig, immer die neuesten Prozessoren zu kaufen und diese nach kurzer Zeit wieder zu ersetzen \cite{swann2002maximum}. Ein anderer Ansatz um die benötigte Ausführungszeit zu verringern ist die Parallelisierung. Hierbei wird ein großes Problem in mehrere kleine und voneinander unabhängige Teilprobleme zerlegt. Diese können dann auf verschiedenen Prozessoren gleichzeitig berechnet werden \cite{swann2002maximum}. Hierbei wird hauptsächlich zwischen zwei verschiedenen Parallelisierungsarten unterschieden. Bei der ersten Art wird ein Gerät mit einer \emph{multi-core shared-memory} Architektur verwendet. Das bedeutet, dass sich auf einer \ac{CPU} mehrere Prozessoren befinden, die sich den verfügbaren \ac{RAM} Speicher teilen. Diese Parallelisierungsstrategie ist für viele Anwendungsfälle ausreichend, aber die maximale Leistung ist durch die physische Anzahl an Prozessoren in einer \ac{CPU} limitiert. Bei der zweiten Art werden sogenannte Cluster verwendet. Diese bestehen aus verschiedenen Geräten, welche jeweils ihren eigenen \ac{RAM} verwenden. Bei dieser Art der Parallelisierung ist eine einfache Skalierung der verfügbaren Prozessoren in Abhängigkeit der benötigten Rechenleistung möglich \cite{nielsen2016introduction}. 
-\\\\
-Für eine erfolgreiche Parallelisierung wird meistens ein Kommunikationsprotokoll benötigt, welches die Synchronisation und Kommunikation zwischen verschiedenen Prozessoren ermöglicht, wie beispielsweise \ac{MPI}. Dieses wird in dieser Arbeit verwendet und ist ein Standard im Bereich \ac{HPC} \cite{nielsen2016introduction}. Sowohl auf \ac{MPI} als auch \ac{HPC} wird in den folgenden Kapiteln eingegangen.
+In den vorherigen Kapiteln ist der Ablauf und die Funktionsweise von neuroevolutionären Algorithmen erläutert. Die benötigte Ausführungszeit von diesen ist sehr von der Größe des \ac{KNN} und der Komplexität des Problems abhängig. Für große \ac{KNN} werden teilweise Trainingszeiten von mehreren Stunden oder Tagen benötigt und das trotz der Verwendung von aktueller Hardware \cite{such2017deep}. Natürlich kann diese Zeit durch Weiterentwicklungen von einzelnen Prozessoren zunehmend verringert werden. Allerdings ist der Leistungsanstieg von neuen Prozessorgenerationen nicht ausreichend um die benötigte Rechenzeit von solchen anspruchsvollen Anwendungen massiv zu senken und skaliert somit in diesem Anwendungskontext schlecht. Zusätzlich ist es auch finanziell aufwändig, immer die neuesten Prozessoren zu kaufen und diese nach kurzer Zeit wieder zu ersetzen \cite{swann2002maximum}. Ein anderer Ansatz um die benötigte Ausführungszeit zu verringern ist die Parallelisierung. Hierbei wird ein großes Problem in mehrere kleine und voneinander unabhängige Teilprobleme zerlegt. Diese können dann auf verschiedenen Prozessoren gleichzeitig berechnet werden \cite{swann2002maximum}. Häufig wird in diesem Zusammenhang auch der Begriff \ac{HPC} verwendet, auf welchen im Folgenden näher eingegangen wird.
 
 \subsection{High Performance Computing}
-Der Bereich \ac{HPC} beschäftigt sich mit verschiedenen Bereichen der parallelen Programmierung. Hierzu gehören unter anderem die benötigte Software, Programmiersprachen aber auch die Hardware. Oft wird in diesem Zusammenhang auch der Begriff \ac{SC} genannt, welche Cluster aus mehreren Millionen Prozessoren sind und zum Lösen von verschiedenen parallelisierbaren Problemen verwendet werden können \cite{nielsen2016introduction}. Natürlich sind \ac{SC} durch ihre hohen Kosten, welche unter anderem durch den Stromverbrauch entstehen, für viele Probleme nicht rentable. Trotzdem gibt es einige Anwendungsszenerain für solche Systeme.
+Der Bereich \ac{HPC} beschäftigt sich mit verschiedenen Bereichen der parallelen Programmierung. Hierzu gehören unter anderem die benötigte Software, Programmiersprachen, Tools aber auch die Hardware. Zusammenfassend ist zu sagen, dass sich der Bereich \ac{HPC} mit der Forschung, Entwicklung und dem Betreiben von \acp{SC} beschäftigt. Dies sind Cluster, welche aus mehreren Millionen \acp{CPU} bestehen können und zum Lösen von verschiedenen parallelisierbaren Problem aus Forschung und Industrie verwendet werden können \cite{nielsen2016introduction}. Eine Liste mit den $500$ leistungsfähigsten \acp{SC} ist in Quelle \cite{top500} zu finden, wobei stand Juni 2020 die Nummer eins ein \ac{SC} in Japan ist, welcher über sieben Millionen Prozessoren besitzt und eine Leistung von über $500.000$ TFlops bietet. Natürlich sind \ac{SC} durch ihre hohen Kosten, welche unter anderem durch den Stromverbrauch entstehen, für viele Probleme nicht rentable,  dennoch gibt es einige Anwendungsszenerain für solche Systeme.
 \\\\
-Häufig werden \ac{SC} für verschiedene Simulationen eingesetzt, wenn es beispielsweise zu teuer oder gefährlich ist diese in der echten Welt durchzuführen. Mögliche Anwendungsszenarien wären hierfür die Simulation von Flugzeugabstürzen oder nuklearen Waffen. Ebenfalls können \ac{SC} eingesetzt werden, wenn es durch die Komplexität nicht möglich ist die Simulation auf normalen Geräten durchzuführen. Ein weiteres Einsatzszenario von Supercomputern ist, wenn das Ergebnis einer Berechnung schnell benötigt wird und nur für eine gewisse Zeit gültig ist. Ein Problem dieser Kategorie ist unter anderem die Wettervorhersage. Ist es nicht das Ergebnis rechtzeitig zu erhalten, ist die Vorhersage obsolet. Das letzte hier vorgestellte Szenario ist im Bezug zu großen Datenmengen. Mit einem \ac{SC} können hierbei zum Beispiel Analysen von biologischen Genomen durchgeführt werden \cite{nielsen2016introduction}.
+Häufig werden \ac{SC} für verschiedene Simulationen eingesetzt, wenn es beispielsweise zu teuer oder gefährlich ist diese in der echten Welt durchzuführen. Mögliche Anwendungsszenarien wären hierfür die Simulation von Flugzeugabstürzen oder nuklearen Waffen. 
+Ein weitere Grund \ac{SC} einzusetzen ist, wenn die Berechnung oder Simulation zu lange auf einem gewöhnlichen Gerät brauchen würde oder wenn das Ergebnis nur eine gewisse Zeit gültig bzw. verwendbar ist. Ein Problem dieser Kategorie ist unter anderem die Wettervorhersage. Ist es nicht möglich das Ergebnis rechtzeitig zu erhalten, ist die Vorhersage obsolet. Ein weiteres Gebiet ist die Analyse von großen Datenmengen, die ebenfalls nicht auf einem einzelnen Gerät effizient durchführbar wären \cite{nielsen2016introduction}.
 
+\subsubsection{Architektur}
+Typischerweise werden die Architekturen von \ac{HPC} Systemen einer von zwei Kategorien zugeordnet, welche als \emph{shared memory} und \emph{distributed memory} bezeichnet werden. Bei der \emph{shared-memory} Architektur verwenden typischerweise alle Prozessoren des Systems denselben Programmspeicher, auch als \ac{RAM} bezeichnet. Die Kommunikation zwischen Prozessoren ist in vielen Fällen durch \ac{OpenMP} realisiert \cite{nielsen2016introduction}. Diese Art der Parallelisierung kann auch auf, für den Massenmarkt produzierte, Computersysteme angewendet werden. Moderne \acp{CPU} besitzen auf demselben Chip mehrere physische Prozessoren, welche zur Parallelisierung von verschiedenen Anwendungen verwendet werden können, und häufig die Ausführungszeit bedeutend reduzieren. 
+\\\\
+Die Alternative hierzu ist die \emph{distributed memory} Architektur, bei der jeder Prozessor seinen eigenen \ac{RAM} Speicher besitzt. Im Gegensatz zu \emph{shared memory} Architekturen, können die Prozessoren bei dieser Art nicht auf Speicherbereiche von anderen Prozessoren zugreifen. Um eine Kommunikation zwischen den einzelnen Prozessoren zu ermöglichen, müssen sich diese in demselben Netzwerk befinden und expliziten Nachrichten zwischen einander austauschen. Die Ausführungsgeschwindigkeit beziehungsweise die Effizienz der parallelisierten Anwendung ist nicht nur von den einzelnen Prozessoren abhängig sondern auch von der Latenz, der Bandbreite und der Netztopologie. Die Latenz beschreibt hierbei die Zeit, welche benötigt wird eine Kommunikation zu initiieren und die Bandbreite die Übertragungsgeschwindigkeit der Daten. Neben dieses beiden Architekturen gibt es noch weitere Formen, welche unter anderem die \ac{GPU} mit einschließen \cite{nielsen2016introduction}. Da in dieser Arbeit ein System mit einer \emph{distributed memory} Architektur wird auf diese nicht weiter eingegangen.
 
-\subsection{Beowulf - Cluster}
+\subsubsection{Beowulf Cluster}
+Viele professionellen \ac{SC} bestehen aus spezialisierter Hardware welche sehr teuer in der Anschaffung ist \cite{brown2004engineering}. Zusätzlich sind auch die Betriebskosten eines solchen Systems, zum Beispiel durch den entstehenden Stromverbrauch, sehr hoch \cite{nielsen2016introduction}. Daher ist die Anschaffung eines solchen Systems für die meisten Unternehmen, Universitäten oder Hochschulen finanziell nicht tragbar. Dennoch kann der Einsatz von kleineren Clustern sinnvoll sein zum Beispiel in der Lehre oder für weniger rechenaufwendigen Probleme, welche trotzdem von einer Parallelisierung profitieren. 
+\\\\
+In einem solchen Szenario sind sogenannte Beowulf Cluster eine mögliche Lösung. Diese haben zwar bedeutend weniger Leistung sind aber dafür um ein vielfaches günstiger in der Anschaffung sowie im Betrieb und eigenen sich somit auch für Privatpersonen \cite{adams2008microwulf}. Diese Cluster zeichnen sich durch die einige Eigenschaften aus. Der erste große Unterschied zu professionellen \ac{SC} ist, dass die Hardware für den eigentlichen Beowulf Cluster, aus Geräten besteht, welche serienmäßig für den Massenmarkt produziert werden. Gleiches gilt auch für die Netzwerkinfrastruktur. Beispielweise kann ein Cluster aus mehreren Desktopgeräten bestehen, welche über ein Ethernet-Netzwerk miteinander verbunden sind. Weitere Anforderungen sind, dass alle Geräte des Clusters, nur \emph{open Source} Software verwenden, dass das Netzwerk exklusiv für die Kommunikation des Beowulf-Cluster reserviert ist und zuletzt, dass das Aufgabengebiet im Bereich des \ac{HPC} liegt \cite{brown2004engineering}. Diese Anforderungen müssen für einen klassischen Beowulf Cluster erfüllt sein, dennoch gibt es verschiedene abgewandelte Varianten für andere Einsatzszenerien.
+\\\\
+Es gibt noch weitere Eigenschaften, welche auf die meisten Beowulf Cluster zutreffen aber keine Voraussetzung sind. Typischerweise basiert das Betriebssystem der einzelnen Geräte, welche als Nodes bezeichnet werden, auf Linux. Zudem wird häufig ein Node als \emph{Master} ausgewählt, während die restlichen als \emph{Slave} bezeichnet werden. Der \emph{Master} dient häufig als Schnittstelle zwischen dem eigentlichen Cluster und der externen Umgebung. So kommt es häufig vor, dass dieser eine angeschlossene Tastatur und einen Bildschirm besitzt, welche eine Interaktion mit dem Cluster ermöglicht. Zusätzlich hat dieser häufig als einziges Gerät neben der Verbindung zu den \emph{Slaves} auch eine externe Netzwerkanbindung. Dies wird benötigt, da der \emph{Master} in der Regel viele organisatorische Aufgaben übernimmt. Beispiel hierfür kann das Bereitstellen und die Synchronisation Dateien im Netzwerk sein \cite{brown2004engineering}.
+\\\\
+Durch seine vergleichsweise niedrigen Kosten, der einfachen Anschaffung und Inbetriebnahme bieten sich solche Cluster für viele verschiedene Projekte an. Auch in dieser Arbeit wird ein Beowulf Cluster erstellt. Auf die Installation und Konfiguration von diesem wird in Kapitel (TODO Kapitel) eingegangen.
 
-% MPI VS OpenMP
-
-
+\subsubsection{MPI und MapReduce (TODO Change Title)}
+Für eine erfolgreiche Parallelisierung in einem \emph{distributed memory} System, wie zum Beispiel in einem Beowulf Cluster, müssen die einzelnen Prozessoren sich untereinander synchronisieren sowie Nachrichten austauschen können. Hierfür gibt es verschiedene Bibliotheken und Frameworks, welche einen Großteil dieser Funktionen bereitstellen. Beispiele hierfür sind \ac{MPI} und \emph{MapReduce}. Diese unterscheiden sich in ihrer Funktionalität und der Umgebung, in welcher sie eingesetzt werden \cite{nielsen2016introduction}.
+\\\\
+In dieser Arbeit wird \ac{MPI} verwendet, auf welches in Kapitel (TODO Kapitel) genauer eingegangen wird. Vorteile von diesem sind, dass eine Vielzahl an verschiedenen Kommunikations- und Synchronisationsoperatoren implementiert sind, welche flexibel an viele Anforderungen angepasst werden können. Allerdings besteht keine Fehlertoleranz gegenüber Hardware- und Netzwerkfehlern. Treten diese auf, bricht die Ausführung der gesamten Anwendung ab und nicht gespeicherte Zwischenergebnisse gehen verloren. In diesem Punkt bietet die Alternative \emph{MapReduce} einen Vorteil, da diese Fehler automatisch verarbeitet kann. Nachteil gegenüber \ac{MPI} ist, das nicht so viele verschiedene, flexible Methoden der Parallelisierung geboten werden \cite{nielsen2016introduction}.
 
 \subsection{MPI}
+Wie in den vorherigen Kapitel erläutert, müssen in einem parallelen System die Prozessoren miteinander kommunizieren können. Vor allem bei Systemen mit einer \emph{distributed memory} Architektur wird häufig \ac{MPI} verwendet, welches ein anerkannter Standard im Bereich \ac{HPC} ist. Zusätzlich kann \ac{MPI} auch auf \emph{shared memory} Architekturen angewendet werden. Die erste Version des Standards wurde bereits 1991 entwickelt \cite{nielsen2016introduction}. Hieran waren über 80 Personen von ungefähr 40 verschiedenen Organisationen beteiligt \cite{dongarra1995introduction}. Im Jahr 2008 wurden die zurzeit aktuelle Version 3 veröffentlicht. Im weiteren Verlauf dieses Kapitels werden verschiedene Funktionen von \ac{MPI} vorgestellt, aber zuvor wird an dieser Stelle noch auf einige Besonderheiten eingegangen. Der Standard \ac{MPI} ist keine konkrete Implementierung sondern ein \ac{API}, welches nur die grundsätzliche Funktionsweise sowie einige Basisoperationen definiert \cite{nielsen2016introduction}. Hierdurch ergeben sich viele Vorteile. Die Implementierung des Standards ist nicht an eine einzelne Programmiersprache geknüpft \cite{nielsen2016introduction}. Dies gibt Herstellern die Möglichkeit ihre eigene Implementierung in jeder gewünschten Sprache umzusetzen. Hieraus sind viele kommerzielle Produkte entstanden, aber auch zwei bekannte \emph{open source} Lösungen welche MPICH und Open MPI heißen. Diese können als Bibliotheken in andere Projekte eingebunden werden und vereinfachen die Entwicklung einer parallelen Anwendung enorm, da verschiedene \emph{low-level} Funktionen, wie beispielsweise die Netzwerkkommunikation, implementiert. Des weiteren ermöglicht \ac{MPI} Standard eine hohe Portabilität, da Implementierungen mit wenig Aufwand ausgetauscht werden können und auf einer Vielzahl von Systemen lauffähig sind \cite{dalcin2008mpi}.
+\\\\
+Die Funktionen von \ac{MPI} können heutzutage in verschiedenen Sprachen wie zum Beispiel Java, C, C++, Python und Fortran verwendet werden \cite{nielsen2016introduction}. Im Folgenden wird auf die wichtigsten Grundfunktionen von \ac{MPI} eingegangen. Der Beispielcode ist in der Sprache Python und der Bibliothek \emph{mpi4py} aus Quelle \cite{dalcin2008mpi} implementiert. Diese werden auch im späteren Verlauf dieser Arbeit verwendet
+% TODO Check if code examples are really used
+\subsubsection{Prozessorgruppen}
+Bevor die verschiedenen Kommunikations- und Synchronisationsmöglichkeiten vorgestellt werden, muss der Grundlegende Ablauf eines auf \ac{MPI} basierenden Programms betrachtet werden. Wird ein solches Programm gestartet, wird auf jedem beteiligten Prozess, welche in einer Konfigurationsdatei spezifiziert werden, eine Kopie des Programms ausgeführt. Eine grundlegende Voraussetzung ist, dass das Programm auf allen beteiligten Nodes vorliegt. 
+\\\\
+Die sogenannten \emph{Communicators} auch häufig im Programmcode mit \emph{COMM} abgekürzt sind Gruppen von verschiedenen Prozessoren, welche miteinander kommunizieren können. Beim initialen Starten des Programms, wird nur eine Prozessgruppe erstellt, welche alle beteiligten Prozesse enthält und als \emph{MPI\_COMM\_WORD} bezeichnet wird. Jeder Prozess in einem \emph{Communicator} wird  durch einen Rang zwischen $0$ und $P-1$ identifiziert, wobei $P$ die Anzahl an Prozessoren ist \cite{nielsen2016introduction}. Beide Werte können im Programmcode angefragt und basierend auf diesen Entscheidungen getroffen werden. Ein Beispiel hierfür ist in Abbildung \ref{fig:example_process_group} dargestellt. Der gegebene Programmabschnitt wurde mit zwei Prozessoren ausgeführt. An der Ausgabe ist erkennbar, dass die Anweisung \emph{print()} von jedem Prozess einmal aufgerufen wurde und sich nur die Variable \emph{rank} unterscheidet. 
+\begin{figure}
+	
+	\begin{python}
+		from mpi4py import MPI
+		
+		comm = MPI.COMM_WORLD
+		rank = comm.Get_rank()
+		size = comm.Get_size()
+		
+		print("Hello world, Rank:", rank, ", Size:", size)
+		
+		>>> Hello world, Rank: 1, Size: 2
+		>>> Hello world, Rank: 0, Size: 2
+	\end{python}
+	\caption{\emph{HelloWord} \ac{MPI} Programm in Python}
+	\label{fig:example_process_group}
+\end{figure}
+
+
+
 % MPI Communicaor, splittet Processe in Auf, 
 % Aktuell Version 3
 % Ursprünglich 80 Personen und 30 Organisationen, Attraktiv because Protability and Scalability, Distributed and Shared Memory Multiprocesses
-\subsubsection{Point-to-Point}
+% Standard defacto von HPC
 % Blocking Non Blocking
+\subsubsection{Point-to-Point Kommunikation}
+Typischerweise wird \ac{MPI} unter anderem zum austauschen von Nachrichten verwendet. In diesem Abschnitt soll die sogenannte \emph{Point-to-Point} Kommunikation vorgestellt werden. Hierbei sendet ein Prozess entweder synchron oder asynchron Daten an einen anderen \cite{nielsen2016introduction}. Abbildung \ref{fix:example_point_to_point} zeigt ein Beispiel für die synchrone Kommunikation. Die hierfür benötigten Methoden sind die \emph{send()} und \emph{recv()} Funktion. Die \emph{send()} Funktion versendet Daten an einen anderen Prozess. Als Parameter müssen die zu senden Daten und das Ziel übergeben werden. Dieses wird durch entsprechenden Rang identifiziert. Optional kann dieser Funktion noch ein \emph{tag} übergeben werden, welches zusätzliche Informationen zu den Daten enthält. Beispielsweise kann dieses verwendet werden, um dem Zielprozess zu signalisieren, wie die Daten verarbeitet werden sollen. Die \emph{recv()} Funktion wird zum Empfangen der Daten verwendet. Diese kann prinzipiell ohne Parameter aufgerufen werden, sodass von jedem Prozess jede Nachricht akzeptiert wird. Sollen spezielle Nachrichten mit einem gewissen \emph{tag} oder von einem spezifischen Prozess empfangen werden, ist dies durch übergeben von weiteren Parametern möglich. Dies kann wichtig sein, wenn zum Beispiel Nachrichten in einer gewissen Reihenfolge empfangen werden müssen. 
+\begin{figure}
+	\begin{python}
+		from mpi4py import MPI
+		
+		comm = MPI.COMM_WORLD
+		rank = comm.Get_rank()
+		size = comm.Get_size()
+		
+		if rank == 0:
+			data_to_send = 42
+			comm.send(data_to_send, dest=1)
+			print("Data sent: ", str(data_to_send))
+		elif rank == 1:
+			data_recv = comm.recv()
+			print("Data received: " + str(data_recv))
+			
+		>>> Data sent:  42
+		>>> Data received: 42
+	\end{python}
+	\label{fix:example_point_to_point}
+	\caption{\emph{Point-to-Point} Kommunikation mit \ac{MPI} in Python}
+\end{figure}
+\\\\
+Die synchrone Kommunikation kann zwei Probleme verursachen. Das erste Problem betrifft die Effizienz, da sowohl die \emph{send()} als auch \emph{recv()} Funktion die weitere Ausführung des Programmcodes blockieren bis die Übertragung erfolgreich abgeschlossen ist. Sollte einer der beiden Prozessoren ausgelastet sein wird der andere auf ihn warten und in dieser Zeit keine Berechnungen durchführen \cite{nielsen2016introduction}. Kommen diese Wartezeiten häufig und lange vor, kann dies die Performanz des Systems stark beeinträchtigen. Das zweite Problem ist, dass Fehler im Programmcode zu \emph{Deadlocks} führen können. Eine solche Situation kann entstehen, wenn zwei Prozesse eine Nachricht vom jeweils anderen erwarten und daher nicht mit der Programmausführung fortfahren \cite{nielsen2016introduction}. Da kein Prozess eine Nachricht schicken wird, muss das Programm in einem solchen Fall extern manuell beendet werden und alle nicht gespeicherten Zwischenergebnisse gehen verloren. Um diese Probleme zu umgehen kann die asynchrone Variante der \emph{Point-to-Point} Kommunikation verwendet werden, welche mit den Funktionen \emph{isend()} und \emph{irecv()} implementiert ist. Möchte ein Prozess Daten senden bzw. empfangen und der Kommunikationspartner ist noch nicht bereit, wird mit der Ausführung des Programmcodes fortgefahren. Wenn der Kommunikationspartner letztendlich für die Übertragung bereit ist wird diese automatisch gestartet \cite{nielsen2016introduction}. 
 
-\subsubsection{Gruppenkommunikation}
+\subsubsection{Gruppenkommunikation} % TODO ABBILDUNG dargestellt sind
+Der \ac{MPI} Standard definiert nicht nur die \emph{Point-to-Point} sondern auch die verschiedene Formen der Gruppenkommunikation. Diese können in einigen Fällen bedeutend effizienter sein als Nachrichten mit jedem Prozessor einzeln auszutauschen. Einige der wichtigsten Operationen sind die \emph{Broadcast}, \emph{Scatter}, \emph{Gather} und \emph{Reduce} Funktion, welche beispielhaft in Abbildung \ref{fig:mpi_group_communication} dargestellt sind \cite{dongarra1995introduction}.
+\\\\
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=1\textwidth]{./img/mpi_group_communication.pdf} 
+	\caption{Schematische Darstellung der \emph{Broadcast}, \emph{Scatter}, \emph{Gather} und \emph{Reduce} Funktion in \emph{MPI}}
+	\label{fig:mpi_group_communication}
+\end{figure}
 
 % Load Balancing?
 
 
-\subsection{Ahmdals Law?}
+\subsection{Performance}
 
 
