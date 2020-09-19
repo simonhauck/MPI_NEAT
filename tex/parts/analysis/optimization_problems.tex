@@ -8,20 +8,58 @@ Die \emph{Cartpole} Umgebung, auch als \emph{Pole Balancing} bezeichnet, wurde b
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width=0.5\textwidth]{./img/cartpole_env.JPG} 
-	\caption{Darstellung der \emph{Cartpole} Umgebung}
+	\caption{Darstellung der \emph{Cartpole} Umgebung aus dem OpenAI Gym}
 	\label{fig:cartpole_environment}
 \end{figure} 
 Bevor die Evaluation mit dieser Umgebung durchgeführt wird, müssen noch die Fitnessfunktion, Lösungsbedingung und Konfiguration festgelegt werden. Beim klassischen bestärkenden Lernen, wie es in Kapitel \ref{subsubsec:reinforcment_learning} beschrieben ist, erhält der Agent nach jedem Zeitschritt einen \emph{reward}. Da das OpenAI Gym primär für diese Art des Lernens konzipiert ist, wird auch hier nach jeder Aktion in der Umgebung ein \emph{reward} zurück gegeben. In diesem Fall erhält ein Agent bis er scheitert für jeden Zeitschritt einen \emph{reward} mit der Wertigkeit $1$. Mit diesen muss für neuroevolutionäre Algorithmen eine Fitnessfunktion definiert werden. In diesem Beispiel ist das Vorgehen einfach. Der Fitnesswert wird berechnet indem die erhaltenen \emph{rewards} aggregiert und der erhaltene Wert am Ende der Evaluation quadriert wird. Somit soll wie zuvor beim XOR-Problem besseren Agenten ein proportional höherer Fitnesswert zugewiesen werden. Das Optimierungsverfahren wird abgebrochen, wenn ein Agent den Balken für mindestens 500 Zeitschritte balancieren kann. Die restlichen Parameter wurden aus dem vorherigen Beispiel übernommen und nicht wieder geändert.
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./img/pole_balancing_single_core/cartpole_neuroal_network.pdf} 
-	\caption{Struktur des finalen \ac{KNN} im \emph{Cartpole} Optimierungsproblem}
+	\caption{Struktur des finalen KNN im \emph{Cartpole} Optimierungsproblem}
 	\label{fig:cartpole_neural_network}
 \end{figure}
 \\\\
 Allerdings stellt sich beim Ausführen dieses Optimierungsproblems heraus, dass es für die Analyse ungeeignet ist. Bereits in der initialen Population, für welche die Agenten zufällig erstellt werden, sind \ac{KNN} vorhanden, die die Abbruchbedingung erfüllen und das Optimierungsproblem lösen. Ein solches ist in Abbildung \ref{fig:cartpole_neural_network} dargestellt. Wie die anderen \ac{KNN} in der initialen Population, besitzt auch dieses keine \emph{Hidden}-Neuronen und zeigt, dass für das Lösen dieses Optimierungsproblem keine komplexen Entscheidungen notwendig sind. Es ist beispielsweise mit dem Winkel des Balken möglich auf die auszuführende Aktion zu schließen. Neigt sich der Balken nach rechts, bewegt sich der Wagen in diese Richtung und umgekehrt. Dies ist einer der Gründe warum dieses Optimierungsproblem im weiteren Verlauf der Arbeit nicht weiter verwendet wird. Ein weiterer Grund ist, dass durch die Fehlende Optimierung keine Ausführungszeiten über mehrere Generationen gemessen werden können, welche eine notwendige Grundlage für den späteren Vergleich sind.
 
 \subsection{Mountain Car}
+Die Umgebung \emph{Mountain Car} ist ein weiteres Optimierungsproblem, welches aus dem OpenAI Gym stammt und in Abbildung \ref{fig:mountain_car_env} dargestellt ist. Das Ziel für den Agenten ist, den Wagen auf den rechten Berg zu fahren, auf welchem sich die Fahne befindet. Hierfür stehen ihm Steuerungsoptionen für den Antrieb des Wagens zur Verfügung. Für jeden Zeitschritt kann der Agent entscheiden, ob er nach links, rechts oder gar nicht beschleunigen möchte. Die Schwierigkeit von dieser Umgebung ist, dass der Antrieb nicht ausreichen ist, um den Wagen zur rechten Bergspitze zu fahren. Das Ziel kann nur erreicht werden, wenn der Wagen zuerst ein Stück den linken Berg hochfährt. Ab einer gewissen Höhe kann in die andere Richtung beschleunigt werden und mit dem zusätzlichen Schwung kann der Wagen letztendlich die rechte Bergspitze erreichen. Für dieses Optimierungsproblem gibt es zwei Eingabewerte. Der erste ist die aktuelle Position des Wagens und die zweite seine Geschwindigkeit. Auf Basis von diesen muss der Agent seine Aktion wählen. Auch für diese Umgebung muss eine Abbruchbedingung und Fitnessfunktion festgelegt werden. Die Ausführung der Umgebung wird beendet, wenn der Agent entweder das Ziel auf der rechten Seite erreicht hat oder wenn $200$ Zeitschritte vergangen sind. Das erreichen der Fahne allein ist nicht ausreichend um das \emph{Mountain Car} Problem erfolgreich zu lösen. Laut der Dokumentation des OpenAI Gyms muss der Agent dies in $100$ aufeinander folgenden Evaluationen in durchschnittlich $110$ Zeitschritten oder weniger schaffen.
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.5\textwidth]{./img/mountain_car_env.JPG} 
+	\caption{Darstellung der \emph{Mountain Car} Umgebung aus dem OpenAI Gym}
+	\label{fig:mountain_car_env}
+\end{figure} 
+\\\\
+Grundsätzlich kann dies implementiert werden, indem beispielsweise nach jeder Generation der beste Agent $100$ mal in verschiedenen Umgebungen getestet wird. Aber da dies die Trainingszeit stark erhöhen würde, und die Laufzeit auf dem Raspberry Pi 4 vergleichsweise hoch ist, wird eine einfachere Bedingung gewählt. Das Trainingsverfahren wird beendet, wenn es einem Agenten einmalig gelingt, das \emph{Mountain Car} Problem in weniger als $110$ Zeitschritten erfolgreich zu beenden. Zuletzt muss die Fitnessfunktion implementiert werden. Die \emph{Mountain Car} Umgebung gibt für jeden Zeitschritt einen \emph{reward} von $-1$. Für eine bessere Übersichtlichkeit und um negative Fitnesswerte zu vermeiden, wird der Fitnesswert in dieser Umgebung auf den $200$ initialisiert. Für jeden verwendeten Zeitschritt wird ein Punkt abgezogen. Bessere Agenten, welche weniger Zeitschritte benötigten, haben so einen höheren Fitnesswert. Allerdings kann vorkommen, dass kein Agent in der initialen Population das Ziel auf der rechten Seite erreicht. In diesem Fall würde jeder Agent den Fitnesswert $0$ haben, wodurch keine Selektion möglich ist. Aus diesem Grund wird die maximal erreichte X-Koordinate ebenfalls in den Fitnesswert miteinbezogen. Sollte kein Agent das Ziel erreichen, haben die Agenten, welche diesem am nächsten waren einen Selektionsvorteil. Die restliche Konfiguration für diese Umgebung ist sehr ähnlich zu den vorherigen Beispielen. Einzig die Populationsgröße wird auf $300$ Agenten erhöht, da dieses Problem aufwändiger zu lösen ist als die vorherigen.
+\\\\
+Prinzipiell kann das Verfahren ab diesem Punkt evaluiert werden, allerdings werden die maximalen Fitnesswerte in vielen Fällen stark variieren. Der Grund hierfür ist eine verrauschte Fitnessfunktion, wie es in Kapitel \ref{subsec:comparision_neuroevoltion} erläutert ist. Die Startposition des Wagen ist zufällige durch die Umgebung gesetzt und kann einen großen Einfluss auf den Fitnesswert haben. So kann es vorkommen, dass ein Agent einen hohen Fitnesswert durch eine günstige Startposition erhält aber ansonsten schlechte Ergebnisse erzielen würde. Ein Ansatz um diesen Effekt zu minimieren ist, dass jeder Agent mehrfach die Evaluation durchführen muss und der mittlere Fitnesswert verwendet wird. Aber da dies die Trainingszeit weiter stark erhöhen würde und nicht für einen Vergleich zwischen der sequenziellen und parallelisierten Implementierung notwendig ist, wird hierauf verzichtet. Stattdessen wird die Umgebungen so konfiguriert, dass jeder Agent mit derselben Ausgangssituation beginnt. 
+\begin{figure}[!h]
+	\centering
+	\begin{minipage}[]{0.49\textwidth}
+		\includegraphics[width=1.0\textwidth]{./img/mountain_car_single/mountain_car_neural_network.pdf} 
+		%\caption{Lösung für das XOR-Problem mit einem \emph{Hidden}-Neuron}
+		%\label{fig:xor_solution_minimal}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[]{0.49\textwidth}
+		\includegraphics[width=1.0\textwidth]{./img/mountain_car_single/1413_fitness_1core_1pi.pdf} 
+		%\caption{Lösung für das XOR-Problem mit einem \emph{Hidden}-Neuron}
+	\end{minipage}
+	\caption{Links die Lösung für das Mountain Car Problem, rechts die dazugehörigen Fitnesswerte pro Generation}
+	\label{fig:mountain_car_1core_neural_network_and_fitness}
+\end{figure}
+\\\\
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{./img/mountain_car_single/1413_time_1core_1pi.pdf} 
+	\caption{Ausführungszeiten des Mountain Car Problems auf einem Raspberry Pi 4 mit einem Prozess}
+	\label{fig:mountain_car_time_single_core}
+\end{figure}
+
+% Time ca: 105 Min
+
+% Recurrent Verbindungen?
+% Ergebnisse
 
 \subsection{Pendulum}
 
