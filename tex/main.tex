@@ -46,42 +46,71 @@ sorting=none,
 \begin{document}
 
 % TitlePage	
+%\begin{titlepage}
+%	\begin{center}
+%		\includegraphics[width=0.50\textwidth]{img/hs_logo.png}\par\vspace{0cm}
+%		\vspace{1.5cm}
+%		{\huge\bfseries Neuroevolution mit MPI \par}
+%		\vspace{0.5cm}
+%		{\LARGE Analyse und Optimierung von NEAT für ein verteiltes System\par}
+%		\vspace{2cm}
+%	\end{center}
+%
+%	\begin{large}
+%		\noindent
+%		\textbf{Masterthesis}\\
+%		zur Erlangung des akademischen Grades\\
+%		Master of Science (M.Sc.)\\
+%		im Studiengang Angewandte Informatik\\
+%		an der Hochschule Flensburg
+%		\vspace{1cm}
+%	\end{large}
+%	
+%	\begin{large}
+%		\noindent
+%		\textbf{Simon Hauck}\\
+%		Matrikelnummer: 660158
+%		\vspace{1.0cm}
+%	\end{large}
+%	
+%	\begin{large}
+%		\noindent
+%		Erstprüfer: \hspace{1.0cm} Prof. Dr. rer. nat. Tim Aschmoneit \\
+%		Zweitprüfer: \hspace{0.7cm} Prof. Dr. rer. nat. Torben Wallbaum \\
+%	\end{large}
+%	\vspace{1.5cm}
+%
+%	% Bottom of the page
+%	{\large \centering \today\par}
+%\end{titlepage}
+
 \begin{titlepage}
-	\begin{center}
-		\includegraphics[width=0.50\textwidth]{img/hs_logo.png}\par\vspace{0cm}
-		\vspace{1.5cm}
-		{\huge\bfseries Neuroevolution mit MPI \par}
-		\vspace{0.5cm}
-		{\LARGE Analyse und Optimierung von NEAT für ein verteiltes System\par}
-		\vspace{2cm}
-	\end{center}
-
-	\begin{large}
-		\noindent
-		\textbf{Masterthesis}\\
-		zur Erlangung des akademischen Grades\\
-		Master of Science (M.Sc.)\\
-		im Studiengang Angewandte Informatik\\
-		an der Hochschule Flensburg
-		\vspace{1cm}
-	\end{large}
+	\centerline{{\scshape\LARGE Hochschule Flensburg}}
+	\vspace{0.3cm}
+	\centerline{{\scshape\LARGE University of applied Sciences}}
+	\vspace{3cm}
+	\centerline{{\scshape\Huge MASTER-THESIS}}
+	\vspace{3cm}
 	
-	\begin{large}
+	\large 
+	{\Large
 		\noindent
-		\textbf{Simon Hauck}\\
-		Matrikelnummer: 660158
-		\vspace{1.0cm}
-	\end{large}
+		\parbox[t]{1.5cm}{Thema:}   \quad\quad \parbox[t]{11cm}{Neuroevolution mit MPI - \\
+			\normalsize Analyse und Optimierung von NEAT für ein verteiltes System }\\
+		\vspace{0.5cm}\\
+		\parbox[t]{1.5cm}{von:}   \quad\quad \parbox[t]{11cm}{Simon Hauck}\\
+	} 
 	
-	\begin{large}
-		\noindent
-		Erstprüfer: \hspace{1.0cm} Prof. Dr. rer. nat. Tim Aschmoneit \\
-		Zweitprüfer: \hspace{0.7cm} Prof. Dr. rer. nat. Torben Wallbaum \\
-	\end{large}
-	\vspace{1.5cm}
-
-	% Bottom of the page
-	{\large \centering \today\par}
+	\vspace{2.5cm}
+	\noindent
+	\parbox[t]{6cm}{Matrikel-Nr.:}  \quad\quad \quad\quad  \parbox[t]{11cm}{XXXXXX}\\\\
+	\parbox[t]{6cm}{Studiengang:}   \quad\quad \quad\quad \parbox[t]{11cm}{Angewandte Informatik}\\\\
+	\parbox[t]{6cm}{Betreuer/in und \\Erstbewerter/in:}    \quad\quad\quad\quad \parbox[t]{11cm}{\vspace{0.2cm}Prof. Dr. rer. nat. Tim Aschmoneit}\\\\
+	\parbox[t]{6cm}{Zweitbewerter/in:}   \quad\quad \quad\quad \parbox[t]{11cm}{Prof. Dr. rer. nat. Torben Wallbaum}\\\\
+	\parbox[t]{6cm}{Ausgabedatum:}   \quad\quad \quad\quad \parbox[t]{11cm}{04.05.2020}\\\\
+	\parbox[t]{6cm}{Abgabedatum:}   \quad\quad \quad\quad \parbox[t]{11cm}{04.10.2020}\\\\
+	\vfill
+	
 \end{titlepage}
 
 %\onehalfspacing
@@ -104,11 +133,12 @@ sorting=none,
 \input{./parts/optimization.tex}
 \input{./parts/summary.tex}
 
+% TODO PRint biliography
 % Bibliography
-\printbibliography[
-heading=bibintoc, 
-title={Quellenverzeichnis}
-]
+%\printbibliography[
+%heading=bibintoc, 
+%title={Quellenverzeichnis}
+%]
 
 % statutory declaration
 \input{./parts/statutory_declaration.tex}
