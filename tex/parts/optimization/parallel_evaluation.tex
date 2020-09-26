@@ -3,7 +3,7 @@
 Nachdem die Parallelisierung der Evaluationsphase durchgeführt und die Testumgebung spezifiziert ist, wird in diesem Kapitel die Performance des Verfahrens gemessen. Die hierbei erhaltenen Ergebnisse werden mit denen der sequenziellen Implementierung verglichen. Im letzten Schritt wird eine Bewertung bezüglich der Effizient und des \emph{SpeedUps} abgegeben.
 
 \subsection{Mountain Car}
-Das parallelisierte Verfahren wird zuerst in der \emph{Mountain Car} Umgebung getestet, die aus Kapitel \ref{subsec:analysis_mountain_car} bekannt ist. Mit dem Ziel, einen einfachen Vergleich zwischen der sequenziellen und parallelisierten Implementierung zu ermöglichen, wird die zuvor verwendete Konfiguration des Verfahrens vollständig übernommen. Ebenfalls wird bei der Ausführung derselbe \emph{Seed} angegeben. Bei korrekter Implementierung des parallelisierten Verfahren werden dieselben Zwischenergebnisse nach jeder Generation generiert und auch das finale Ergebnis wird mit dem des sequenziellen Verfahren übereinstimmen. Somit kann keine Implementierung einen zeitlichen Vorteil erlagen, der durch bessere Agenten oder kürzere Evaluationszeiten entsteht. Beide Implementierungen werden dieselben Berechnungen und Evaluationen durchführen.
+Das parallelisierte Verfahren wird zuerst in der \emph{Mountain Car} Umgebung getestet, die aus Kapitel \ref{subsec:analysis_mountain_car} bekannt ist. Mit dem Ziel, einen einfachen Vergleich zwischen der sequenziellen und parallelisierten Implementierung zu ermöglichen, wird die zuvor verwendete Konfiguration des Verfahrens vollständig übernommen. Selbiges gilt für den \emph{Seed}. Bei korrekter Implementierung des parallelisierten Verfahren werden dieselben Zwischenergebnisse nach jeder Generation generiert und auch das finale Ergebnis wird mit dem des sequenziellen Verfahren übereinstimmen. Somit kann keine Implementierung einen zeitlichen Vorteil erlagen, der durch bessere Agenten oder kürzere Evaluationszeiten entsteht. Beide Implementierungen werden dieselben Berechnungen und Evaluationen durchführen.
 \begin{figure}[!h]
 	\centering
 	\begin{minipage}[]{0.49\textwidth}
@@ -16,28 +16,16 @@ Das parallelisierte Verfahren wird zuerst in der \emph{Mountain Car} Umgebung ge
 	\caption{Links die Lösung für das Mountain Car Problem, rechts die dazugehörigen Fitnesswerte pro Generation mit 10 Prozessen}
 	\label{fig:mountain_car_10core_neural_network_and_fitness}
 \end{figure}
-\\\\
-
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./img/mountain_car_analysis/1413_time_10cores_10pis.pdf} 
 	\caption{Ausführungszeit des \emph{Mountain Car} Problems auf 10 \emph{Raspberry Pis} mit 10 Prozessen}
 	\label{fig:mountain_car_time_10cores_10pi}
 \end{figure}
-
-%\begin{figure}[!h]
-%	\centering
-%	\includegraphics[width=0.7\textwidth]{./img/mountain_car_single/1413_time_1core_1pi.pdf} 
-%	\caption{Ausführungszeiten des Mountain Car Problems auf einem Raspberry Pi 4 mit einem Prozess}
-%	\label{fig:mountain_car_time_single_core}
-%\end{figure}
-
-% Compared to first: Total TIme: 840 sec (14min), EvaluationTIme : 712sec (11.8 min), Compose OffSpring 116.9, Reproduciton Time 10.7 Sekunden
-% Total SpeedUp Compared to First  6341.262775421143 / 840 = Insgesamt 7.5, Evaluation, 7.5/10 = 75%   Time Faktor = 6218.207088708878 / 712 = 8.8 = 88%, mit 9 Cores 97% Effizienz
-
-Im ersten Durchlauf wird der parallelisierte Algorithmus mit zehn Prozessen auf zehn Raspberry Pis ausgeführt. Das Verfahren ist so konfiguriert, dass auf jedem Raspberry Pi ein Prozess gestartet wird. Abbildung \ref{fig:mountain_car_10core_neural_network_and_fitness} zeigt das hierbei entstandene \ac{KNN} und den maximal erreichten Fitnesswert. Beide Darstellungen sind identisch zu denen des sequenziellen Verfahrens. Da auch die restlichen Zwischenergebnisse stimmen über ein, wie beispielsweise die Anzahl an verschiedenen Spezies pro Generation, ist die Anforderung bezüglich des \emph{Seeds} erfüllt. Sowohl die parallelisierte als auch die sequenzielle Implementierung führen dieselben Rechenschritte durch, womit ein direkter Vergleich der Laufzeiten möglich ist. Die Ausführungszeit für die vorgestellte Konfiguration ist in Abbildung  \ref{fig:mountain_car_time_10cores_10pi} dargestellt. Wie bei dem sequenziellen Verfahren wird die diese in die Phasen \emph{Evaluation Time}, \emph{Reproduction Time} und \emph{Compose Offspring Time} unterteilt. Grundsätzlich ist festzustellen, dass die insgesamt benötigte Laufzeit stark verringert ist. Mit zehn Prozessen in der vorgestellten Konfiguration sinkt die durchschnittliche Rechenzeit auf ungefähr $10.5$ Sekunden pro Generation. Die sequenzielle Implementierung hat im Vergleich dazu etwa $80$ Sekunden pro Generation benötigt. Für die gesamten Ausführungszeit des Verfahrens bedeutet dies, dass das parallelisierte Verfahren bereits nach $14$ Minuten beendet wird. Im Vergleich zur Laufzeit der sequenziellen Implementierung mit $105$ Minuten ist das parallelisierte Verfahren somit $91$ Minuten schneller.
 \\\\
-Eine Besonderheit des Graphen zeigt sich in der ersten Generation. In dieser ist die Ausführungszeit der \emph{Evaluation Time} vergleichsweise hoch. Der Grund hierfür ist, dass das Starten und Initialisieren der beteiligten Prozesse Zeit benötigt, welche die Evaluation der Agenten verzögert. Da dies im Rahmen der \emph{Evaluation Time} erfasst wird, erhöht sich die gemessene Ausführungszeit in der ersten Generation. Für die nachfolgenden Generationen trifft dies nicht mehr zu, da die Initialisierung nur einmalig zu Beginn erfolgt. Eine weitere Besonderheit betrifft die Form des Graphen. Wie bei der sequenziellen Implementierung gibt es auch in der parallelisierten Implementierung Generationen, in der die Ausführungszeit stark sinkt oder ansteigt. Mögliche Gründe hierfür sind im Kapitel \ref{subsec:analysis_mountain_car} erörtert. Bei einem direkten Vergleich der Ausführungszeiten ist festzustellen, dass diese Änderungen meistens in denselben Generationen auftreten. Diese Eigenschaft ist wichtig, da ein Vergleich der Laufzeiten nur möglich ist, wenn die Messergebnisse, abgesehen von kleinen Abweichungen, konsistent sind. Dies Eigenschaft kann zusätzlich mit der \emph{Reproduction Time} und \emph{Compose Offspring Time} verifiziert werden. Diese Phasen sind nicht parallelisiert und daher sollte die Ausführungszeit identisch sein. Insgesamt sind die gemessenen Laufzeiten dieser Phasen etwas höher als bei der sequenziellen Implementierung. Über die $78$ Generationen entsteht eine Differenz von ungefähr $5$ Sekunden beziehungsweise $4\%$. Diese Unterschiede können beispielsweise durch Hintergrundprozesse im Betriebssystem entstehen, auf welche kein Einfluss genommen werden kann. Da die Abweichungen insgesamt gering sind, kann trotzdem ein Vergleich der Laufzeiten durchgeführt werden. Der letzte zu nennende Eigenschaft bezüglich der Abbildung \ref{fig:mountain_car_time_10cores_10pi} ist der prozentuale Anteil der \emph{Reproduction Time} und \emph{Compose Offspring Time}. Bei der sequenziellen Implementierung haben diese beiden Phasen nur etwa $2\%$ der Ausführungszeit ausgemacht. Dadurch dass der Anteil \emph{Evaluation Time} durch die Parallelisierung gesunken ist, steigt der Anteil auf ungefähr $15$ an. \emph{Amdahl's Law} entsprechend wird dieser Anteil mit weiteren Prozessen zunehmen.
+Im ersten Durchlauf wird der parallelisierte Algorithmus mit zehn Prozessen auf zehn Raspberry Pis ausgeführt. Das Verfahren ist so konfiguriert, dass auf jedem Raspberry Pi ein Prozess gestartet wird. Abbildung \ref{fig:mountain_car_10core_neural_network_and_fitness} zeigt das hierbei entstandene \ac{KNN} und den maximal erreichten Fitnesswert. Beide Darstellungen sind identisch zu denen des sequenziellen Verfahrens. Da auch die restlichen Zwischenergebnisse überein stimmen, wie beispielsweise die Anzahl an verschiedenen Spezies pro Generation, ist die Anforderung bezüglich des \emph{Seeds} erfüllt. Sowohl die parallelisierte als auch die sequenzielle Implementierung führen dieselben Rechenschritte durch, womit ein direkter Vergleich der Laufzeiten möglich ist. Die Ausführungszeit für die vorgestellte Konfiguration ist in Abbildung  \ref{fig:mountain_car_time_10cores_10pi} dargestellt. Wie bei dem sequenziellen Verfahren wird die diese in die Phasen \emph{Evaluation Time}, \emph{Reproduction Time} und \emph{Compose Offspring Time} unterteilt. Grundsätzlich ist festzustellen, dass die insgesamt benötigte Laufzeit stark verringert ist. Mit zehn Prozessen in der vorgestellten Konfiguration sinkt die durchschnittliche Rechenzeit auf ungefähr $10.5$ Sekunden pro Generation. Die sequenzielle Implementierung hat im Vergleich dazu etwa $80$ Sekunden pro Generation benötigt. Für die gesamten Ausführungszeit des Verfahrens bedeutet dies, dass das parallelisierte Verfahren bereits nach $14$ Minuten beendet wird. Im Vergleich zur Laufzeit der sequenziellen Implementierung mit $105$ Minuten, ist das parallelisierte Verfahren $91$ Minuten schneller.
+\\\\
+Eine Besonderheit des Graphen zeigt sich in der ersten Generation. In dieser ist die Ausführungszeit der \emph{Evaluation Time} vergleichsweise hoch. Der Grund hierfür ist, dass das Starten und Initialisieren der beteiligten Prozesse Zeit benötigt, welche die Evaluation der Agenten verzögert. Da dies im Rahmen der \emph{Evaluation Time} erfasst wird, erhöht sich die gemessene Ausführungszeit in der ersten Generation. Für die nachfolgenden Generationen trifft dies nicht mehr zu, da die Initialisierung nur einmalig zu Beginn erfolgt. Eine weitere Besonderheit betrifft die Form des Graphen. Wie bei der sequenziellen Implementierung gibt es auch in der parallelisierten Implementierung Generationen, in der die Ausführungszeit stark sinkt oder ansteigt. Mögliche Gründe hierfür sind im Kapitel \ref{subsec:analysis_mountain_car} erörtert. Bei einem direkten Vergleich der Ausführungszeiten ist festzustellen, dass diese Änderungen meistens in denselben Generationen auftreten. Diese Eigenschaft ist wichtig, da ein Vergleich der Laufzeiten nur möglich ist, wenn die Messergebnisse, abgesehen von kleinen Abweichungen, konsistent sind. Dies Eigenschaft kann zusätzlich mit der \emph{Reproduction Time} und \emph{Compose Offspring Time} verifiziert werden. Diese Phasen sind nicht parallelisiert und daher sollte die Ausführungszeit identisch sein. Insgesamt sind die gemessenen Laufzeiten dieser Phasen etwas höher als bei der sequenziellen Implementierung. Über die $78$ Generationen entsteht eine Differenz von ungefähr $5$ Sekunden beziehungsweise $4\%$. Diese Unterschiede können beispielsweise durch Hintergrundprozesse im Betriebssystem entstehen, auf welche kein Einfluss genommen werden kann. Da die Abweichungen insgesamt gering sind, kann trotzdem ein Vergleich der Laufzeiten durchgeführt werden. Die letzte zu nennende Eigenschaft bezüglich der Abbildung \ref{fig:mountain_car_time_10cores_10pi} ist der prozentuale Anteil der \emph{Reproduction Time} und \emph{Compose Offspring Time}. Bei der sequenziellen Implementierung haben diese beiden Phasen nur etwa $2\%$ der Ausführungszeit ausgemacht. Im aktuellen Testdurchlauf sind des $15\%$, da durch die Parallelisierung der Anteil der \emph{Evaluation Time} sinkt. Durch \emph{Amdahl's Law} ist anzunehmen, dass durch das Hinzufügen von weiteren Prozessen der prozentuale Anteil der \emph{Reproduction Time} und \emph{Compose Offspring Time} weiter ansteigt.
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./img/mountain_car_analysis/time_mountain_car_1_10.pdf} 
@@ -45,10 +33,7 @@ Eine Besonderheit des Graphen zeigt sich in der ersten Generation. In dieser ist
 	\label{fig:execution_time_mountain_car_1_10}
 \end{figure}
 \\\\
-Für eine vollständige Bewertung des parallelisierten Verfahrens werden die in Kapitel \ref{subsec:basics_performance} vorgestellten Metriken \emph{SpeedUp} und Effizienz benötigt. Für eine bessere Einordnung der Ergebnisse, werden diese nicht nur für die oben vorgestellte Konfiguration mit zehn, sondern auch für Testdurchläufe mit zwei bis neun Prozessen berechnet. Diese werden im Folgenden mit derselben Konfiguration durchgeführt. Die hierbei entstehenden \ac{KNN} und Fitnesswerte sind identisch zu den Vorherigen und daher nicht abgebildet. Die benötigte Ausführungszeit für das gesamte Verfahren in Abhängigkeit der Anzahl an Prozessen ist in Abbildung \ref{fig:execution_time_mountain_car_1_10} dargestellt. Eine Besonderheit hierbei ist, dass die Ausführungszeit mit zwei Prozessen länger benötigt als mit einem Prozess. Der Grund hierfür liegt in der gewählten \emph{Master-Slave} Architektur des parallelisierten Verfahrens. Mit einem Prozess wird das sequenzielle und andernfalls das parallelisierte Verfahren ausgeführt. Werden genau zwei Prozesse verwendet, gibt es einen \emph{Master} und einen \emph{Slave}. In diesem Fall ist die Ausführung langsamer als das sequenzielle Verfahren, da der \emph{Master} im Rahmen der Parallelisierung nur die Kommunikation koordiniert und selbst keine Aufgabenpakete abarbeitet. Der \emph{Slave} muss alleine die Evaluationen der Agenten durchführen. Dafür benötigt er dieselbe Zeit wie das sequenzielle Verfahren. Hinzu kommt der benötigte Kommunikationsaufwand, der für das Verteilen von Agenten und Sammeln von Fitnesswerten benötigt wird. Die hierfür benötigte Zeit macht das parallelisierte Verfahren mit zwei Prozessen langsamer als das sequenzielle Verfahren. Mit drei oder mehr beteiligten Prozessen sinkt die Ausführungszeit kontinuierlich. 
-\\\\
-Anhand der Ausführungszeiten kann der \emph{SpeedUp} und die Effizienz des parallelisierten Verfahrens gemessen werden. Mit diesen letztendlich eine Bewertung der Implementierung möglich. Abbildung (TODO ABBILDUZNG) zeigt links den erreichten \emph{SpeedUp} und rechts die dazugehörigen Effizienzwerte in Abhängigkeit der Anzahl an verwendeten Prozessen.  
-
+Für eine vollständige Bewertung des parallelisierten Verfahrens werden die in Kapitel \ref{subsec:basics_performance} vorgestellten Metriken \emph{SpeedUp} und Effizienz benötigt. Für eine bessere Einordnung der Ergebnisse, werden diese nicht nur für die oben vorgestellte Konfiguration mit zehn, sondern auch für Testdurchläufe mit zwei bis neun Prozessen berechnet. Diese werden im Folgenden mit derselben Konfiguration durchgeführt. Die hierbei entstehenden \ac{KNN} und Fitnesswerte sind identisch zu den Vorherigen und daher nicht abgebildet. Die benötigte Ausführungszeit für das gesamte Verfahren in Abhängigkeit der Anzahl an Prozessen ist in Abbildung \ref{fig:execution_time_mountain_car_1_10} dargestellt. Eine Besonderheit hierbei ist, dass die Ausführungszeit mit zwei Prozessen länger benötigt als mit einem Prozess. Der Grund hierfür liegt in der gewählten \emph{Master-Slave} Architektur des parallelisierten Verfahrens. Mit einem Prozess wird das sequenzielle und andernfalls das parallelisierte Verfahren ausgeführt. Werden genau zwei Prozesse verwendet, gibt es einen \emph{Master} und einen \emph{Slave}. In diesem Fall ist die Ausführung langsamer als das sequenzielle Verfahren, da der \emph{Master} im Rahmen der Parallelisierung nur die Kommunikation koordiniert und selbst keine Aufgabenpakete abarbeitet. Der \emph{Slave} muss alleine die Evaluationen der Agenten durchführen. Dafür benötigt er dieselbe Zeit wie das sequenzielle Verfahren. Hinzu kommt der benötigte Kommunikationsaufwand, der für das Verteilen von Agenten und Sammeln von Fitnesswerten benötigt wird. Die hierfür aufgewendete Zeit macht das parallelisierte Verfahren mit zwei Prozessen langsamer als das sequenzielle Verfahren. Mit drei oder mehr beteiligten Prozessen sinkt die Ausführungszeit kontinuierlich. 
 \begin{figure}[!h]
 	\centering
 	\begin{minipage}[]{0.49\textwidth}
@@ -58,16 +43,58 @@ Anhand der Ausführungszeiten kann der \emph{SpeedUp} und die Effizienz des para
 	\begin{minipage}[]{0.49\textwidth}
 		\includegraphics[width=1.0\textwidth]{./img/mountain_car_analysis/efficecny mountain_car_2_10.pdf} 
 	\end{minipage}
-	\caption{Links die Lösung für das Mountain Car Problem, rechts die dazugehörigen Fitnesswerte pro Generation mit 10 Prozessen}
+	\caption{Links der \emph{SpeedUp}, rechts die dazugehörigen Effizienzwerte für die \emph{Mountain Car} Umgebung in Abhängigkeit der Prozessanzahl}
+	\label{fig:mountain_car_2_10_efficiency_speedup}
+\end{figure}
+\\\\
+Anhand der Ausführungszeiten wird der \emph{SpeedUp} und die Effizienz des parallelisierten Verfahrens gemessen, welche eine Bewertung der Implementierung ermöglichen. Abbildung \ref{fig:mountain_car_2_10_efficiency_speedup} zeigt links die erreichten \emph{SpeedUp}- und rechts die dazugehörigen Effizienzwerte in Abhängigkeit der Anzahl an verwendeten Prozessen. In beiden Graphen sind jeweils die Metriken für die Evaluationsphase und das gesamte Verfahren dargestellt. Beim Testdurchlauf mit zehn Prozessen ist das parallelisierte Verfahren ungefähr um den Faktor $7.6$ schneller als das sequenzielle Verfahren. Dieses Ergebnis ist grundsätzlich höher als bei den vorherigen Testdurchläufen mit weniger Prozessen, entspricht aber nicht der Vorhersage von \emph{Amdahl's Law}. Laut diesem ist der maximal erreichbare \emph{SpeedUp} mit zehn Prozessen in einem zu $98\%$ parallelisierbaren Programm ungefähr $8.5$. Durch die gewählte \emph{Master-Slave} Kommunikationsarchitektur ist zwischen dem erwarteten und tatsächlich erhaltenen Wert eine Differenzvon $0.9$. Wie zuvor beschrieben, unterstützt der \emph{Master} nicht die \emph{Slaves} bei der Evaluation, wird aber trotzdem bei den Berechnungen berücksichtigt. Wird nur die Anzahl von \emph{Slave} Prozessen bei der Berechnung von \emph{Amdahl's Law} verwendet, ergibt sich ein maximaler \emph{SpeedUp} von $7.8$. Die restliche Differenz von $0.2$ entsteht durch den Kommunikationsaufwand. 
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{./img/mountain_car_analysis/mountain_car_efficiency_prediction.pdf} 
+	\caption{Erwartete Effizienz in der \emph{Mountain Car} Umgebung in Abhängigkeit der Anzahl an Prozessen}
+	\label{fig:mountain_car_efficiency_predidction}
+\end{figure}
+\\\\
+Die in der Abbildung \ref{fig:mountain_car_2_10_efficiency_speedup} rechts dargestellten Effizienzwerte beurteilt den \emph{SpeedUp} anhand der Prozessanzahl. Initial erzielt das parallelisierte Verfahren mit zwei Prozessen durch die \emph{Master-Slave} Architektur eine geringe Effizienz. Mit je einem \emph{Master} und \emph{Slave} wird entsprechend der Abbildung \ref{fig:execution_time_mountain_car_1_10} eine etwas höhere Ausführungszeit im Vergleich zur sequenzielle Implementierung benötigt. Daher liegt der \emph{SpeedUp} bei ungefähr $0.98$. Entsprechend der Formel aus Kapitel,  ergibt die Berechnung der Effizienz $49\%$. Beim Hinzufügen von weiteren Prozessen, sinkt der Einfluss des \emph{Masters} auf das Ergebnis und die Effizienz steigt. Mit sechs bis zehn Prozessen wird ein Wert von über $75\%$ erreicht. Aufgrund des Graphen und \emph{Amdahl's Law} ist davon auszugehen, dass der Wert nicht weiter steigen sondern letztendlich durch Hinzufügen von weiteren Prozessen sinken wird. Abbildung \ref{fig:mountain_car_efficiency_predidction} zeigt die erwarteten Effizienzwerte für die \emph{Mountain Car} Umgebung mit einer \emph{Master-Slave} Architektur, wobei die Werte mit \emph{Amdahl's Law} berechnet worden sind. Auch in diesem Fall steigt die Effizient anfangs stark an. Der höchste Wert von ungefähr $78\%$ wird mit acht Prozessen erreicht. Dies ähnelt dem tatsächlich erhaltenen Ergebnis. Hierbei wird die höchste Effizienz von $76\%$ ebenfalls mit acht Prozessen erreicht. Der Grund für das starke absinken der Effizienz im weiteren Verlauf ist, dass der \emph{SpeedUp} durch den sequenziellen Anteil von \emph{Amdahl's Law} immer gegen einen gewissen Wert konvergiert. Die niedrigen Effizienzwerte entstehen, da der \emph{SpeedUp} nicht proportional zur Anzahl von Prozessen ansteigt.
+\\\\
+Es ist möglich den \emph{SpeedUp} und die Effizienz nur für die parallelisierte \emph{Evaluation Time} zu berechnen, sodass der sequenzielle Teil des Verfahrens keinen Einfluss auf das Ergebnis hat. Die Ergebnisse hiervon sind neben denen des gesamten Verfahrens in Abbildung \ref{fig:mountain_car_2_10_efficiency_speedup} dargestellt. Der \emph{SpeedUp} der \emph{Evaluation Time} ist nahezu linear. Mit neun \emph{Slaves} bzw. zehn Prozessen wird ein \emph{SpeedUp} von $8.7$ erreicht. Diese guten Ergebnisse spiegeln sich in der Effizienz wieder. Diese ist anfänglich durch die \emph{Master-Slave} Architektur bei $49\%$, steigt aber stetig an. Mit zehn Prozessen liegt sie bei $87\%$. Prinzipiell kann der Wert weiter ansteigen, da der Einfluss des \emph{Masters} auf das Ergebnis mit zunehmender Prozessanzahl sinkt. Dennoch ist aufgrund der entstehenden Kommunikationszeit keine Effizienz von $100\%$ möglich. Wird bei der Effizienzberechnung der \emph{Master} Prozess ignoriert, sind die erhaltenen Ergebnisse zwischen $97\%$ und knapp $99\%$, was nahezu dem idealen Wert entspricht. 
+
+\subsection{Pendulum}
+Die % TODO Chance labels
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{./img/pendulum_analysis/pendulum_time_1_10core_10pi.pdf} 
+	\caption{Ausführungszeit des \emph{Pendulum} Problems auf 10 \emph{Raspberry Pis} mit 10 Prozessen}
+	\label{fig:pendulum_10core_10pi}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{./img/pendulum_analysis/pendulum_execution_1_1_10.pdf} 
+	\caption{TODO}
+	\label{fig:pendulum_10core_10pi}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\begin{minipage}[]{0.49\textwidth}
+		\includegraphics[width=1.0\textwidth]{./img/pendulum_analysis/pendulum_speedup1_2_10.pdf} 
+	\end{minipage}
+	\hfill
+	\begin{minipage}[]{0.49\textwidth}
+		\includegraphics[width=1.0\textwidth]{./img/pendulum_analysis/efficiency_pendulum_2_10.pdf} 
+	\end{minipage}
+	\caption{Links der \emph{SpeedUp}, rechts die dazugehörigen Effizienzwerte für die \emph{Pendulum} Umgebung in Abhängigkeit der Prozessanzahl}
 	\label{fig:mountain_car_2_10_efficiency_speedup}
 \end{figure}
 
-%\begin{figure}[!h]
-%	\centering
-%	\includegraphics[width=0.7\textwidth]{./img/mountain_car_analysis/mountain_car_speedup_1_10.pdf} 
-%	\caption{\emph{SpeedUp} des parallelisierten Verfahrens}
-%	\label{fig:speedup_mountain_car_1_10}
-%\end{figure}
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{./img/pendulum_analysis/pendulum_efficiency_prediction.pdf} 
+	\caption{Erwartete Effizienz in der \emph{Pendulum} Umgebung in Abhängigkeit der Anzahl an Prozessen}
+	\label{fig:mountain_car_efficiency_predidction}
+\end{figure}
+
 
 % Prozentsatz an Abweidung nicht parllelisierter Verfahren, 
 % Zuerst Ergebnisse 10 Pis, mit Verifizierung Funktionalität und allgemeines Ergebnis

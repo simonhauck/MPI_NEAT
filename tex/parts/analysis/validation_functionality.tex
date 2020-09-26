@@ -10,23 +10,23 @@ Um solche Fehler zu entdecken und die korrekte Funktionalität des Algorithmus z
 	\begin{python}
 		class OptimizationProblemXOR(OptimizationProblem):
 		
-		xor_tuples = [[0, 0, 0], [1, 0, 1], [0, 1, 1], [1, 1, 0]]
+			xor_tuples = [[0, 0, 0], [1, 0, 1], [0, 1, 1], [1, 1, 0]]
 		
-		def evaluate(self, neural_network) -> (float, Dict[str, object]):
-		fitness_val = 4.0
+			def evaluate(self, neural_network) -> (float, Dict[str, object]):
+				fitness_val = 4.0
 		
-		for xor_input in ChallengeXOR.xor_tuples:
-		inputs = [xor_input[0], xor_input[1]]
-		result_array = neural_network.activate(inputs)
-		result = result_array[0]
+				for xor_input in ChallengeXOR.xor_tuples:
+					inputs = [xor_input[0], xor_input[1]]
+					result_array = neural_network.activate(inputs)
+					result = result_array[0]
+					
+					fitness_val -= (abs(xor_input[2] - result))
 		
-		fitness_val -= (abs(xor_input[2] - result))
 		
-		
-		# Square remaining fitness
-		fitness_val = fitness_val ** 2
-		
-		return fitness_val, None
+				# Square remaining fitness
+				fitness_val = fitness_val ** 2
+				
+				return fitness_val, None
 	\end{python}
 	\label{fig:xor_implementation problem}
 	\caption{Implementierung des XOR-Problems in Python}
