@@ -41,9 +41,15 @@ Synapsen, die elektrische Signale empfangen, haben eine starke, direkte, nicht r
 Sowohl die anregenden als auch hemmenden Signale werden über die Dendriten an den Axonhügel weitergeleitet, welcher sich zwischen dem Soma und dem Axon befindet. Dort werden die Signale akkumuliert. Wird bei diesem Vorgang ein gewisser Schwellwert überschritten, wird ein elektrischer Impuls erzeugt, der über das Axon weitergeleitet wird \cite{kirschbaum2008biopsychologie}. Das Axon ist typischerweise ein Zentimeter, in Ausnahmen sogar bis zu einem Meter lang und wird von der Myelinscheide umgeben, die unter anderem Schutz vor mechanischer Überbeanspruchung bietet \cite{russell2013kunstliche}. Zusammen mit den Ranvierschen Schnürringen ermöglicht sie zudem eine schnellere Weiterleitung des Aktionspotenzials \cite{kirschbaum2008biopsychologie}. Das Axon endet mit dem sogenannten Endknopf, auch Axonterminal genannt. Dieses ist mit den Synapsen von anderen Neuronen verbunden, setzt beim Eintreffen eines Signals die Neurotransmitter frei und überträgt somit das Signal \cite{kirschbaum2008biopsychologie}. Typischerweise gibt ein einzelnes Neuron sein Signal an 1000 bis 10.000 anderen Neuronen weiter, in Extremfällen sogar an bis zu 150.000 andere Neuronen \cite{zell2003simulation}, die alle parallel arbeiten. So entsteht ein sehr großes und leistungsfähiges neuronales Netz. 
 
 \subsection{Künstliche neuronale Netze}
-\ac{KNN} sind ein mathematisches Modell, das im Vergleich zum biologischen Vorbild stark vereinfacht und idealisiert ist. Trotzdem können unterschiedliche mathematische Funktionen abgebildet werden. In diesem Kapitel werden die grundsätzliche Funktionsweise sowie die einzelnen Komponenten der \ac{KNN} vorgestellt. % TODO ABBILDUNG!!! 
+\ac{KNN} sind ein mathematisches Modell, das im Vergleich zum biologischen Vorbild stark vereinfacht und idealisiert ist. Trotzdem können unterschiedliche mathematische Funktionen abgebildet werden. In diesem Kapitel werden die grundsätzliche Funktionsweise sowie die einzelnen Komponenten der \ac{KNN} vorgestellt.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{./img/neural_network_basics/NeuralNetworkBlackbox.pdf} 
+	\caption{KNN als Blackbox mit einem Eingabe- und Ausgabevektor}
+	\label{fig:neural_network_blackbox}
+\end{figure}
 \\\\
-Betrachtet man ein \ac{KNN} als Blackbox (TODO REFERENZ BILD), gibt es eine gewisse Anzahl an Eingabewerten, die in einem Eingabevektor kodiert sind und eine Anzahl an Ausgaben, die in einem Ausgabevektor kodiert sind \cite{scherer2013neuronale}. Die Eingaben werden im Falle der \ac{KNN} nicht durch Rezeptoren erfasst, sondern durch ein Optimierungsproblem gegeben. Der Ausgabevektor soll das gewünschte Ergebnis enthalten. Je nach Optimierungsproblem kann die Interpretation ebendiesen Ausgabevektors variieren. Betrachtet man die Struktur der \ac{KNN}, sind einige Ähnlichkeiten zum biologischen Vorbild erkennbar. Diese werden im folgenden genauer betrachtet \cite{zell2003simulation}:
+Betrachtet man ein \ac{KNN} als Blackbox (Abbildung \ref{fig:neural_network_blackbox}), gibt es eine gewisse Anzahl an Eingabewerten, die in einem Eingabevektor kodiert sind und eine Anzahl an Ausgaben, die in einem Ausgabevektor kodiert sind \cite{scherer2013neuronale}. Die Eingaben werden im Falle der \ac{KNN} nicht durch Rezeptoren erfasst, sondern durch ein Optimierungsproblem gegeben. Der Ausgabevektor soll das gewünschte Ergebnis enthalten. Je nach Optimierungsproblem kann die Interpretation ebendiesen Ausgabevektors variieren. Betrachtet man die Struktur der \ac{KNN}, sind einige Ähnlichkeiten zum biologischen Vorbild erkennbar. Diese werden im folgenden genauer betrachtet \cite{zell2003simulation}:
 \begin{enumerate}
 	\item \textbf{Neuronen}\\
 	Ähnlich zu den biologischen neuronalen Netzen, besteht auch das \ac{KNN} aus vielen Neuronen \cite{zell2003simulation}. Dies sind einfache Recheneinheiten, die primitive Funktionen bestimmen können \cite{scherer2013neuronale} und deren genaue Funktionsweise in Kapitel \ref{subsec:neuron} erläutert wird. Vorweggenommen sei, dass ein Neuron mehrere Eingabewerte besitzt, welche gewichtet sind und akkumuliert werden. Hierbei entsteht ein skalarer Ausgabewert, der den Aktivierungsgrad des Neurons repräsentiert und von anderen Neuronen als Eingabe verwendet werden kann \cite{kriesel2008kleiner}. 
@@ -59,12 +65,17 @@ Trotz der vorgestellten Ähnlichkeiten sind verschiedene Unterschiede zwischen d
 
 \subsection{Das Neuron}
 \label{subsec:neuron}
-% TODO ABBILDUNG
-In diesem Kapitel wird die Funktionsweise der einzelnen Neuronen betrachtet. Hierfür werden drei Phasen, die Propagierungsfunktion, die Aktivierungsfunktion sowie die Ausgabefunktion vorgestellt, in denen der Ausgabewert eines einzelnen Neurons berechnet wird. Betrachtet man ein \ac{KNN}, führen typischerweise mehrere Verbindungen zu einem Neuron $j$, welche von den Neuronen $i_1, i_2, ..., i_n$ ausgehen \cite{kriesel2008kleiner}. Dieses ist schematisch in Abbildung (TODO ABBILDUNG EINFÜGEN) dargestellt.
+In diesem Kapitel wird die Funktionsweise der einzelnen Neuronen betrachtet. Hierfür werden drei Phasen, die Propagierungsfunktion, die Aktivierungsfunktion sowie die Ausgabefunktion vorgestellt, in denen der Ausgabewert eines einzelnen Neurons berechnet wird. Betrachtet man ein \ac{KNN}, führen typischerweise mehrere Verbindungen zu einem Neuron $j$, welche von den Neuronen $i_1, i_2, ..., i_n$ ausgehen \cite{kriesel2008kleiner}. Dieses ist schematisch in Abbildung \ref{fig:neuron_overview} dargestellt.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./img/neural_network_basics/neuron_overview.pdf} 
+	\caption{Schematische Darstellung eines einzelnen künstlichen Neurons}
+	\label{fig:neuron_overview}
+\end{figure}
 
 \subsubsection{Propagierungsfunktion} 
 Die Ausgabewerte $o_{i_1}, o_{i_2}, ..., o_{i_n}$ der Neuronen $i_1, i_2, ..., i_n$ werden als Eingabewerte für das Neuron $j$ verwendet. Für jeden Eingabewert existiert ein entsprechendes Gewicht $w_1, w_2, ..., w_n$ \cite{kriesel2008kleiner}. Somit repräsentiert $w_{ij}$ das Gewicht für die Verbindung von Neuron $i$ zu Neuron $j$ \cite{zell2003simulation}. Die Propagierungsfunktion $f_{prop}$ berechnet die Netzeingabe $net_j$, welche in der darauffolgenden Phase weiterverwendet wird \cite{kriesel2008kleiner}. 
-$$net_j=f_{prop}(o_1, o_2, ..., o_n, i_1, i_2, ..., i_n)$$
+$$net_j=f_{prop}(o_1, o_2, ..., o_n, w_1, w_2, ..., w_n)$$
 Die meist verwendete Propagierungsfunktion, welche auch in den späteren Beispielen genutzt wird, ist die gewichtete Summe. Hierbei werden, entsprechend der Formel, die Werte $o_i$ mit dem entsprechenden Gewicht $w_i$ multipliziert und aufsummiert \cite{kriesel2008kleiner}:
 $$net_j=\sum_{i}(o_{i} \cdot w_{i, j})$$
 % TODO eventuell produkt einfügen?
