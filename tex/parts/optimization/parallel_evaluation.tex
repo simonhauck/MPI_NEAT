@@ -14,7 +14,7 @@ Das parallelisierte Verfahren wird zuerst in der \emph{Mountain Car} Umgebung ge
 	\begin{minipage}[]{0.49\textwidth}
 		\includegraphics[width=1.0\textwidth]{./img/mountain_car_single/1413_fitness_1core_1pi.pdf} 
 	\end{minipage}
-	\caption{Links die Lösung für das Mountain Car Problem, rechts die dazugehörigen Fitnesswerte pro Generation mit 10 Prozessen}
+	\caption{Links die Lösung für das \emph{Mountain Car} Problem, rechts die dazugehörigen Fitnesswerte pro Generation mit 10 Prozessen}
 	\label{fig:mountain_car_10core_neural_network_and_fitness}
 \end{figure}
 \begin{figure}[!h]
@@ -101,12 +101,12 @@ Entsprechend des \emph{SpeedUps} sind auch die Effizienzwerte weniger gut als in
 	\label{fig:pendulumr_efficiency_predidction}
 \end{figure}
 
-\subsection{TITEL????}
+\subsection{Multi-Core CPUs}
 Die bisherigen Testdurchläufe nutzen maximal zehn Prozesse gleichzeitig, einen auf jedem Raspberry Pi. Mit dieser Konfiguration werden insgesamt sehr gute \emph{SpeedUp} Ergebnisse erzielt. Prinzipiell ist es mit der bereits vorhanden Hardware möglich, die Ausführungszeit weiter zu reduzieren, da die \ac{CPU} der einzelnen Raspberry Pis nicht vollständig ausgelastet ist. Der Grund hierfür ist einerseits die Hardware und die Funktionsweise der Programmiersprache Python. In Kapitel \ref{sec:analysis_testsetup} ist beschrieben, dass der Raspberry Pi 4 über einen Quad-core ARM Prozessor verfügt. Das bedeutet, dass sich vier unabhängige Prozessoren auf derselben \ac{CPU} befinden, die parallel Programmcode ausführen können. Allerdings kann der Standard Python Interpreter dies nicht nutzen, da ein \ac{GIL} verwendet wird um die Sprache \emph{thread-safe} zu machen. Das bedeutet, dass nur ein \emph{Thread} gleichzeitig Programmcode ausführen kann. Existieren mehrere \emph{Threads} wechselt der Python Interpreter in regelmäßigen Abständen zwischen diesen, sodass jedem eine gewisse Ausführungszeit zusteht. Die Folge ist, dass alle \emph{Threads} eines Programms auf demselben Prozessor abgearbeitet werden und kein Reduzierung der Ausführungszeit möglich ist \cite{marowka2018python}. Für das Umgehen des \ac{GIL} gibt es verschiedene Ansätze, wobei eine Möglichkeit das Nutzen von \ac{MPI} ist. Die parallelisierte Implementierung kann in der vorgestellten Testumgebung auf zehn Raspberry Pis mit insgesamt $40$ Prozessen gestartet werden, sodass jeder Raspberry Pi vier Prozesse zugewiesen bekommt. Das Betriebssystem verteilt diese auf die vier verfügbaren Prozessoren und erzielt so eine parallele Ausführung. Bei dieser Umsetzung besitzen die einzelne Prozesse jeweils einen eigenen  immer noch einen eigenen \ac{GIL}, dieser interferiert jedoch mit dem von anderen Prozessen \cite{marowka2018python}.
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./img/mountain_car_analysis/1413_time_40core_10pi.pdf} 
-	\caption{Ausführungszeit des \emph{Pendulum} Problems auf 10 \emph{Raspberry Pis} mit 40 Prozessen}
+	\caption{Ausführungszeit des \emph{Moutain Car} Problems auf 10 \emph{Raspberry Pis} mit 40 Prozessen}
 	\label{fig:mountain_car_time_40core_10pi}
 \end{figure}
 \\\\

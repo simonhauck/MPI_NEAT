@@ -1,0 +1,45 @@
+% !TeX spellcheck = de_DE
+\section{Ergebnisse}
+\label{sec:results_optimziation}
+
+% Evaluation Time größten Einfluss, Parallelisierung dieser Phase. 
+% Mit Amdahls Law können erwartete SpeedUp Werte ugnefähr berechnet werden
+% Strategien: Parallelisierung der Evaluationsphase als ganzesm, Vorteil: Sowohl Optimierungsproblem als auch KNN paralleisiert, Nutzen von Tensorflow etc möglich, wenig Kommuniktaionsaufwand, wichtig für speedUp
+
+% Implementierung mti MPI, weit verbreiter Standard, möglich umgehen des GIL,
+% Verwendet selbes Interface wie sequenzielle Implementierung, Daher einfach auszutauschen, Client Server Architektur gewählt, für Load balacning und Vermeidung von Deadlocks. Durch relativ lange Evaluationsphase sind trotzdem gute Effizienzwerte erzielt worden, 
+% Implementierung ermöglicht theoretisch Parallelisierung von weiteren Funktionen
+
+% Raspberry Pi als Beowulf Cluster aufgebaut
+
+% Mountain Car zeigt:
+% ergebnisse exakt dieselben, Vergleich der Laifzeiten möglich. 
+% Sequenzielle und Reprodutionsphase nahezu konstant, Evaluationsphase mit parallelisierung schneller
+% Laufzeit mit zwei prozessen langsamer als sequenzielle Implementierung, Danach immer ebsser. (in den gemessenen Ergebnissen)
+% Zeiteinsparnug nimmt imer ab, irgendwann ist hinzufügen von weiteren Rechenressourcen nicht mehr effizient%
+% Zeigt sich auch an SpeedUp und Effizienz. SpeedUp wird gegen maximum konvergieren, effizienz wird langfristig gegne null gehen, wegen stagnierendem SpeedUp
+% Aber bisherige ergebnisse sind nahe dem idealen Wert, Predictino mit Amdahls Law
+% Selbes gilt für die Pendulum Car Umgebung
+
+% MPI ermöglich auch Nutzung Multi Core CPUs mit python, was standardäßig nicht möglich ist
+% ergebnisse zwar besser, aber nicht so gut wie erwartet. open AI Gym Umgebung blockiert sich gegenseitig? Keine perfekte Parallelisierung?
+% Master und Netzwerk erstmal ausgeschlossen
+% Ressourcenzuweiesung hinderlich, Bsp Ram? 
+
+% Lunar Lander als abschließendes Beispiel
+% Zeigt wie eine generelle Lösung entwickelt werden kann
+% Erfolgreich in 3.5h mit parallelisiertem Verfahren entwickelt, sequenziell fast 3 Tage Laufzeit.
+% Verdeutlicht die Stärlke von neuroevolutionären Algorithmen. Sind zwar langsamer, aber gute einfahe Parallelisierung kann Trainingszeit massiv reduzieren
+
+
+
+
+%Lunar Lander zeigt wie groß er Vorteil einer Parallelisierung ist.
+
+In beiden Szenarien nimmt die \emph{Evaluation Time} bei der sequenziellen Implementierung 
+
+
+
+% Optimierung am anfang schlecht, Eventuell probleme mit kurzer trainingszeit, deswegen erhöhen auf 10 pro run, trotzdem schlecht, danach testen mit verschiedenen devices
+
+% Wenig abweichung von ideal wert, zeigt gute parallelisierung
