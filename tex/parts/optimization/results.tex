@@ -1,45 +1,12 @@
 % !TeX spellcheck = de_DE
 \section{Ergebnisse}
 \label{sec:results_optimziation}
-
-% Evaluation Time größten Einfluss, Parallelisierung dieser Phase. 
-% Mit Amdahls Law können erwartete SpeedUp Werte ugnefähr berechnet werden
-% Strategien: Parallelisierung der Evaluationsphase als ganzesm, Vorteil: Sowohl Optimierungsproblem als auch KNN paralleisiert, Nutzen von Tensorflow etc möglich, wenig Kommuniktaionsaufwand, wichtig für speedUp
-
-% Implementierung mti MPI, weit verbreiter Standard, möglich umgehen des GIL,
-% Verwendet selbes Interface wie sequenzielle Implementierung, Daher einfach auszutauschen, Client Server Architektur gewählt, für Load balacning und Vermeidung von Deadlocks. Durch relativ lange Evaluationsphase sind trotzdem gute Effizienzwerte erzielt worden, 
-% Implementierung ermöglicht theoretisch Parallelisierung von weiteren Funktionen
-
-% Raspberry Pi als Beowulf Cluster aufgebaut
-
-% Mountain Car zeigt:
-% ergebnisse exakt dieselben, Vergleich der Laifzeiten möglich. 
-% Sequenzielle und Reprodutionsphase nahezu konstant, Evaluationsphase mit parallelisierung schneller
-% Laufzeit mit zwei prozessen langsamer als sequenzielle Implementierung, Danach immer ebsser. (in den gemessenen Ergebnissen)
-% Zeiteinsparnug nimmt imer ab, irgendwann ist hinzufügen von weiteren Rechenressourcen nicht mehr effizient%
-% Zeigt sich auch an SpeedUp und Effizienz. SpeedUp wird gegen maximum konvergieren, effizienz wird langfristig gegne null gehen, wegen stagnierendem SpeedUp
-% Aber bisherige ergebnisse sind nahe dem idealen Wert, Predictino mit Amdahls Law
-% Selbes gilt für die Pendulum Car Umgebung
-
-% MPI ermöglich auch Nutzung Multi Core CPUs mit python, was standardäßig nicht möglich ist
-% ergebnisse zwar besser, aber nicht so gut wie erwartet. open AI Gym Umgebung blockiert sich gegenseitig? Keine perfekte Parallelisierung?
-% Master und Netzwerk erstmal ausgeschlossen
-% Ressourcenzuweiesung hinderlich, Bsp Ram? 
-
-% Lunar Lander als abschließendes Beispiel
-% Zeigt wie eine generelle Lösung entwickelt werden kann
-% Erfolgreich in 3.5h mit parallelisiertem Verfahren entwickelt, sequenziell fast 3 Tage Laufzeit.
-% Verdeutlicht die Stärlke von neuroevolutionären Algorithmen. Sind zwar langsamer, aber gute einfahe Parallelisierung kann Trainingszeit massiv reduzieren
-
-
-
-
-%Lunar Lander zeigt wie groß er Vorteil einer Parallelisierung ist.
-
-In beiden Szenarien nimmt die \emph{Evaluation Time} bei der sequenziellen Implementierung 
-
-
-
-% Optimierung am anfang schlecht, Eventuell probleme mit kurzer trainingszeit, deswegen erhöhen auf 10 pro run, trotzdem schlecht, danach testen mit verschiedenen devices
-
-% Wenig abweichung von ideal wert, zeigt gute parallelisierung
+Auf Basis der Analyse ist das parallelisierte Verfahren implementiert und danach getestet worden. Die hierbei erhaltenen Ergebnisse sind im Folgenden zusammengefasst. Der größte Einfluss bezüglich der Ausführungszeit ist die \emph{Evaluation Time}, welche in beiden Verfahren über $90\%$ ausmacht. Somit kann durch eine Parallelisierung dieser Phase die größte Zeiteinsparung erzielt werden. \emph{Amdahl's Law} zeigt, dass durch den sequenziellen Anteil de Programmcodes, trotz unendlich vieler Prozesse ein maximaler \emph{SpeedUp} von $50$ für die \emph{Moutain Car} Umgebung und von $11.\overline{1}$ für die \emph{Pendulum} Umgebung möglich ist. Diese Werte werden für einen Vergleich mit den tatsächlich erhaltenen Ergebnissen genutzt.
+\\\\
+Für eine maximale Zeitersparnis wird die Evaluation der Agenten als ganzes parallelisiert. Ein Vorteil ist, dass sowohl das Optimierungsproblem als auch die Funktionalität des \ac{KNN} parallel ausgeführt werden. Zusätzlich ist bei dieser Umsetzung der entstehende Kommunikationsaufwand gering und das nachträgliche Integrieren von Bibliotheken wie Tensorflow und PyTorch ist möglich. Für die eigentliche Implementierung sind verschiedene Anforderungen definiert, die vollständig umgesetzt sind. Es wird eine \emph{Master-Slave} Architektur für die Kommunikation verwendet. Diese ist einfach zu implementieren, vermeidet \emph{Deadlocks} und ermöglicht eine dynamische Lastenverteilung. Letzteres ist besonders wichtig, wenn das parallelisierte Verfahren auf unterschiedlich leistungsfähigen Geräten ausgeführt wird oder sich die Evaluationszeit von Agenten unterscheidet. Ein Nachteil dieser Umsetzung ist, dass der \emph{Master} nur die Koordination der Kommunikation übernimmt und die \emph{Slaves} nicht bei der Evaluation unterstützt. In der Effizienzberechnung macht dies bei einer geringen Anzahl an Prozessen einen großen Unterschied. In größeren Systemen mit hunderten Prozessen hingegen ist der Einfluss vernachlässigbar gering und daher nicht relevant. Bei der Implementierung des parallelisierten Verfahren werden die Komponenten des sequenzielle Verfahrens überwiegen wiederverwendet. Hierdurch ist eine schnelle und effiziente Entwicklung möglich. Entscheidend ist, dass beide Verfahren einfach untereinander austauschbar sind und ein direkter Vergleich ermöglicht wird. Um letzteres zu gewährleisten, basiert auch das parallelisierte Verfahren auf einem \emph{Seed}. Ist dieser identisch wie beim sequenziellen Verfahren, werden dieselben Ergebnisse berechnet. Für die Kommunikation wird der Standard \ac{MPI} eingesetzt, da er im Bereich \ac{HPC} weit verbreitet ist und zusätzlich das Umgehen des \acp{GIL} von Python ermöglicht.
+\\\\
+Für die Tests wird ein Beowulf Cluster bestehend aus zehn Raspberry Pis erstellt. Auf diesem wird das parallelisierte Verfahren durchgeführt und mit den Laufzeiten des sequenziellen verglichen. Anfänglich wird das Verfahren jeweils mit einem Prozess pro Raspberry Pi durchgeführt. Insgesamt sind die hierbei erhaltenen Werte für den \emph{SpeedUp} und die Effizienz nur geringfügig niedriger als durch \emph{Amdahl's Law} vorhergesagt. Mit zehn Prozessen wird für das gesamte Verfahren ein \emph{SpeedUp} von $7.6$ bzw. $5.1$ für die \emph{Mountain Car} und \emph{Pendulum} Umgebung erzielt. Da diese Werte durch den sequenziellen Anteil des Algorithmus beeinflusst sind, wird die parallelisierte \emph{Evaluation Time} gesondert bewertet. Mit zehn Prozessen liegen die erzielten \emph{SpeedUp} Werte bei $8.5$ und $8.7$. Werden nur die \emph{Slaves} bei der Berechnung der Effizienz berücksichtigt, beträgt diese in jedem Testdurchlauf mindestens $97\%$. Das verdeutlicht die Effizienz der Kommunikation und den Erfolg der Parallelisierung.
+\\\\
+Mit \ac{MPI} ist es möglich das \ac{GIL} von Python zu umgehen. Damit kann das parallelisierte Verfahren alle $40$ Prozessoren des erstellten Beowulf Clusters vollständig auslasten. Zwar ist das Verfahren grundsätzlich schneller als mit zehn Prozessem, allerdings skaliert der \emph{SpeedUp} entgegen den Erwartungen in diesem Fall nicht so gut. Verschiedene Tests veranschaulichen, dass dies nicht durch die höhere Anzahl von beteiligen Prozessen entsteht. Diese Erkenntnis ist entscheidend, wenn der Algorithmus in größeren und leistungsfähigeren Clustern ausgeführt werden soll. Stattdessen ist auf Basis der durchgeführten Tests zu schlussfolgern, dass sich mehrere Prozesse auf demselben Raspberry Pi gegenseitig blockieren. Dieses Phänomen ist unabhängig von der Anzahl der beteiligten Prozesse. Um die genaue Ursache hiervon festzustellen, sind weitere Tests notwendig, die nicht Teil dieser Arbeit sind. Ein möglicher Ressourcenengpass kann beispielsweise beim Zugriff auf Systemressourcen wie den \ac{RAM} entstehen. Ist die hierfür bereitgestellte Bandbreite nicht ausreichend für alle vier Prozessoren gleichzeitig, wird es zu Verzögerungen und somit niedrigeren \emph{SpeedUp} Werten kommen. 
+\\\\
+Die zuletzt vorgestellte \emph{Lunar Lander} Umgebung dient als Beispiel, wie eine generelle Lösungsstrategie entwickelt werden kann. Im Vergleich zu den vorherigen Umgebungen verwendet diese zufällige Startzustände und das \ac{KNN} muss lernen auf diese zu reagieren. Dies ist anspruchsvoller, als nur eine Lösung für einen einzelnen Startzustand zu entwickeln. Hierbei ist ein grundsätzliches Problem, dass die Fitnessfunktion nicht alle Startzustände miteinbezieht. Schlechte \ac{KNN} können mit einfachen Startzuständen gute Fitnesswerte erzielen und vielversprechende \ac{KNN} in schwierigen Umgebungen niedrige. Die hieraus entstehende Gefahr ist, dass vielversprechende Lösungsansätze durch niedrige Fitnesswerte bei der Selektion nicht ausgewählt werden und verloren gehen. Um dies zu verhindern und einen aussagekräftigen Fitnesswert zu erhalten, wird in diese Beispiel die Umgebung zehnmal nacheinander mit unterschiedlichen Startzuständen evaluiert. Erst wenn für jeden Durchlauf eine gültige Lösungsstrategie gefunden ist, wird das Verfahren beendet. Wie in dem Beispiel gezeigt, ist das Vorgehen erfolgreich. Der große Nachteil ist, dass die Evaluationszeit stark erhöht wird. Hierbei zeigt sich der große Vorteil der Parallelisierung. Mit den zuvor gemessenen \emph{SpeedUp} Werten wird angenommen, dass die Ausführungszeit mit dem sequenziellen Verfahren zwischen $62.1$ und $68.7$ Stunden benötigt hätte. In der parallelisierten Umgebung hingegen, wird das Verfahren bereits nach $3.5$ Stunden beendet. Es ist davon auszugehen, dass durch Hinzufügen von weiteren Prozessoren die Ausführungszeit entsprechend \emph{Amdahl's Law} weiter gesenkt werden kann. Dieses Beispielproblem verdeutlicht erneut den Erfolg der Parallelisierung.
