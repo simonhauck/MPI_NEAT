@@ -10,6 +10,9 @@
 % Header on Pages
 %\usepackage{fancyhdr}
 
+\usepackage{color}
+\usepackage{soul}
+\usepackage{geometry}
 \usepackage{gensymb}
 \usepackage{eurosym}
 \usepackage{amsmath}
@@ -43,46 +46,9 @@ sorting=none,
 ]{biblatex}
 \addbibresource{references.bib}
 
-\begin{document}
+\geometry{left=3cm, right=3cm, top=2.5cm, bottom=3.5cm, bindingoffset=5mm} 
 
-% TitlePage	
-%\begin{titlepage}
-%	\begin{center}
-%		\includegraphics[width=0.50\textwidth]{img/hs_logo.png}\par\vspace{0cm}
-%		\vspace{1.5cm}
-%		{\huge\bfseries Neuroevolution mit MPI \par}
-%		\vspace{0.5cm}
-%		{\LARGE Analyse und Optimierung von NEAT für ein verteiltes System\par}
-%		\vspace{2cm}
-%	\end{center}
-%
-%	\begin{large}
-%		\noindent
-%		\textbf{Masterthesis}\\
-%		zur Erlangung des akademischen Grades\\
-%		Master of Science (M.Sc.)\\
-%		im Studiengang Angewandte Informatik\\
-%		an der Hochschule Flensburg
-%		\vspace{1cm}
-%	\end{large}
-%	
-%	\begin{large}
-%		\noindent
-%		\textbf{Simon Hauck}\\
-%		Matrikelnummer: 660158
-%		\vspace{1.0cm}
-%	\end{large}
-%	
-%	\begin{large}
-%		\noindent
-%		Erstprüfer: \hspace{1.0cm} Prof. Dr. rer. nat. Tim Aschmoneit \\
-%		Zweitprüfer: \hspace{0.7cm} Prof. Dr. rer. nat. Torben Wallbaum \\
-%	\end{large}
-%	\vspace{1.5cm}
-%
-%	% Bottom of the page
-%	{\large \centering \today\par}
-%\end{titlepage}
+\begin{document}
 
 \begin{titlepage}
 	\centerline{{\scshape\LARGE Hochschule Flensburg}}
@@ -113,7 +79,7 @@ sorting=none,
 
 \hyphenation{ini-ti-ale ini-tia-li-siert}
 
-%\onehalfspacing
+\onehalfspacing
 
 % Table of Contents...
 \pagenumbering{roman}
