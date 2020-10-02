@@ -1,5 +1,43 @@
 % !TeX spellcheck = de_DE
 \chapter{Motivation}
-\section{Problemstellung}
+In den letzten Jahren sind mit \acp{KNN} wissenschaftliche Durchbrüche in verschiedenen Themengebieten erreicht worden. Dementsprechend besteht ein hohes Interesse an diesem Forschungsgebiet. Dies trifft auch auf die generelle Öffentlichkeit zu. Beispielsweise hat der Nutzer \emph{SethBling} im Jahr 2015 auf der Plattform \emph{YouTube} ein Video veröffentlicht, indem er den \ac{NEAT} Algorithmus vorstellt, welcher zum Optimieren von \ac{KNN} genutzt wird. Zum Zeitpunkt dieser Arbeit hat das Video fast zehn Millionen Aufrufe und ist zu $98\%$ positiv bewertet \cite{bling2015MarIO}. 
+\\\\
+Für den großen Erfolg von \ac{KNN} sind mehrere Gründe verantwortlich. Einer hiervon ist, dass es sich prinzipiell um eine mathematische Abbildungsvorschrift handelt, die Eingabewerte entsprechend einfacher Rechenoperationen zu Ausgabewerten konvertiert. Dieses Konzept kann mit unterschiedlichen Konfigurationen leicht für diverse Aufgabengebiete angepasst werden. Der dabei entstehende Implementierungsaufwand ist meistens gering. Für den erfolgreichen Einsatz von \ac{KNN} wird zusätzlich ein Optimierungsverfahren benötigt. Dieses wird in der sogenannten Lern- oder Trainigsphase auf das \ac{KNN} angewendet. Dabei sollen die internen Parameter so verändert werden, dass die Ausgabewerte den gewünschten Ergebnissen entsprechen. 
+\\\\
+Prinzipiell gibt es verschiedene Optimierungsverfahren. Diese können unterschiedliche Ansätze und Schwerpunkte umsetzen. Ein sehr bekanntes und häufig genutztes Verfahren ist der Backpropagation Algorithmus, welcher zu den gradientenbasierte Verfahren gehört. Eine Alternative hierzu sind die neuroevolutionären Algorithmen, welche von der natürlichen Evolution inspiriert sind. Bei diesen Verfahren wird ein künstliche Evolution simuliert, mit dem Ziel die \ac{KNN} zu optimieren. Dabei werden diverse Begriffe wie die Selektion, Rekombination und Mutation vom biologischen Vorbild übernommen. Einer der bekanntesten Vertreter neuroevolutionäre Algorithmen ist der bereits genannte \ac{NEAT} Algorithmus. Dieser hat im Vergleich zu anderen Algorithmen beeindruckende Ergebnisse erzielt und dient als Basis für viele Erweiterungen.
+
 \section{Ziel der Arbeit}
+Das Optimieren eines \ac{KNN} ist zeitlich gesehen sehr aufwändig. Trainingszeiten von mehreren Stunden oder Tagen können notwendig sein, bis das \ac{KNN} eine ausreichende Genauigkeit erzielt. Neuroevolutionäre Algorithmen sind hierbei keine Ausnahme. Das Simulieren einer künstlichen Evolution benötigt häufig längere Laufzeiten als alternative Verfahren, wie zum Beispiel der Backpropagation Algorithmus \cite{whitley1993genetic}. Dies ist mitunter ein Grund, warum neuroevolutionäre Algorithmen bedeutend seltener eingesetzt werden als gradientenbasierte Verfahren. Ein Vorteil für die neuroevolutionäre Algorithmen ist, dass sie gut parallelisierbar sind \cite{such2017deep}. Im Bereich von \ac{HPC}, wo viele unabhängige Prozessoren zur Verfügung stehen, kann es ein entscheidender Vorteil sein, wenn durch das Hinzufügen von weiteren Rechenressourcen die Ausführungszeit verringert werden kann. Häufig ist dies eine der kosteneffizientesten Möglichkeiten die Ausführungszeit von Algorithmen zu reduzieren. Wenn diese Eigenschaft auf neuroevolutionäre Algorithmen zutrifft, können sie einen Vorteil gegenüber anderen Verfahren bieten.
+\\\\
+Das Ziel dieser Arbeit besteht aus drei Teilen. Zuerst soll das Optimierungsverfahren \ac{NEAT} stellvertretend für neuroevolutionäre Algorithmen in der Sprache Python als sequenzielles Verfahren implementieren werden. Hierfür ist eine geeignete Bibliothek zu erstellen, die eine Schnittstelle für verschiedene Optimierungsprobleme bietet. Im zweiten Schritt ist eine Analyse des Verfahrens anhand mehrere Beispiele durchzuführen. Die hierfür benötigten Ausführungszeiten müssen erfasst und ausgewertet werden. Auf Basis der Ergebnisse ist im dritten Teil eine geeignete Strategie für die Parallelisierung zu wählen und zu implementieren. Danach sollen die zuvor verwendeten Beispiele wiederholt werden. Am Ende ist eine Beurteilung über die Effizienz abzugeben. Eine Anforderung an das parallelisierte Verfahren ist, dass es für den Bereich \ac{HPC} geeignet sein soll. Daher wird für die Kommunikation innerhalb der parallelisierten Implementierung der weit verbreitete Standard \ac{MPI} verwendet. 
+
+%Eine wichtige Komponente im Bezug zu \ac{KNN} sind die sogenannten Optimierungsverfahren. Um die richtige Lösung für Eingabewerte zu produzieren, müssen die internen Parameter eines \ac{KNN} angepasst werden. Dies ist in größeren Systemen nicht manuell möglich und wird mit einem Optimierungsverfahren realisiert.
+
+
+% Universelle Function 
+
+%\\\\
+%\ac{KNN} gehören zum Forschungsgebiet des maschinellen Lernens und werden zum Lösen von verschiedenen Optimierungsproblemen eingesetzt. Typischerweise wird hierbei zwischen der Nutzungs- und Trainingsphase unterschieden. In der Trainingsphase werden die internen Parameter des \acp{KNN} mit einem Optimierungsverfahren angepasst, mit dem Ziel gute Lösungen für das spezifizierte Problem zu finden. Erzielt das \ac{KNN} die gewünschten Ergebnisse mit einer entsprechenden Genauigkeit, beginnt die Nutzungsphase. In dieser wird das optimierte \ac{KNN} in einer produktiven Umgebung eingesetzt. Die internen Parameter werden in dieser Phase im Regelfall nicht mehr angepasst. 
+%\\\\
+%Insgesamt bietet der Einsatz von \ac{KNN} einige entscheidende Vorteile. Die grundlegenden Komponenten der \ac{KNN} und die dazugehörigen Optimierungsverfahren können mit einer entsprechenden Konfiguration für viele verschiedene Optimierungsprobleme angepasst werden. Generell ist dies durch den geringen Implementierungsaufwand effizient umzusetzen. Die Ergebnisse der \ac{KNN} sind in vielen Fällen außerordentlich gut. Unter anderem in den Bereichen Klassifizierung, Spracherkennung und dem selbständigen Lösen von Computer- und Gesellschaftsspielen sind mit den \ac{KNN} wissenschaftliche Durchbrüche erzielt worden und aber auch das öffentliche Interesse an diesem Forschungsgebiet ist stark gestiegen.
+%\\\\
+%Der hierbei entstehende Implementierungsaufwand ist gering, sodass eine effiziente Entwicklung  eine effiziente Entwicklung wird ermöglicht. Zudem sind die erhaltenen Ergebnisse in vielen Fällen außerordentlich gut.
+%\\\\
+%
+%
+%Dadurch ist der Implementierungsaufwand gering und eine effiziente Entwicklung  Dadurch ist eine effiziente Entwicklung möglich. Des weiteren sind die erzielten Ergebnisse in vielen Fällen sehr gut
+%\\\\
+%Der große Erfolg von \ac{KNN} entsteht unter anderem durch bieten einige entscheidende Vorteile, welche die Nutzung in verschiedenen Bereichen ermöglicht. Die grundlegende Struktur und Funktionsweise ist 
+%
+%
+% Unter anderem in den Bereichen Klassifizierung, Spracherkennung und dem selbständigen Lösen von Computer- und Gesellschaftsspielen sind mit den \ac{KNN} wissenschaftliche Durchbrüche erzielt worden und aber auch das öffentliche Interesse an diesem Forschungsgebiet ist stark gestiegen. 2015 hat der Nutzer \emph{SethBling} auf der Plattform \emph{YouTube} ein Video veröffentlicht, in welchem er den Einsatz von dem Algorithmus \acs*{NEAT} zum Lösen des bekannten Spiels
+
 \section{Struktur der Arbeit}
+Kapitel \ref{chap:basics} sind die benötigten Grundlagen vorgestellt. Zuerst wird auf den Aufbau und die Funktionsweise von \ac{KNN} eingegangen. Im Anschluss dazu sind die \ac{EA} beschrieben. Für diese werden zuerst die allgemeinen Konzepte vorgestellt und danach wird veranschaulicht, wie diese auf neuroevolutionäre Algorithmen übertragen werden. Der dritte Teil der Grundlagen stellt den \ac{NEAT} Algorithmus im Detail vor. Dieser wird stellvertretend für die neuroevolutionären Algorithmen verwendet. Im letzten Teil der Grundlagen wird auf \ac{HPC} eingegangen und das Protokoll \ac{MPI} vorgestellt. Dieses soll für die Parallelisierung verwendet werden. Im Kapitel \ref{chap:software_architecture} wird die Softwarearchitektur vorgestellt. Dies umfasst eine Beschreibung der verwendeten Klassen und Schnittstellen. Zusätzlich wird im Rahmen dieses Kapitels eine sequenzielle Implementierung von \ac{NEAT} erstellt. In Kapitel \ref{chap:analysis} wird diese analysiert. Dabei wird zuerst die korrekte Funktionalität verifiziert und danach die Laufzeit des Verfahrens in verschiedenen Beispielen erfasst und ausgewertet. Auf Basis der dabei erhaltenen Ergebnisse wird in Kapitel \ref{chap:optimization} das Verfahren mit \ac{MPI} parallelisiert und die Laufzeit erneut gemessen. Zuletzt wird die Effizienz der Parallelisierung im Vergleich zum sequenziellen Verfahren bewertet. Der erstellte Programmcode, die verwendeten Beispielprojekte und Diagramme sind auf \emph{GitHub} unter folgendem Link verfügbar:
+\begin{center}
+	\url{https://github.com/simonhauck/MPI_NEAT}
+\end{center}
+
+
+
+\acresetall
