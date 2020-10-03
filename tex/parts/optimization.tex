@@ -1,6 +1,8 @@
 % !TeX spellcheck = de_DE
 \chapter{Optimierung}
 \label{chap:optimization}
+Grundsätzlich gibt es verschiedene Arten der Optimierung. In dieser Arbeit wird das sequenzielle Verfahren mit \ac{MPI} parallelisiert. Hierzu wird in Kapitel \ref{sec:parallel_strategies} die ausgewählte Parallelisierungsstrategie vorgestellt. Im Anschluss dazu sind die konkreten Implementierungsdetails in Kapitel \ref{sec:parallel_implementation} erläutert. Als Testumgebung für das parallelisierte Verfahren wird ein Beowulf Cluster erstellt, dessen Aufbau in \ref{sec:test_env_parallel} beschrieben ist. Danach wird die eigentliche Evaluation mit der \emph{Mountain Car} und \emph{Pendulum} Umgebung in Kapitel \ref{sec:test_env_parallel} vorgestellt. Zuletzt wird noch ein \ac{KNN} für die \emph{Lunar Lander} Umgebung trainiert und die Ergebnisse der Parallelisierung zusammengefasst.
+
 % Mehrere Arten der Optimierung, in diesem Fall soll die Parallelisierung eingesetzt werden
 \input{./parts/optimization/parallel_strategies.tex}
 \input{./parts/optimization/implementation.tex}

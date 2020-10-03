@@ -2,8 +2,6 @@
 \section{Evolutionäre Algorithmen}
 \label{sec:evolutionary_algos}
 Für die Optimierung von \ac{KNN} können verschiedene Algorithmen eingesetzt werden. Der in Kapitel (TODO KApitel) vorgestellte Backpropagation Algorithmus ist hierbei nur ein Beispiel. In dieser Arbeit wird ein Verfahren eingesetzt, welches in Kapitel \ref{sec:neat} vorgestellt wird und zur Gruppe der neuroevolutionären Algorithmen gehört, welche auf den sogenannten \acp{EA} basieren. Zu diesen gehören eine Vielzahl von unterschiedlichen Verfahren, welche dennoch einige gemeinsame Grundprinzipien haben. Ziel von diesen ist, eine möglichst gute Näherungslösung für ein Optimierungsproblem zu finden. Umgesetzt wird dies mit einer simulierten Evolution, welche durch das biolgische Pendant inspiriert ist \cite{weicker2015evolutionare}.
-\\\\
-Im Folgenden .. 
 
 \subsection{Biologische Evolutionäre Konzepte}
 \label{subsec:biological_evolution}
@@ -109,6 +107,7 @@ Theoretisch kann für eine direkte Kodierung des Genoms, wie bei klassischen \ac
 Alternativ ist hierzu eine Graphen-Kodierung, welche auch von vielen \ac{TWEANN} Algorithmen verwendet wird. Eine mögliche Umsetzung hiervon ist in der Arbeit \cite{pujol1998evolving} von \citeauthor{pujol1998evolving} vorgestellt. Bei diesen besteht die Kodierung aus zwei Teilen. Der erste Teil beschreibt die Struktur des Graphen beziehungsweise des \ac{KNN}, während der zweite Teil ein linearer Vektor ist, welcher die Neuronen und Verbindungen enthält. In dieser Arbeit wird eine weitere Variante verwendet, welche ausführlich in Kapitel \ref{subsec:neat_encoding} erläutert wird.
 
 \subsubsection{Rekombination}
+\label{subsubsec}
 Chronologisch gesehen findet die Selektion vor der Rekombination statt. Da sich diese Phase nicht ändert, wird im Folgenden mit der Rekombination fortgefahren. Prinzipiell ist das Verfahren dasselbe wie in Kapitel \ref{subsubsec:ea_recombination} beschrieben. Die Selektion hat zwei Elterngenome ausgewählt und diese werden im Rahmen der Rekombination zu einem neuen Genom kombiniert. Typischerweise wird bei diesem Vorgang zufällig entschieden, welche Verbindung von welchem Elternteil übernommen werden soll. Das Ziel ist, ein \ac{KNN} zu erzeugen, welches in den meisten Fällen die positiven Eigenschaften der Eltern erbt und somit insgesamt besser wird. Eine Schwierigkeit, die hierbei im Bezug zu Neuroevolution entstehen kann wird als das \emph{Competing Conventions} Problem bezeichnet \cite{stanley2002evolving}.
 \\\\ % TODO Comepting Conevntions ABbildung da
 Der Begriff \emph{Competing Conventions} beschreibt ein Phänomen, bei dem mehrere \ac{KNN} dieselbe Lösung für ein Optimierungsproblem bieten, aber sich die Repräsentationen der Genome dennoch unterscheiden. Ein solches Beispiel ist in Abbildung (TODO Abbildung) dargestellt. Die beiden \ac{KNN} besitzen je drei verdeckte Neuronen (4, 5, 6) mit den dazugehörigen Verbindungen in den Farben blau (B), rot (R) und grün (G). Die tatsächlichen Gewichte sind hierbei nicht von Interesse und werden deshalb für eine bessere Übersichtlichkeit durch die Farben repräsentiert. Das erste \ac{KNN} kann beispielsweise durch den Vektor (B, R, G) und das zweite \ac{KNN} durch den Vektor  (G, R, B) kodiert werden. Es wird hierbei angenommen, dass in der Kodierung die einzelnen Gewichte für alle Verbindungen enthalten sind. \\\\
@@ -119,6 +118,7 @@ Wie bei traditionellen \ac{EA} wird auch bei der Neuroevolution typischerweise z
 Bei den \ac{TWEANN} Algorithmen ist das \emph{Competing Conventions} Problem noch größer \cite{stanley2002evolving}. Wie bereits beschrieben, versuchen diese, auch die Struktur des \ac{KNN} zu optimieren und können im Zuge dessen neue Neuronen und Verbindungen hinzufügen. Im nächsten Kapitel wird hierauf genauer eingegangen. An dieser Stelle sei vorweggenommen, dass im Laufe des Optimierungsverfahrens eine Population mit unterschiedlichen Strukturen und Topologien entstehen kann. Hierbei stellt sich die Frage, wie unterschiedliche \ac{KNN} rekombiniert werden können, wenn die Genome unterschiedlich groß sind und nicht zuzuordnen ist, welche Gene der Eltern rekombiniert werden können. Dies ist die schwierigste Form des \emph{Competing Conventions} Problems \cite{stanley2002evolving}. Wie der in dieser Arbeit verwendete Algorithmus dieses Problem löst, ist in Kapitel \ref{sec:neat} erläutert.
 
 \subsubsection{Mutation}
+\label{subsubsec:mutation}
 Neuroevolutionäre Algorithmen setzen in der Regel häufig die Mutation ein. Hierbei wird zwischen zwei Arten unterschieden. Bei der ersten Art werden nur die Verbindungsgewichte und Schwellwerte mutiert. Hierfür kann die bereits in Kapitel \ref{subsubsec:ea_mutation} vorgestellte Gauss-Mutation verwendet werden, wobei der erhaltene Zufallswert auf das Gewicht bzw. den Schwellwert addiert wird \cite{mcintyre_neatpython}. Die zweite Art verändert die Topologie und wird als strukturelle Mutation bezeichnet. Diese Art wird somit nur für die \ac{TWEANN} Verfahren benötigt, welche neue Neuronen und Verbindungen dem \ac{KNN} hinzuzufügen können \cite{stanley2002evolving}.
 \\\\
 Das eigentliche Hinzufügen von neuen Strukturen ist technisch einfach umzusetzen. Zum Beispiel kann eine neue Verbindung mit einem zufälligen Gewicht jederzeit zwei zuvor nicht verbundene Neuronen verknüpfen. Allerdings wird hierdurch der Fitnesswert in den meisten Fällen initial sinken, da es unwahrscheinlich ist, dass eine zufällige Struktur eine nützliche Funktionalität oder Teillösung bietet. Infolgedessen sinkt auch die Chance, dass das Genom bei der Selektion in der nächsten Generation als Elternteil ausgewählt und die neue Struktur an die Nachkommen vererbt wird. So kommt es häufig vor, dass die strukturellen Innovationen direkt in der nächsten Generation verloren gehen, auch wenn sie für eine erfolgreiche Lösung nötig wären. Die daraus resultierende Herausforderung für \ac{TWEANN} Verfahren ist, neue Innovationen am Anfang zu schützen, sodass der Algorithmus diese optimieren kann. Nur so ist es möglich, neue Strukturen langfristig in die Population zu integrieren \cite{stanley2002evolving}.
@@ -208,9 +208,5 @@ Wie erfolgreich eine Parallelisierung sein kann, haben \citeauthor*{such2017deep
 %•	advantage that they do not necessarily remain trapped in a suboptimal local maximum or minimum of the target function
 %•	genetic algorithm can move away from a local maximum or minimum if the population finds better function values in other areas %of the definition domain
 % Probabilistische Strahlsuche ?
-\subsection{TWEANN?}
-\label{subsec:tweann}
-\subsection{Competing Convention Problem}
-\label{subsec:competing_convention_problem}
 
 % Obwol Diversität gut und wichtig für Entdecken des Suchrausm, oft Problem da Unvollstände NAchkommen erzeugt werden

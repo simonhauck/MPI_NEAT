@@ -1,11 +1,7 @@
 % !TeX spellcheck = de_DE
 \chapter{Softwarearchitektur und Implementierung}
 \label{chap:software_architecture}
-(TODO Anmerkung)
-Das grundsätzliche Ziel ist, die in den Grundlagen vorgestellten Konzepte von den \ac{KNN}, neuroevolutionären Algorithmen, \ac{NEAT} und \ac{MPI} praktisch umzusetzen und für eine Anwendung zu kombinieren
+Für die Analyse von \ac{NEAT} wird eine sequenzielle Implementierung benötigt, welche im Rahmen dieses Kapitels umgesetzt wird. Dafür werden zuerst in Kapitel \ref{sec:requirements} einige grundlegende Anforderungen definiert. Diese sind sowohl von der sequenziellen als auch parallelisierten Implementierung umzusetzen. In Kapitel \ref{sec:software_architecture} ist die Softwarearchitektur dieses Projektes beschreiben. Das umfasst die verwendeten Klassen und eine Beschreibung der Schnittstelle. Zuletzt wird in Kapitel \ref{sec:sequential_implementation} das sequenzielle Verfahren vorgestellt.
 
-% Warum python Etc
-% Klassen übersicht, interface NN, interface NEAT, Service klassen, Challenge interface
-Architektur und Implementierung, Aufbau, Klassen, Programmablauf
 \input{./parts/architecture_implementation/requirements.tex}
 \input{./parts/architecture_implementation/architecture.tex}
