@@ -21,7 +21,7 @@ Das parallelisierte Verfahren wird zuerst in der \emph{Mountain Car} Umgebung ge
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./img/mountain_car_analysis/1413_time_10cores_10pis.pdf} 
-	\caption{Ausführungszeit des \emph{Mountain Car} Problems auf 10 \emph{Raspberry Pis} mit 10 Prozessen}
+	\caption{Ausführungszeit des \emph{Mountain Car} Problems auf 10 Raspberry Pis mit 10 Prozessen}
 	\label{fig:mountain_car_time_10cores_10pi}
 \end{figure}
 \\\\
@@ -66,7 +66,7 @@ In diesem Kapitel wird die \emph{Pendulum} Umgebung mit dem parallelisierten Ver
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./img/pendulum_analysis/pendulum_time_1_10core_10pi.pdf} 
-	\caption{Ausführungszeit des \emph{Pendulum} Problems auf 10 \emph{Raspberry Pis} mit 10 Prozessen}
+	\caption{Ausführungszeit des \emph{Pendulum} Problems auf 10 Raspberry Pis mit 10 Prozessen}
 	\label{fig:pendulum_time_10cores_10pi}
 \end{figure}
 \\\\
@@ -107,7 +107,7 @@ Die bisherigen Testdurchläufe nutzen maximal zehn Prozesse gleichzeitig, und zw
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./img/mountain_car_analysis/1413_time_40core_10pi.pdf} 
-	\caption{Ausführungszeit des \emph{Moutain Car} Problems auf 10 \emph{Raspberry Pis} mit 40 Prozessen}
+	\caption{Ausführungszeit des \emph{Moutain Car} Problems auf 10 Raspberry Pis mit 40 Prozessen}
 	\label{fig:mountain_car_time_40core_10pi}
 \end{figure}
 \\\\
@@ -115,7 +115,7 @@ Um die Performance von diesem Szenario zu testen, werden die \emph{Mountain Car}
 \\\\
 Für den Leistungseinbruch können verschiedene Faktoren ursächlich sein. Offensichtlich ist, dass an einer Stelle des Systems ein Ressourcenengpass entsteht. Um den Grund hierfür zu lokalisieren, werden verschiedene Tests durchgeführt, auf deren Ergebnisse im Folgenden eingegangen wird. Zuerst wird der \emph{Master} Prozess untersucht. Dieser muss die Arbeitspakete mit einer geringen Latenz verteilen, sodass die \emph{Slaves} geringe Wartezeiten haben. Aufgrund der hohen Anzahl an Prozessen ist dies unter Umständen nicht gewährleistet. Um diese These zu prüfen, wird das Optimierungsproblem angepasst. Jeder Agent muss bei der Evaluierung dieselbe Umgebung zehnmal absolvieren. Dies ändert nicht das Ergebnis, erhöht aber die Ausführungszeit stark. Zwar ist die hierbei entstehende Last auf den \emph{Master} unverändert, sie wird jedoch über eine größere Zeitspanne verteilt. Falls beim Master Prozess der Ressourcenengpass auftritt, müsste durch diese Maßnahme eine Steigerung der Effizienz erkennbar sein. Dies ist jedoch nicht der Fall. Die Ergebnisse zeigen nur eine geringfügige Steigerung. Daher kann der \emph{Master} Prozess als Engpass der Implementierung ausgeschlossen werden. 
 \\\\
-Als nächstes wird die Hard- bzw. Software des Beowulf Clusters überprüft, wobei der nächste Test verifiziert, ob der Ressourcenengpass bei den einzelnen \emph{Nodes} entsteht. Hierzu werden neun Prozesse auf drei Raspberry Pis ausgeführt, wobei auf einem Gerät der \emph{Master} Prozess und auf den anderen jeweils vier \emph{Slave} Prozesse gestartet werden. Mit dieser Konfiguration beträgt die Ausführungszeit des Verfahrens fast $20$ Minuten und ein \emph{SpeedUp} von $5.3$ wird erzielt. Der Anteil der \emph{Evaluation Time} beträgt hierbei $17.7$ Minuten. Diese Werte sind im Vergleich zum Durchlauf auf neun Raspberry Pis substanziell schlechter. Trotz derselben Anzahl an Prozessen ist die benötigte Ausführungszeit für das gesamte Verfahren um $28\%$ höher und somit um $4.4$ Minuten langsamer. Bei der Pendulum Umgebung treten ähnliche Ergebnisse auf. Daraus lässt sich folgern, dass mehrere Prozesse auf demselben Raspberry Pi sich teilweise gegenseitig blockieren und dadurch eine längere Ausführungszeit entsteht. 
+Als nächstes wird die Hard- bzw. Software des Beowulf-Clusters überprüft, wobei der nächste Test verifiziert, ob der Ressourcenengpass bei den einzelnen \emph{Nodes} entsteht. Hierzu werden neun Prozesse auf drei Raspberry Pis ausgeführt, wobei auf einem Gerät der \emph{Master} Prozess und auf den anderen jeweils vier \emph{Slave} Prozesse gestartet werden. Mit dieser Konfiguration beträgt die Ausführungszeit des Verfahrens fast $20$ Minuten und ein \emph{SpeedUp} von $5.3$ wird erzielt. Der Anteil der \emph{Evaluation Time} beträgt hierbei $17.7$ Minuten. Diese Werte sind im Vergleich zum Durchlauf auf neun Raspberry Pis substanziell schlechter. Trotz derselben Anzahl an Prozessen ist die benötigte Ausführungszeit für das gesamte Verfahren um $28\%$ höher und somit um $4.4$ Minuten langsamer. Bei der Pendulum Umgebung treten ähnliche Ergebnisse auf. Daraus lässt sich folgern, dass mehrere Prozesse auf demselben Raspberry Pi sich teilweise gegenseitig blockieren und dadurch eine längere Ausführungszeit entsteht. 
 \\\\
 Zuletzt ist festzustellen, durch welche Komponenten des Algorithmus die Verzögerung entsteht. In einem ersten Schritt wird eine Umgebung des OpenAI Gyms untersucht. Abbildung \ref{fig:test_bottleneck} zeigt den erstellten Test. Es wird zuerst die \emph{Pendulum} Umgebung initialisiert und danach $160.000$ Zufallsaktionen ausgeführt. Die hierfür benötigte Zeit wird gemessen und am Ende dargestellt. Der Test wird zunächst mit einem Prozess ausgeführt, dabei wird eine Laufzeit von $75.6$ Sekunden gemessen. Danach wird der Test mit vier Prozessen auf einem Raspberry Pi wiederholt. Der zu leistende Rechenaufwand wird in diesem Fall nicht geteilt. Daher sollte jeder Prozess $160.000$ Zufallsaktionen in einer lokalen Umgebung ausführen und dafür dieselbe Zeit benötigten. Allerdings zeigen die Messergebnisse einen Anstieg von $27\%$ auf $95.5$ Sekunden. Ein vergleichbarer Test wird mit einem \ac{KNN} durchgeführt. Mit einem Prozess werden hierfür $73$ Sekunden benötigt. Beim der Ausführung mit vier Prozessen steigt die Laufzeit um ungefähr $9.5\%$ auf 80 Sekunden an. Da in den letzten beiden Tests keine Nachrichten ausgetauscht werden, ist zu schlussfolgern, dass die zuvor festgestellten Leistungseinbrüche mit $40$ Prozessen nicht durch einen zu großen Kommunikationsaufwand, sondern vor allem durch die verwendeten Optimierungsprobleme entstehen. 
 \begin{figure}
