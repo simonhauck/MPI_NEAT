@@ -1,16 +1,16 @@
 % !TeX spellcheck = de_DE
 \section{NeuroEvolution of Augmenting Topologies}
 \label{sec:neat}
-Der in dieser Arbeit verwendete Algorithmus heißt \ac{NEAT}, welcher im Jahr 2002 von \citeauthor{stanley2002evolving} vorgestellt wurde. Bei der Veröffentlichung hat \ac{NEAT} für die meisten Optimierungsprobleme im Vergleich zu anderen Verfahren schneller Lösungen gefunden, obwohl es neben den Gewichten des \ac{KNN} auch die Struktur optimiert \cite{stanley2002evolving}. Somit gehört der Algorithmus zur Gruppe der \ac{TWEANN} Verfahren. Heute gilt \ac{NEAT} immer noch als einer der bekanntesten Vertretern der neuroevolutionären Algorithmen und dient als Basis für viele Erweiterungen wie zum Beispiel HyperNEAT \cite{stanley2009hyperneat}.
+Der in dieser Arbeit verwendete Algorithmus ist mit \ac{NEAT} bezeichnet und 2002 erstmals von \citeauthor{stanley2002evolving} vorgestellt worden. Zum Zeitpunkt der Veröffentlichung hat \ac{NEAT} für die meisten Optimierungsprobleme im Vergleich zu anderen Verfahren schneller Lösungen gefunden, obwohl es neben den Gewichten des \ac{KNN} auch die Struktur optimiert \cite{stanley2002evolving}. Dementsprechend gehört der Algorithmus zur Gruppe der \ac{TWEANN} Verfahren. Heute gilt \ac{NEAT} nach wie vor als einer der bekanntesten Vertreter der neuroevolutionären Algorithmen und dient als Basis für viele Erweiterungen wie zum Beispiel HyperNEAT \cite{stanley2009hyperneat}.
 Für den großen Erfolg von \ac{NEAT} sind drei Eigenschaften besonders relevant \cite{stanley2002evolving}:
 \begin{enumerate}
 	\item Erfolgreiche Reproduktion trotz verschiedener Strukturen
 	\item Schützen von neuen Innovationen durch verschiedene Spezies
 	\item Wachsen einer minimalen Struktur
 \end{enumerate}
-In diesem Kapitel wird die grundsätzliche Funktionsweise von \ac{NEAT} erläutert, wie sie in der originalen Publikation vorgestellt ist. Wenn nicht anderweitig gekennzeichnet, beziehen sich alle Informationen aus diesem Kapitel auf Quelle \cite{stanley2002evolving}. Für eine bessere Lesbarkeit wird in diesem Kapitel auf weitere Zitierungen verzichtet.
+In diesem Kapitel wird die grundsätzliche Funktionsweise von \ac{NEAT} erläutert, wie sie in der originalen Publikation vorgestellt ist. Wenn nicht anderweitig gekennzeichnet, beziehen sich alle Informationen aus diesem Kapitel auf Quelle \cite{stanley2002evolving}. Für eine bessere Lesbarkeit wird in diesem Kapitel auf weiteres zitieren verzichtet.
 \subsection{Kodierung}
-\label{subsec:neat_encoding} % TODO ABBILDUNG
+\label{subsec:neat_encoding}
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width=1\textwidth]{./img/neat_genome_encoding.pdf} 
