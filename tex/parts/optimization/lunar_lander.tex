@@ -1,5 +1,6 @@
 % !TeX spellcheck = de_DE
 \section{Lunar Lander}
+\label{sec:lunar_lander}
 Die vorherigen Kapitel beschreiben die Ergebnisse des parallelisierten Verfahrens. Mit $40$ Prozessen wird ein \emph{SpeedUp} für die \emph{EvaluationTime} von $26.7$ und $29.6$ gemessen. Allerdings erfüllen die in diesen Umgebungen optimierten \ac{KNN} nicht die Eigenschaft der Generalisierung. Jedes \ac{KNN} beginnt die Evaluation immer in derselben Startposition und erzielt mit dieser gute Optimierungsergebnisse. Wenn diese \ac{KNN} in einer Umgebung mit einer abweichenden Startposition starten, besteht eine hohe Wahrscheinlichkeit, dass nicht das gewünschte Ergebnis erreicht wird. Bei der durchgeführten Analyse wird keine generelle Lösung für alle Startpositionen benötigt. Diese wäre zudem aufgrund der hohen Trainingszeiten ungeeignet. In diesem Kapitel wird ein letztes Optimierungsproblem aus dem OpenAI Gym mit dem Namen \emph{Lunar Lander} vorgestellt. Dieses Beispiel zeigt, wie eine generelle Lösung für alle Startsituation entwickelt werden kann und die hierfür benötigten Laufzeiten. 
 Das Verfahren wird ausschließlich mit dem parallelisierten Algorithmus durchgeführt. Mit den zuvor gemessenen \emph{SpeedUp} Werten kann jedoch auf die Laufzeit des sequenziellen Verfahrens geschlossen werden.
 \begin{figure}[!h]
