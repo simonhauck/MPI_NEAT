@@ -50,7 +50,7 @@ Prinzipiell kann das Verfahren ab diesem Punkt evaluiert werden, allerdings vari
 Mit der vorgestellten Konfiguration wird das Optimierungsproblem durchgeführt. Die Ergebnisse sind in Abbildung \ref{fig:mountain_car_1core_neural_network_and_fitness} und \ref{fig:mountain_car_time_single_core} dargestellt. Das \ac{KNN} links in Abbildung \ref{fig:mountain_car_1core_neural_network_and_fitness} enthält vier \emph{Hidden}-Neuronen. Zusätzlich sind sowohl zyklische als auch deaktivierte Verbindungen enthalten. In der Abbildung rechts ist der maximale Fitnesswert dargestellt. Innerhalb der ersten $10$ Generationen steigt dieser schnell auf $7888$ an, da der Agent $113$ Zeitschritte zum Lösen gebraucht hat. Da für das erfolgreiche Lösen nicht mehr als $110$ Zeitschritte genutzt werden dürfen, versucht der Algorithmus eine bessere Lösung zu finden. Allerdings stagniert der Fortschritt bis Generation $78$, in der eine bessere Lösung gefunden wird, welche die Abbruchbedingung erfüllt. Abbildung \ref{fig:mountain_car_time_single_core} zeigt die benötigte Ausführungszeit für diesen Versuch. Insgesamt wurden ungefähr $105$ Minuten für das Trainingsverfahren benötigt. Aus der Abbildung ist erkennbar, dass diese Zeit maßgeblich durch die \emph{Evaluation Time} bestimmt ist. Insgesamt wurden $98\%$ der Ausführungszeit für die Evaluation der Agenten verwendet. Die restlichen zwei Prozent teilen sich die \emph{Compose Offspring Time} und \emph{Reproduction Time}. Letztere hat mit insgesamt ca. $9$ Sekunden die geringste Ausführungszeit benötigt. Für die Rekombination und Mutation von Agenten wurden insgesamt $113$ Sekunden verwendet. Bezüglich der gesamten Ausführungszeit ist festzustellen, dass diese für jede Generation tendenziell ansteigt, auch wenn es einzelne Spitzen oder Einbrüche gibt. Hierfür kann es verschiedene Gründe geben. Die Ausführungszeit wird einerseits von der Größe der \ac{KNN} beeinflusst, welche im Laufe des Verfahrens größer werden. Die Einbrüche in der Ausführungszeit können beispielsweise entstehen, wenn die Agenten großteils das Ziel früh erreichen und somit weniger Zeitschritte simuliert werden müssen. Alternativ kann die Ausführungszeit sinken, wenn große \ac{KNN} schlechte Fitnesswerte erzielt haben und daher nicht für die Reproduktion ausgewählt werden.  
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width=0.7\textwidth]{./img/mountain_car_single/1413_time_1core_1pi.pdf} 
+	\includegraphics[width=0.9\textwidth]{./img/mountain_car_single/1413_time_1core_1pi.pdf} 
 	\caption{Ausführungszeiten des \emph{MountainCar} Problems auf einem Raspberry Pi 4 mit einem Prozess}
 	\label{fig:mountain_car_time_single_core}
 \end{figure}
@@ -74,16 +74,14 @@ Die letzte Umgebung, welche im Rahmen der Analyse betrachtet wird, ist das \emph
 	\begin{minipage}[]{0.49\textwidth}
 		\includegraphics[width=1.0\textwidth]{./img/pendulum_single_core/pendulum_1_fitness_values.pdf} 
 	\end{minipage}
-	\caption{Links die Lösung für das Pendulum Problem, rechts die dazugehörigen Fitnesswerte pro Generation}
+	\caption{Links die Lösung für das \emph{Pendulum} Problem, rechts die dazugehörigen Fitnesswerte pro Generation}
 	\label{fig:pendulum_car_1core_neural_network_and_fitness}
 \end{figure}
-\\\\
 Das Verfahren wird mit der spezifizierten Konfiguration durchgeführt, die erhaltenen Ergebnisse sind in Abbildung \ref{fig:pendulum_car_1core_neural_network_and_fitness} und \ref{fig:pendulum_1core_1pi_time} dargestellt. Insgesamt hat der Algorithmus 55 Generationen evaluiert und einen finalen Fitnesswert von ca. $-120$ erreicht. Mit dem dargestellten \ac{KNN} hat der Agent in der letzten Evaluation das Pendel beim ersten Versuch aufgerichtet und während der restlichen Simulation ausbalanciert. Bezüglich der Fitnesswerte zu erkennen, dass der Agent zwar immer wieder Fortschritte erzielt, aber auch einige Generationen lang stagniert. Dies ist ähnlich zu den vorherigen Beispielen. Die Ausführungszeiten hingegen haben sich etwas geändert. Insgesamt hat die Evaluation $125.8$ Minuten gedauert. Wie zuvor beim \emph{MountainCar} Problem ist die Ausführungszeit während des Verfahrens insgesamt gestiegen. Im Gegensatz zum vorherigen Beispiel erfolgt der Zuwachs stetig und es entstehen keine großen Schwankungen der Laufzeit. Ein Grund hierfür ist, dass unabhängig der Leistung eines Agenten in der Evaluation immer $200$ Zeitschritte ausgeführt werden. Die Evaluation wird nicht durch eine Fehlentscheidung oder dem erreichen eines Ziels vorzeitig beendet. Mit insgesamt $91\%$ Anteil hat die \emph{Evaluation Time} den größten Einfluss auf die Ausführungszeit. Die \emph{Compose Offspring Time} hat bei diesem Durchlauf insgesamt $180$ Sekunden und damit nur etwa $2\%$ der Ausführungszeit benötigt. Die restlichen $7\%$ werden für die \emph{Reproduction Time} genutzt, welche insgesamt ungefähr $574$ Sekunden angedauert hat. Der Grund hierfür ist, dass durch die veränderte Kompatibilitätsfunktion bedeutend mehr Spezies entstanden sind. Die Folge ist, dass für das Zuweisen von Nachkommen für jede Spezies und vor allem für das Sortieren der Agenten in diese bedeutend mehr Rechenaufwand entsteht. 
-
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width=0.7\textwidth]{./img/pendulum_single_core/pendulum_1_1core_1pi_time.pdf} 
-	\caption{Ausführungszeiten des Pendulum Problems auf einem Raspberry Pi 4 mit einem Prozess}
+	\includegraphics[width=0.9\textwidth]{./img/pendulum_single_core/pendulum_1_1core_1pi_time.pdf} 
+	\caption{Ausführungszeiten des \emph{Pendulum} Problems auf einem Raspberry Pi 4 mit einem Prozess}
 	\label{fig:pendulum_1core_1pi_time}
 \end{figure}
 
