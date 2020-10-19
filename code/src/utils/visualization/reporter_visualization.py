@@ -6,6 +6,11 @@ from utils.reporter.fitness_reporter import FitnessReporterData
 from utils.reporter.species_reporter import SpeciesReporterData
 from utils.reporter.time_reporter import TimeReporterEntry
 
+font = {'family': 'normal',
+        'size': 13}
+
+plt.rc('font', **font)
+
 
 def plot_fitness_reporter(data: FitnessReporterData, plot: bool = False) -> None:
     """
@@ -22,6 +27,8 @@ def plot_fitness_reporter(data: FitnessReporterData, plot: bool = False) -> None
     plt.plot(data.generations, data.mean_values, label="mean")
     plt.plot(data.generations, data.min_values, label="min")
     plt.legend()
+
+    plt.gca().locator_params(nbins=11)
 
     if plot:
         plt.show()
@@ -77,9 +84,12 @@ def plot_time_reporter(data: List[TimeReporterEntry], plot: bool = False) -> Non
     bar2 = plt.bar(generations, reproduction_times, bottom=evaluation_times)
     bar3 = plt.bar(generations, compose_offspring_times, bottom=bottom_compose_offspring_times)
 
+    plt.title("Execution Time")
     plt.ylabel("Time (s)")
     plt.xlabel("Generations")
     plt.legend((bar1[0], bar2[0], bar3[0]), ('Evaluation Time', 'Reproduction Time', 'Compose Offspring Time'))
+
+    plt.gca().locator_params(nbins=11)
 
     if plot:
         plt.show()
