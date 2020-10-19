@@ -59,22 +59,19 @@ class LunarLanderOptimizer(BaseExample):
                             weight_mutation_normal_sigma=0.5,
                             connection_initial_min_weight=-1,
                             connection_initial_max_weight=1,
-                            connection_min_weight=-15,
-                            connection_max_weight=15,
+                            connection_min_weight=-5,
+                            connection_max_weight=5,
                             bias_mutation_type="normal",
                             bias_mutation_normal_sigma=0.5,
                             bias_initial_min=-1,
                             bias_initial_max=1,
-                            bias_min=-15,
-                            bias_max=15,
+                            bias_min=-5,
+                            bias_max=5,
                             compatibility_factor_disjoint_genes=1.0,
                             compatibility_factor_matching_genes=3.0,
                             probability_mutate_add_connection=0.5,
                             probability_mutate_add_node=0.2,
                             compatibility_genome_size_threshold=0)
-
-        # Progressbar size
-        self.progressbar_max = config.population_size
 
         # Create random seed, if none is specified
         if seed is None:
