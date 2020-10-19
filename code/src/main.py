@@ -118,6 +118,9 @@ if __name__ == '__main__':
             optimizer = NeatOptimizerSingleCore()
         elif optimizer_type == "mpi":
             optimizer = NeatOptimizerMPI()
+        else:
+            logger.info("Invalid Optimizer, Canceling")
+            exit(-1)
 
         # Run challenge
         func = challenge_dict[challenge]
