@@ -1,5 +1,5 @@
 # Install MPI_NEAT
-This project and all performance evaluation were done on multiple Raspberry Pis 4 with 4GB Ram each.
+This project and all performance evaluation were done on multiple Raspberry Pi 4s with 4GB Ram each.
 This guide describes how to set up and run the given program code.
 
 ## Setup Raspberry Pi
@@ -17,7 +17,7 @@ sudo apt-get upgrade
 
 ### Create Python Environment
 This project is developed with the python version 3.7.3, other versions were not tested. Create a virtual environment 
-for this project.
+for this project with the following commands.
 ```shell script
 # Install pip && Virtual env package
 sudo apt-get install -y python3-pip python3-venv
@@ -32,8 +32,8 @@ source ./neat_mpi_env/bin/activate
 ```
 
 ### Generate asymmetric keys for authentication
-The nodes of the Beowulf Cluster will communicate using MPI, which requires SSH. To allow authentication without a password, an asymmetric key 
-must be generated and added to the 'authorized_keys' file.
+The nodes of the Beowulf Cluster will communicate using MPI, which requires SSH. To allow authentication without a password an asymmetric key 
+must be generated and added to the 'authorized_keys' file. With the following commands the SSH key is generated.
 ```shell script
 # Install openssh-server, the device does not contain it already
 sudo apt-get install -y openssh-server
@@ -42,8 +42,8 @@ ssh-keygen -t rsa
 ```
 After generating the key the .ssh directory should contain an 'id_rsa' and 'id_rsa.pub' file. It is possible to
 add the .pub key to the nodes 'authorized_keys' file manually. In this setup an different approach is used. The same 
-private key is used for every node. This simplifies the setup. Add the generated key to the 'authorized_keys'. 
-When the image is later be copied to all nodes, every node can connect every other.
+private key is used for every node. This simplifies the setup. Add the generated key to the 'authorized_keys' file of the same node. 
+When the image is later be copied to all nodes, every node can connect to every other node.
 ```shell script
 cd .ssh
 # Add public key to authorized_keys
@@ -66,7 +66,7 @@ The following section shows which software is required to run this project and h
 Pi.
 
 ### Install MPI & MPI4Py
-This project was developed with MPICH and the python library mpi4py. The steps to install these components is described 
+This project was developed with MPICH and the python library mpi4py. The steps to install these components are described 
 in the following section. 
 ```shell script
 sudo apt-get install -y mpich libopenmpi-dev
@@ -80,12 +80,12 @@ pip install mpi4py==3.0.3
 #Execute a python script with
 mpiexec -n NUMBER_OF_CORES python -m mpi4py PATH_TO_SCRIPT/mpi_hello_world.py
  ```
-To use multiple machines/nodes, you have to create a machinefile or also called hostfile. This file contains all the ip 
-addresses of the nodes. This repository contains this file already, which should be changed accord to your needs.
+To use multiple machines/nodes, you have to create a machinefile, also called hostfile. This file contains all the ip 
+addresses of the nodes. This repository contains this file already, which should be changed according to your needs.
 
-After that you can run your mpi code on all machines. One important note: If you use mpi4py in a virtual environment and 
+After that you can run your MPI code on all machines. One important note: If you use mpi4py in a virtual environment and 
 start the script with the python command as described above, the default python environment will be used on the nodes. 
-In this case, there are not the dependencies installed and the program will throw an error. That's why the program must 
+In this case, there are no dependencies installed and the program will throw an error. That's why the program must 
 be started with the complete path to the python environment!
 ```shell script
 #Execute a python script on multiple machines
@@ -93,7 +93,7 @@ mpiexec --hostfile PATH_TO_MACHINEFILE -n NUMBER_OF_CORES PATH_TO_VENV/mpi_test/
 ```
 
 ## Installation for Gym environments
-Some environments require the following packages
+Some example environments require the following packages
 ```shell script
 sudo apt-get install swig
 
@@ -102,7 +102,7 @@ pip install gym[box2d]
 
 ## Upload to Code to the Raspberry Pi and install the remaining dependencies
 Last, upload the code to the Raspberry Pi. Activate the created virtual environment and install the remaining 
-dependencies.
+dependencies with the following commands.
 ```shell script
 # Activate the virtual environment
 source ./neat_mpi_env/bin/activate
@@ -113,8 +113,8 @@ pip install -r requirements.txt
 After this step, create an .img file and flash it to all other nodes. To run the code/tests, follow the instructions
 in the Readme.md file. This image is called later base_image.
 
-⚠️ IMPORTANT ⚠️: If you use Pycharm, it can be required to run the tests and the code that you mark the 'src' folder as
-source. To to this, right click on the 'src' folder > Mark deployment as > Sources root
+⚠️ IMPORTANT ⚠️: If you use Pycharm, it can be required to mark the 'src' folder as source. To to this, right click on the 
+'src' folder > Mark deployment as > Sources root
 
 # Development
 For active development and testing, a few additional steps can be helpful. These are introduced in the following 
@@ -145,7 +145,7 @@ Create now an image and which is called image_master for the master node.
 
 ### Client node
 Import the saved raspberry pi base_image. And execute the following commands to install the NFS-Client. The client
-connects to the master with the ip 192.168.0.20 and imports the shared folder. You may have to change the up address.
+connects to the master with the ip 192.168.0.20 and imports the shared folder. You may have to change the ip address.
 ```shell script
 sudo apt-get install -y nfs-common
 
@@ -168,7 +168,7 @@ Reboot the system. After that, test the nfs by placing a file in the shared_fold
 in the client, everything works as intended. Create an image named image_slave and flash it on all nodes except the 
 master node.
 
-If it is not working after after the Raspberry Pi is booted, a bug can be the cause. The NFS is started before the 
+If it is not working after the Raspberry Pi is booted, a bug can be the cause. The NFS is started before the 
 network is ready. In this case you have to change the boot options on the Raspberry Pi, as shown in the following 
 snipped. Alternatively you can execute the "sudo mount -a" command as shown above on every device after every reboot.
 ```shell script
