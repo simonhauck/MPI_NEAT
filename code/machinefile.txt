@@ -7,5 +7,4 @@
 192.168.0.26 slots=4 max-slots=4
 192.168.0.27 slots=4 max-slots=4
 192.168.0.28 slots=4 max-slots=4
-192.168.0.29 slots=4 max-slots=4
 192.168.0.30 slots=4 max-slots=4

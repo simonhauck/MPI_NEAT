@@ -69,6 +69,12 @@ def draw_genome_graph(genome: Genome, draw_labels=True, plot: bool = False) -> N
     # nx.draw_net(graph, pos=node_positions, node_color=node_colors, connectionstyle='arc3, rad=0.1', with_labels=True)
     nx.draw_networkx_nodes(graph, pos=node_positions, node_color=node_colors, with_labels=True)
 
+    plt.title("Neural Network")
+    font = {'family': 'normal',
+            'size': 13}
+
+    plt.rc('font', **font)
+
     if plot:
         plt.show()
 
@@ -79,9 +85,9 @@ def _get_color_for_node_type(node_type: NodeType) -> str:
     :return: the color as hex value
     """
     colors = {
-        NodeType.INPUT: '#ff4105',
+        NodeType.INPUT: '#ff9c45',
         NodeType.HIDDEN: '#4ada76',
-        NodeType.OUTPUT: '#002fa7'
+        NodeType.OUTPUT: '#94bdff'
     }
     return colors[node_type]
 
