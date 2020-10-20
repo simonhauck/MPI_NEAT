@@ -26,7 +26,7 @@ class ChallengeMountainCar(Challenge):
         fitness_values = []
         max_x_values = []
 
-        amount_runs = 10
+        amount_runs = 1
 
         for _ in range(amount_runs):
             # Max episodes of environment, after which it terminates
@@ -71,10 +71,10 @@ class ChallengeMountainCar(Challenge):
             max_x_values.append(max_x_progress)
             solved_rounds.append(solved)
 
-        return sum(fitness_values) ** 2, {"solved": all(solved_rounds),
-                                          "max_x": max_x_values,
-                                          "fitness_values": fitness_values,
-                                          "solved_rounds": solved_rounds}
+        return fitness_values[0] ** 2, {"solved": all(solved_rounds),
+                                        "max_x": max_x_values,
+                                        "fitness_values": fitness_values,
+                                        "solved_rounds": solved_rounds}
 
     def clean_up(self, **kwargs):
         self.env.close()

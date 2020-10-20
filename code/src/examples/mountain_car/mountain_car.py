@@ -7,7 +7,7 @@ from loguru import logger
 
 from examples.BaseExample import BaseExample
 from examples.mountain_car.mountain_car_challenge import ChallengeMountainCar
-from neat_core.activation_function import modified_sigmoid_activation
+from neat_core.activation_function import relu_activation
 from neat_core.models.generation import Generation
 from neat_core.models.genome import Genome
 from neat_core.optimizer.neat_config import NeatConfig
@@ -32,7 +32,6 @@ class MountainCarOptimizer(BaseExample):
         self.challenge = None
 
         self.start_time_generation = None
-        self.solved_since = None
 
     def evaluate(self, optimizer: NeatOptimizer, seed: int = None, **kwargs):
         time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -74,7 +73,6 @@ class MountainCarOptimizer(BaseExample):
                             probability_mutate_add_node=0.2,
                             compatibility_genome_size_threshold=0)
 
-
         # Create random seed, if none is specified
         if seed is None:
             seed = np.random.RandomState().randint(2 ** 24)
@@ -86,7 +84,7 @@ class MountainCarOptimizer(BaseExample):
         # Start evaluation
         optimizer.evaluate(amount_input_nodes=2,
                            amount_output_nodes=3,
-                           activation_function=modified_sigmoid_activation,
+                           activation_function=relu_activation,
                            challenge=self.challenge,
                            config=config,
                            seed=seed)
@@ -120,21 +118,7 @@ class MountainCarOptimizer(BaseExample):
 
     def finish_evaluation(self, generation: Generation) -> bool:
         best_agent = fitness_evaluation_utils.get_best_agent(generation.agents)
-
-        # if best_agent.additional_info["solved"]:
-        #     if self.solved_since is None:
-        #         self.solved_since = generation.number
-        #
-        #     return self.solved_since + 100 <= generation.number
-        #
-        # else:
-        #     self.solved_since = None
-        #     return False
-
         return best_agent.additional_info["solved"]
-        # return generation.number >= 2
-        # return best_agent.fitness >= 90 ** 2
-        # return best_agent.fitness >= (90 * 10) ** 2
 
     def visualize_genome(self, genome: Genome, **kwargs) -> None:
         # Run best genome in endless loop
