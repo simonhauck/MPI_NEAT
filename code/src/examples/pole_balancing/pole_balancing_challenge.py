@@ -35,7 +35,7 @@ class PoleBalancingChallenge(Challenge):
         fitness_values = []
 
         max_episodes = 500
-        amount_runs = 10
+        amount_runs = 1
 
         for _ in range(amount_runs):
             self.before_evaluation()
