@@ -35,9 +35,9 @@ class TestGenomeGraph(TestCase):
         self.genome_recurrent = Genome(20, self.nodes_recurrent, self.connections_recurrent)
 
     def test_get_color_for_node_type(self):
-        self.assertEqual('#ff4105', _get_color_for_node_type(NodeType.INPUT))
+        self.assertEqual('#ff9c45', _get_color_for_node_type(NodeType.INPUT))
         self.assertEqual('#4ada76', _get_color_for_node_type(NodeType.HIDDEN))
-        self.assertEqual('#002fa7', _get_color_for_node_type(NodeType.OUTPUT))
+        self.assertEqual('#94bdff', _get_color_for_node_type(NodeType.OUTPUT))
 
     def test_sort_nodes_in_layers(self):
         sorted_nodes = _sort_nodes_in_layers(self.genome_recurrent)
