@@ -1,5 +1,5 @@
-from mpi4py import MPI
 from loguru import logger
+from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -10,7 +10,7 @@ name = MPI.Get_processor_name()
 
 
 def shout_amount(number: int):
-    logger.info("Shouting: " + str(number))
+    logger.info("Rank {} on {} shouting: {}", rank, name, number)
 
 
 def send_to_next(destination: int, data: int):
