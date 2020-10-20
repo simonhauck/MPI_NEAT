@@ -10,8 +10,8 @@ follow the instructions in the INSTALL.md file.
 
 ## How to run this project
 In my thesis I used a cluster of 10 Raspberry Pi 4s to execute the program code. But it is also possible to use a single 
-machine with multiple cores. This implementation has in contrast to the standard python interpreter the advantage, that 
-the complete CPU can be utilized. 
+machine with multiple cores. This implementation with MPI has in contrast to the standard python interpreter the advantage, 
+that the complete CPU can be utilized. 
 
 ### Unit Tests
 Before you execute the project you can check with the unit test that everything works as intended. To run all tests run the 
@@ -36,7 +36,7 @@ mpiexec -n 4 python -m mpi4py code/src/mpi_tutorial/mpi_hello_world.py
 The parameter "-n" indicates the amount of processes to be used. In this example four processes are used and they are all
 started on the same machine. To utilize the complete cluster a machinefile or hostfile is required, where the ip addresses
 of all nodes are specified. This project contains already a machine file which must be modified. To execute the the 
-hello world program use the following command
+hello world program on the complete cluster use the following command
 ```shell script
 mpiexec --machinefile code/machinefile.txt -n 40 $HOME/venv/neat_mpi_env/bin/python3 -m mpi4py code/src/mpi_tutorial/mpi_hello_world.py
 ```
@@ -55,12 +55,49 @@ python code/src/main.py xor -s 1
 ```
 The parameter "-s" indicates the seed for the environment. With the same seed, the same results are generated. To run
 the same example with the MPI implementation, use the following command. Note that the current directory must be the 
-"src" folder.
+"src" folder. The parameter "-o" specifies in this case the mpi implementation indicates that the MPI implementation should be used.
+The remaining components with the machinefile are identically to the other examples 
 ```shell script
 mpiexec --machinefile ../machinefile.txt -n 40 $HOME/venv/neat_mpi_env/bin/python3 -m mpi4py.futures main.py xor -s 1 -o mpi
 ```
+The xor optimization problem is very simple and can be trained in a few seconds. Some more complex alternatives are the 
+mountain car, pendulum, pole balancing and lunar lander challenge. To start these environments use the following commands.
+```shell script
+# Mountain Car
+mpiexec --machinefile ../machinefile.txt -n 1 $HOME/venv/neat_mpi_env/bin/python3 -m mpi4py.futures main.py mountain_car -s 1413 -o mpi
 
+# Pendulum
+mpiexec --machinefile ../machinefile.txt -n 1 $HOME/venv/neat_mpi_env/bin/python3 -m mpi4py.futures main.py pendulum -s 1 -o mpi
 
+# Lunar Lander
+mpiexec --machinefile ../machinefile.txt -n 40 $HOME/venv/neat_mpi_env/bin/python3 -m mpi4py.futures main.py lunar_lander -s 1 -o mpi
+
+# Pole balancing
+mpiexec --machinefile ../machinefile.txt -n 40 $HOME/venv/neat_mpi_env/bin/python3 -m mpi4py.futures main.py pole_balancing -s 1 -o mpi
+```
+All examples train a model and save it as file in the /tmp directory. The file contains the measured executions time as 
+well as the fitness values and the final genome. These can be loaded and visualized in the next section.
+
+## Visualize the results
+The stored .data files can be visualized with a second script. This does not involve MPI and can be done with a normal 
+python command. Some stored example results are in the trained models folder and can be loaded and visualized. To do this
+use the following commands.
+```shell script
+# Mountain Car
+python visualize.py mountain_car ../trained_models/mountain_car/1413_40cores_10pi/mountain_car_finish78.data
+
+# Lunar Lander
+python visualize.py lunar_lander ../trained_models/lunar_lander/general_10run_40cores_10devices/lunar_landerfinish128.data
+
+# Pendulum
+python visualize.py pendulum ../trained_models/pendulum/pendulum_1_40core_10pi/pendulumfinish54.data
+```
+The visualize script does not only show the environment, it shows also the required time, fitness values and the amount
+of species. For the mountain car and pendulum environment there are multiple runs with different amount of processes.
+The result of these runs is the same, but the execution time varies widely and is the base for the analysis and optimization
+of the algorithm. More on this later :)
+
+For training a new environment you can take the xor problem as a base example and create your own custom problem.
 
 ## Run Code
 ```shell script
