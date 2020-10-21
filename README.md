@@ -109,7 +109,32 @@ The Reproduction Time measures the remaining components of NEAT, like sorting th
 The measured times are displayed in the following graphs.
 <p align="center">
     <img src="img/1413_time_1core_1pi/1413_time_1core_1pi-1.png">
+    <img src="img/pendulum_1_1core_1pi_time/pendulum_1_1core_1pi_time-1.png">
 </p>
+
+It is obvious that the EvaluationTime is in both examples the biggest factor regarding the execution time. So this part will
+be parallelized mit MPI. I choose a Master-Slave architecture for the communication. So with 10 Raspberry Pis i have one master,
+which coordinates the communication and 9 slaves which perform the evaluation of the genomes in the optimization problem.
+After implementing the MPI algorithm the same tests are performed with the same seed. The sequential as well as the parallel 
+algorithm create exact the same solution and therefore the execution time can be compared easily. The measured execution
+time with 10 processes, one on each Raspberry Pi is shown in the following diagram.
+<p align="center">
+    <img src="img/1413_time_10cores_10pis/1413_time_10cores_10pis-1.png">
+    <img src="img/pendulum_time_1_10core_10pi/pendulum_time_1_10core_10pi-1.png">
+</p>
+Compared to the first diagram is the execution time is now significantly lower/faster. Instead of 105 minutes the MPI 
+implementation requires now only 14 Minutes. This equals a SpeedUp from 7.6 for the execution time. If only the parallelized
+execution time is considered, the SpeedUp equals 8.7. When only the slaves are considered this equals an efficiency of 97%.
+
+
+It is also obvious, that the Reproduction and Compose Offspring Time have now a much larger impact on the execution time because
+they run still sequential and therefore the execution time is the same.
+
+
+## Future improvements
+
+
+
 
 ## Run Code
 ```shell script
