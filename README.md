@@ -55,13 +55,13 @@ python code/src/main.py xor -s 1
 ```
 The parameter "-s" indicates the seed for the environment. With the same seed, the same results are generated. To run
 the same example with the MPI implementation, use the following command. Note that the current directory must be the 
-"src" folder. The parameter "-o" specifies in this case the mpi implementation indicates that the MPI implementation should be used.
+"src" folder. The parameter "-o" specifies in this case  that the MPI implementation should be used.
 The remaining components with the machinefile are identically to the other examples 
 ```shell script
 mpiexec --machinefile ../machinefile.txt -n 40 $HOME/venv/neat_mpi_env/bin/python3 -m mpi4py.futures main.py xor -s 1 -o mpi
 ```
 The xor optimization problem is very simple and can be trained in a few seconds. Some more complex alternatives are the 
-mountain car, pendulum, pole balancing and lunar lander challenge. To start these environments use the following commands.
+mountain car, pendulum, pole balancing and lunar lander challenge of the OpenAI Gym. To start these environments use the following commands.
 ```shell script
 # Mountain Car
 mpiexec --machinefile ../machinefile.txt -n 1 $HOME/venv/neat_mpi_env/bin/python3 -m mpi4py.futures main.py mountain_car -s 1413 -o mpi
@@ -97,7 +97,19 @@ of species. For the mountain car and pendulum environment there are multiple run
 The result of these runs is the same, but the execution time varies widely and is the base for the analysis and optimization
 of the algorithm. More on this later :)
 
-For training a new environment you can take the xor problem as a base example and create your own custom problem.
+For training a new environment you can take the xor problem as a base example and create your own custom problem. With 
+the given interfaces it is very simple to create a new optimization problem customized to your specific needs.
+
+## Performance Analysis and Results
+As part of my thesis I created a sequential implementation of NEAT and analyzed the required time to optimize the examples.
+The pole balancing and xor problem were to easy for NEAT and are therefore not used. I divided the execution in three categories,
+the Evaluation Time, Reproduction Time and ComposeOffSpring Time. The EvaluationTime is the time to evaluate a genome in 
+the optimization problem. The Compose OffSpring Time measures the required time for the reproduction and mutation of the genomes.
+The Reproduction Time measures the remaining components of NEAT, like sorting the genomes into species or selecting the parent genomes.
+The measured times are displayed in the following graphs.
+<p align="center">
+    <embed src="https://github.com/simonhauck/MPI_NEAT/blob/master/tex/img/mountain_car_single/1413_time_1core_1pi.pdf">
+</p>
 
 ## Run Code
 ```shell script
