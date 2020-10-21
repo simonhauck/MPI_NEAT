@@ -108,8 +108,8 @@ the optimization problem. The Compose OffSpring Time measures the required time 
 The Reproduction Time measures the remaining components of NEAT, like sorting the genomes into species or selecting the parent genomes.
 The measured times are displayed in the following graphs.
 <p align="center">
-    <img src="img/1413_time_1core_1pi/1413_time_1core_1pi-1.png">
-    <img src="img/pendulum_1_1core_1pi_time/pendulum_1_1core_1pi_time-1.png">
+    <img src="img/1413_time_1core_1pi/1413_time_1core_1pi-1.png", width=49%>
+    <img src="img/pendulum_1_1core_1pi_time/pendulum_1_1core_1pi_time-1.png", width=49%>
 </p>
 
 It is obvious that the EvaluationTime is in both examples the biggest factor regarding the execution time. So this part will
@@ -119,8 +119,8 @@ After implementing the MPI algorithm the same tests are performed with the same 
 algorithm create exact the same solution and therefore the execution time can be compared easily. The measured execution
 time with 10 processes, one on each Raspberry Pi is shown in the following diagram.
 <p align="center">
-    <img src="img/1413_time_10cores_10pis/1413_time_10cores_10pis-1.png">
-    <img src="img/pendulum_time_1_10core_10pi/pendulum_time_1_10core_10pi-1.png">
+    <img src="img/1413_time_10cores_10pis/1413_time_10cores_10pis-1.png", width=49%>
+    <img src="img/pendulum_time_1_10core_10pi/pendulum_time_1_10core_10pi-1.png", width=49%>
 </p>
 Compared to the first diagram is the execution time is now significantly lower/faster. Instead of 105 minutes the MPI 
 implementation requires now only 14 Minutes. This equals a SpeedUp from 7.6 for the execution time. If only the parallelized
