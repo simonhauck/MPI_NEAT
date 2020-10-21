@@ -170,4 +170,7 @@ As seen above, the sequential Reproduction and Compose Offspring Time are the li
 One of the next steps would be to parallelize these. With the given Master-Slave Architecture it is easy to extend
 the current implementation with new functions. One difficulty with this parallelization is that a part of the code has to be 
 processed sequentially. This limits the maximum achievable SpeedUp. Nonetheless for a good overall SpeedUp with many cores
-can this be very useful. A next step would be  
+this can be very useful. Another step would be to investigate why the bottleneck occurs, if multiple processes are on the same
+machine (despite having multiple cores). A last optimization would be to integrate frameworks like Tensorflow or PyTorch.
+Currently a custom neural network implementation is used, which is of course less efficient than these library. With the
+provided neural network interface it should be relatively easy to integrate these.  
