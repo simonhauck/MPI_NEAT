@@ -108,7 +108,7 @@ the optimization problem. The Compose OffSpring Time measures the required time 
 The Reproduction Time measures the remaining components of NEAT, like sorting the genomes into species or selecting the parent genomes.
 The measured times are displayed in the following graphs.
 <p align="center">
-    <embed src="https://github.com/simonhauck/MPI_NEAT/blob/master/tex/img/mountain_car_single/1413_time_1core_1pi.pdf">
+    <img src="img/1413_time_1core_1pi/1413_time_1core_1pi-1.png">
 </p>
 
 ## Run Code
