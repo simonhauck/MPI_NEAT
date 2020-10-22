@@ -144,7 +144,7 @@ the Reproduction and Compose OffSpring Time must be parallelized too. More in th
 Each Raspberry Pi 4 contains four cores. So it is possible, to run the same challenges with a total of forty processes.
 Unfortunately, the results obtained here do not correspond to the previous ones. It is still faster, but the SpeedUp for the
 EvaluationTime is only 26.7. Different test indicate, that multiple processes on the same machine hinder each other and
-that some sort of race conditions occur. This occurs among other this by using the OpenAI Gym regardless of the number 
+that some sort of race conditions occur. This occurs among other things by using the OpenAI Gym regardless of the number 
 of messages. Keep this in mind if you run multiple processes on the same machine.
 
 ## Lunar Lander
